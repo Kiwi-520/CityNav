@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Setup Complete - CityNav</title>
+    <link rel="stylesheet" href="../styles/design-tokens.css" />`n    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      .success-animation {
+        text-align: center;
+        margin: var(--spacing-xl) 0;
+      }
+
+      .success-icon {
+        width: 120px;
+        height: 120px;
+        background-color: var(--success-container);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto var(--spacing-lg);
+        animation: successPulse 2s ease-in-out infinite;
+      }
+
+      .success-icon .material-icons {
+        font-size: 64px;
+        color: var(--success);
+      }
+
+      @keyframes successPulse {
+        0%,
+        100% {
+          transform: scale(1);
+          box-shadow: 0 0 0 0 var(--success-container);
+        }
+        50% {
+          transform: scale(1.05);
+          box-shadow: 0 0 0 20px rgba(56, 142, 60, 0);
+        }
+      }
+
+      .setup-summary {
+        background-color: var(--surface-variant);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-lg);
+        margin: var(--spacing-xl) 0;
+      }
+
+      .summary-item {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-sm);
+      }
+
+      .summary-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .summary-item .material-icons {
+        color: var(--success);
+        font-size: var(--icon-size-small);
+      }
+
+      .next-steps {
+        margin-top: var(--spacing-xl);
+      }
+
+      .next-steps h3 {
+        margin-bottom: var(--spacing-md);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+      }
+
+      .next-steps .material-icons {
+        color: var(--primary);
+      }
+
+      .steps-list {
+        list-style: none;
+        padding: 0;
+      }
+
+      .steps-list li {
+        padding: var(--spacing-xs) 0;
+        color: var(--on-surface-variant);
+        position: relative;
+        padding-left: var(--spacing-lg);
+      }
+
+      .steps-list li::before {
+        content: counter(step-counter);
+        counter-increment: step-counter;
+        position: absolute;
+        left: 0;
+        top: var(--spacing-xs);
+        width: 20px;
+        height: 20px;
+        background-color: var(--primary);
+        color: var(--on-primary);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--label-small-size);
+        font-weight: var(--label-small-weight);
+      }
+
+      .steps-list {
+        counter-reset: step-counter;
+      }
+
+      .action-buttons {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+        margin-top: var(--spacing-xl);
+      }
+
+      .celebration-confetti {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+        z-index: 1000;
+      }
+
+      .confetti-piece {
+        position: absolute;
+        width: 10px;
+        height: 10px;
+        background-color: var(--primary);
+        animation: confetti-fall 3s ease-in-out forwards;
+      }
+
+      @keyframes confetti-fall {
+        0% {
+          transform: translateY(-100vh) rotate(0deg);
+          opacity: 1;
+        }
+        100% {
+          transform: translateY(100vh) rotate(360deg);
+          opacity: 0;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="citynav-bg">
+      <div class="citynav-card">
+        <div class="success-animation">
+          <div class="success-icon">
+            <span class="material-icons">check_circle</span>
+          </div>
+          <h1 class="display-large">Setup Complete!</h1>
+          <p class="body-large">
+            Welcome to CityNav! You're all set to explore your city safely and
+            confidently.
+          </p>
+        </div>
+
+        <div class="setup-summary">
+          <h3 class="headline-small">Your Setup Summary</h3>
+          <div class="summary-item">
+            <span class="material-icons">check</span>
+            <span class="body-medium">Location services enabled</span>
+          </div>
+          <div class="summary-item">
+            <span class="material-icons">check</span>
+            <span class="body-medium"
+              >City selected: <strong id="selectedCity">Pune</strong></span
+            >
+          </div>
+          <div class="summary-item">
+            <span class="material-icons">check</span>
+            <span class="body-medium"
+              >Essential maps downloaded for offline use</span
+            >
+          </div>
+          <div class="summary-item">
+            <span class="material-icons">check</span>
+            <span class="body-medium">Safety features activated</span>
+          </div>
+        </div>
+
+        <div class="next-steps">
+          <h3 class="headline-small">
+            <span class="material-icons">explore</span>
+            What's Next?
+          </h3>
+          <ol class="steps-list">
+            <li>
+              Explore the interactive map to discover essential places nearby
+            </li>
+            <li>Plan your first route using multiple transport options</li>
+            <li>Set up emergency contacts in the Safety Center</li>
+            <li>Customize your preferences and language settings</li>
+          </ol>
+        </div>
+
+        <div class="action-buttons">
+          <button
+            class="btn btn-primary btn-large"
+            onclick="window.location.href='home-dashboard.html'"
+          >
+            <span class="material-icons">home</span>
+            Go to Dashboard
+          </button>
+          <button
+            class="btn btn-secondary"
+            onclick="window.location.href='interactive-map.html'"
+          >
+            <span class="material-icons">map</span>
+            Explore Map First
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../scripts/design-system.js"></script>
+    <script>
+      class SetupComplete {
+        constructor() {
+          this.init();
+        }
+
+        init() {
+          this.updateSummary();
+          this.createConfetti();
+          this.playWelcomeSound();
+
+          // Mark setup as complete
+          localStorage.setItem("setupComplete", "true");
+          localStorage.setItem("setupCompletedAt", Date.now().toString());
+        }
+
+        updateSummary() {
+          // Update selected city in summary
+          const selectedCity = localStorage.getItem("selectedCity") || "Pune";
+          const cityElement = document.getElementById("selectedCity");
+          if (cityElement) {
+            cityElement.textContent = selectedCity;
+          }
+        }
+
+        createConfetti() {
+          const colors = [
+            "var(--primary)",
+            "var(--secondary)",
+            "var(--tertiary)",
+            "var(--success)",
+            "var(--warning)",
+          ];
+
+          const confettiContainer = document.createElement("div");
+          confettiContainer.className = "celebration-confetti";
+          document.body.appendChild(confettiContainer);
+
+          // Create confetti pieces
+          for (let i = 0; i < 50; i++) {
+            setTimeout(() => {
+              const confetti = document.createElement("div");
+              confetti.className = "confetti-piece";
+              confetti.style.left = Math.random() * 100 + "%";
+              confetti.style.backgroundColor =
+                colors[Math.floor(Math.random() * colors.length)];
+              confetti.style.animationDelay = Math.random() * 2 + "s";
+              confetti.style.animationDuration = Math.random() * 2 + 2 + "s";
+
+              confettiContainer.appendChild(confetti);
+
+              // Remove confetti piece after animation
+              setTimeout(() => {
+                confetti.remove();
+              }, 5000);
+            }, i * 50);
+          }
+
+          // Remove confetti container after all animations
+          setTimeout(() => {
+            confettiContainer.remove();
+          }, 10000);
+        }
+
+        playWelcomeSound() {
+          // Create a simple success sound using Web Audio API
+          if (
+            typeof AudioContext !== "undefined" ||
+            typeof webkitAudioContext !== "undefined"
+          ) {
+            try {
+              const AudioContextClass = AudioContext || webkitAudioContext;
+              const audioContext = new AudioContextClass();
+
+              // Create a simple melody
+              const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+
+              notes.forEach((frequency, index) => {
+                const oscillator = audioContext.createOscillator();
+                const gainNode = audioContext.createGain();
+
+                oscillator.connect(gainNode);
+                gainNode.connect(audioContext.destination);
+
+                oscillator.frequency.setValueAtTime(
+                  frequency,
+                  audioContext.currentTime
+                );
+                oscillator.type = "sine";
+
+                gainNode.gain.setValueAtTime(
+                  0.1,
+                  audioContext.currentTime + index * 0.2
+                );
+                gainNode.gain.exponentialRampToValueAtTime(
+                  0.01,
+                  audioContext.currentTime + index * 0.2 + 0.3
+                );
+
+                oscillator.start(audioContext.currentTime + index * 0.2);
+                oscillator.stop(audioContext.currentTime + index * 0.2 + 0.3);
+              });
+            } catch (error) {
+              console.log("Audio not supported:", error);
+            }
+          }
+        }
+
+        // Simulate offline map download progress
+        simulateMapDownload() {
+          // This would typically happen in the background during setup
+          const progress = document.createElement("div");
+          progress.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    right: 20px;
+                    background: white;
+                    padding: 16px;
+                    border-radius: 8px;
+                    box-shadow: var(--elevation-2);
+                    display: flex;
+                    align-items: center;
+                    gap: 12px;
+                    z-index: 1000;
+                `;
+
+          progress.innerHTML = `
+                    <span class="material-icons">download</span>
+                    <span>Downloading offline maps...</span>
+                    <div style="width: 100px; height: 4px; background: var(--outline-variant); border-radius: 2px;">
+                        <div id="progressBar" style="width: 0%; height: 100%; background: var(--primary); border-radius: 2px; transition: width 300ms ease;"></div>
+                    </div>
+                `;
+
+          document.body.appendChild(progress);
+
+          const progressBar = document.getElementById("progressBar");
+          let width = 0;
+
+          const interval = setInterval(() => {
+            width += Math.random() * 20;
+            if (width >= 100) {
+              width = 100;
+              clearInterval(interval);
+
+              setTimeout(() => {
+                progress.innerHTML = `
+                                <span class="material-icons" style="color: var(--success);">check_circle</span>
+                                <span>Offline maps ready!</span>
+                            `;
+
+                setTimeout(() => {
+                  progress.remove();
+                }, 2000);
+              }, 500);
+            }
+
+            progressBar.style.width = width + "%";
+          }, 200);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        const setup = new SetupComplete();
+
+        // Start map download simulation after a short delay
+        setTimeout(() => {
+          setup.simulateMapDownload();
+        }, 1000);
+      });
+    </script>
+  </body>
+</html>

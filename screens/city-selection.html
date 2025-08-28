@@ -1,0 +1,329 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>City Selection - CityNav</title>
+    <link rel="stylesheet" href="../styles/design-tokens.css" />`n    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      .detected-city {
+        text-align: center;
+        margin: var(--spacing-xl) 0;
+      }
+
+      .city-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        padding: var(--spacing-md) var(--spacing-lg);
+        border-radius: var(--radius-full);
+        background-color: var(--surface-variant);
+        color: var(--on-surface-variant);
+        margin-bottom: var(--spacing-md);
+        transition: all var(--duration-quick) ease;
+      }
+
+      .city-chip.detected {
+        background-color: var(--primary-container);
+        color: var(--primary);
+        box-shadow: var(--elevation-1);
+      }
+
+      .city-chip .check {
+        color: var(--success);
+      }
+
+      .change-city-link {
+        font-size: var(--label-medium-size);
+        color: var(--secondary);
+        text-decoration: none;
+        padding: var(--spacing-xs) var(--spacing-sm);
+        border-radius: var(--radius-sm);
+        transition: all var(--duration-quick) ease;
+      }
+
+      .change-city-link:hover {
+        color: var(--primary);
+        background-color: var(--primary-container);
+        text-decoration: underline;
+      }
+
+      .manual-selection {
+        margin-top: var(--spacing-xl);
+        opacity: 0.7;
+        transition: opacity var(--duration-medium) ease;
+      }
+
+      .manual-selection.active {
+        opacity: 1;
+      }
+
+      .city-suggestions {
+        margin-top: var(--spacing-sm);
+        border: 1px solid var(--outline-variant);
+        border-radius: var(--radius-sm);
+        background-color: white;
+        box-shadow: var(--elevation-2);
+        max-height: 200px;
+        overflow-y: auto;
+        display: none;
+      }
+
+      .city-suggestion {
+        padding: var(--spacing-md);
+        cursor: pointer;
+        border-bottom: 1px solid var(--outline-variant);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        transition: background-color var(--duration-quick) ease;
+      }
+
+      .city-suggestion:last-child {
+        border-bottom: none;
+      }
+
+      .city-suggestion:hover {
+        background-color: var(--surface-variant);
+      }
+
+      .city-suggestion .material-icons {
+        color: var(--on-surface-variant);
+        font-size: var(--icon-size-small);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="citynav-bg">
+      <div class="citynav-card">
+        <h2 class="display-medium">Select Your City</h2>
+
+        <div class="detected-city" id="detectedCitySection">
+          <div class="city-chip detected">
+            <span class="material-icons">my_location</span>
+            <span id="detectedCityName">Detected: Pune</span>
+            <span class="material-icons check">check_circle</span>
+          </div>
+          <div>
+            <a href="#" class="change-city-link" id="changeCityLink"
+              >Change city?</a
+            >
+          </div>
+        </div>
+
+        <div class="manual-selection" id="manualSelection">
+          <div class="input-group">
+            <label for="city-search">Search for your city</label>
+            <div class="input-wrapper">
+              <span class="material-icons input-icon-left">search</span>
+              <input
+                type="text"
+                id="city-search"
+                class="input-field input-with-icon"
+                placeholder="Enter city name"
+                autocomplete="off"
+              />
+            </div>
+            <div class="city-suggestions" id="citySuggestions">
+              <!-- Dynamic suggestions will be populated here -->
+            </div>
+          </div>
+        </div>
+
+        <button
+          class="btn btn-primary btn-large"
+          id="continueBtn"
+          onclick="window.location.href='setup-complete.html'"
+        >
+          Continue to CityNav
+        </button>
+      </div>
+    </div>
+
+    <script src="../scripts/design-system.js"></script>
+    <script>
+      class CitySelection {
+        constructor() {
+          this.selectedCity = "Pune"; // Default detected city
+          this.changeCityLink = document.getElementById("changeCityLink");
+          this.detectedCitySection = document.getElementById(
+            "detectedCitySection"
+          );
+          this.manualSelection = document.getElementById("manualSelection");
+          this.citySearchInput = document.getElementById("city-search");
+          this.citySuggestions = document.getElementById("citySuggestions");
+          this.continueBtn = document.getElementById("continueBtn");
+
+          // Mock city data
+          this.cities = [
+            "Mumbai",
+            "Delhi",
+            "Bangalore",
+            "Hyderabad",
+            "Chennai",
+            "Kolkata",
+            "Pune",
+            "Ahmedabad",
+            "Surat",
+            "Jaipur",
+            "Lucknow",
+            "Kanpur",
+            "Nagpur",
+            "Indore",
+            "Thane",
+            "Bhopal",
+            "Visakhapatnam",
+            "Pimpri-Chinchwad",
+            "Patna",
+            "Vadodara",
+          ];
+
+          this.init();
+        }
+
+        init() {
+          // Check if location permission was granted and city was detected
+          const locationPermission = localStorage.getItem("locationPermission");
+          const userLocation = localStorage.getItem("userLocation");
+
+          if (locationPermission !== "granted" || !userLocation) {
+            this.showManualSelection();
+          }
+
+          this.changeCityLink.addEventListener("click", (e) => {
+            e.preventDefault();
+            this.showManualSelection();
+          });
+
+          this.citySearchInput.addEventListener("input", (e) => {
+            this.handleCitySearch(e.target.value);
+          });
+
+          this.citySearchInput.addEventListener("focus", () => {
+            this.manualSelection.classList.add("active");
+          });
+
+          // Hide suggestions when clicking outside
+          document.addEventListener("click", (e) => {
+            if (!this.manualSelection.contains(e.target)) {
+              this.hideSuggestions();
+            }
+          });
+        }
+
+        showManualSelection() {
+          this.detectedCitySection.style.opacity = "0.5";
+          this.manualSelection.classList.add("active");
+          this.citySearchInput.focus();
+        }
+
+        handleCitySearch(query) {
+          if (query.length < 2) {
+            this.hideSuggestions();
+            return;
+          }
+
+          const filteredCities = this.cities
+            .filter((city) => city.toLowerCase().includes(query.toLowerCase()))
+            .slice(0, 5); // Limit to 5 suggestions
+
+          this.showSuggestions(filteredCities);
+        }
+
+        showSuggestions(cities) {
+          if (cities.length === 0) {
+            this.hideSuggestions();
+            return;
+          }
+
+          this.citySuggestions.innerHTML = "";
+
+          cities.forEach((city) => {
+            const suggestion = document.createElement("div");
+            suggestion.className = "city-suggestion";
+            suggestion.innerHTML = `
+                        <span class="material-icons">location_city</span>
+                        <span>${city}</span>
+                    `;
+
+            suggestion.addEventListener("click", () => {
+              this.selectCity(city);
+            });
+
+            this.citySuggestions.appendChild(suggestion);
+          });
+
+          this.citySuggestions.style.display = "block";
+        }
+
+        hideSuggestions() {
+          this.citySuggestions.style.display = "none";
+        }
+
+        selectCity(city) {
+          this.selectedCity = city;
+          this.citySearchInput.value = city;
+          this.hideSuggestions();
+
+          // Update detected city display
+          document.getElementById(
+            "detectedCityName"
+          ).textContent = `Selected: ${city}`;
+          this.detectedCitySection.style.opacity = "1";
+
+          // Store selected city
+          localStorage.setItem("selectedCity", city);
+
+          // Show confirmation
+          this.showCityConfirmation(city);
+        }
+
+        showCityConfirmation(city) {
+          // Create temporary notification
+          const notification = document.createElement("div");
+          notification.className = "city-confirmation";
+          notification.style.cssText = `
+                    position: fixed;
+                    top: 20px;
+                    right: 20px;
+                    background: var(--success-container);
+                    color: var(--success);
+                    padding: 16px 24px;
+                    border-radius: 8px;
+                    box-shadow: var(--elevation-2);
+                    z-index: 1000;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                    animation: slideIn 300ms ease;
+                `;
+          notification.innerHTML = `
+                    <span class="material-icons">check_circle</span>
+                    <span>City selected: ${city}</span>
+                `;
+
+          document.body.appendChild(notification);
+
+          setTimeout(() => {
+            notification.remove();
+          }, 3000);
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        new CitySelection();
+      });
+    </script>
+  </body>
+</html>

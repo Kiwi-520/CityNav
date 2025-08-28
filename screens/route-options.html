@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Route Options - CityNav</title>
+    <link rel="stylesheet" href="../styles/design-tokens.css" />`n    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      .route-container {
+        padding-bottom: 80px;
+      }
+
+      .route-header {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+        padding: var(--spacing-md);
+        background-color: var(--primary-container);
+        border-radius: var(--radius-lg);
+      }
+
+      .location-input {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+      }
+
+      .location-label {
+        font-size: var(--label-small-size);
+        color: var(--on-primary-container);
+        margin-bottom: 4px;
+        opacity: 0.8;
+      }
+
+      .location-value {
+        font-size: var(--body-large-size);
+        font-weight: var(--body-large-weight);
+        color: var(--on-primary-container);
+      }
+
+      .swap-btn {
+        background-color: var(--primary);
+        color: var(--on-primary);
+        border: none;
+        border-radius: var(--radius-full);
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: transform var(--duration-quick) ease;
+      }
+
+      .swap-btn:hover {
+        transform: rotate(180deg);
+      }
+
+      .transport-tabs {
+        display: flex;
+        background-color: var(--surface-variant);
+        border-radius: var(--radius-lg);
+        padding: 4px;
+        margin-bottom: var(--spacing-lg);
+        overflow-x: auto;
+      }
+
+      .transport-tab {
+        flex: 1;
+        min-width: 80px;
+        padding: var(--spacing-sm);
+        border: none;
+        background: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        font-size: var(--label-small-size);
+        color: var(--on-surface-variant);
+      }
+
+      .transport-tab.active {
+        background-color: var(--surface);
+        color: var(--on-surface);
+        box-shadow: var(--elevation-1);
+      }
+
+      .transport-tab .material-icons {
+        font-size: 20px;
+      }
+
+      .route-options {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+      }
+
+      .route-option {
+        background-color: var(--surface);
+        border: 2px solid var(--outline-variant);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-lg);
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+        position: relative;
+      }
+
+      .route-option:hover {
+        border-color: var(--primary);
+        box-shadow: var(--elevation-2);
+      }
+
+      .route-option.selected {
+        border-color: var(--primary);
+        background-color: var(--primary-container);
+      }
+
+      .route-option.recommended {
+        border-color: var(--primary);
+        background-color: var(--primary-container);
+      }
+
+      .route-option.recommended::before {
+        content: "Recommended";
+        position: absolute;
+        top: -8px;
+        right: var(--spacing-md);
+        background-color: var(--primary);
+        color: var(--on-primary);
+        padding: 4px var(--spacing-sm);
+        border-radius: var(--radius-full);
+        font-size: var(--label-small-size);
+        font-weight: var(--label-small-weight);
+      }
+
+      .route-summary {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-md);
+      }
+
+      .route-main-info {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-lg);
+      }
+
+      .route-time {
+        font-size: var(--headline-small-size);
+        font-weight: var(--headline-small-weight);
+        color: var(--on-surface);
+      }
+
+      .route-distance {
+        font-size: var(--body-medium-size);
+        color: var(--on-surface-variant);
+      }
+
+      .route-cost {
+        font-size: var(--headline-small-size);
+        font-weight: var(--headline-small-weight);
+        color: var(--primary);
+      }
+
+      .route-via {
+        font-size: var(--body-small-size);
+        color: var(--on-surface-variant);
+        margin-bottom: var(--spacing-sm);
+      }
+
+      .route-highlights {
+        display: flex;
+        flex-wrap: wrap;
+        gap: var(--spacing-xs);
+      }
+
+      .highlight-chip {
+        background-color: var(--secondary-container);
+        color: var(--on-secondary-container);
+        padding: 4px var(--spacing-sm);
+        border-radius: var(--radius-full);
+        font-size: var(--label-small-size);
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+
+      .highlight-chip.warning {
+        background-color: var(--warning-container);
+        color: var(--on-warning-container);
+      }
+
+      .highlight-chip.success {
+        background-color: var(--primary-container);
+        color: var(--on-primary-container);
+      }
+
+      .route-details {
+        margin-top: var(--spacing-md);
+        padding-top: var(--spacing-md);
+        border-top: 1px solid var(--outline-variant);
+        display: none;
+      }
+
+      .route-option.selected .route-details {
+        display: block;
+      }
+
+      .route-steps {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+      }
+
+      .route-step {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        font-size: var(--body-small-size);
+      }
+
+      .step-icon {
+        width: 24px;
+        height: 24px;
+        border-radius: var(--radius-full);
+        background-color: var(--outline-variant);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--on-surface-variant);
+        font-size: 16px;
+      }
+
+      .step-icon.active {
+        background-color: var(--primary);
+        color: var(--on-primary);
+      }
+
+      .bottom-actions {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: var(--card-max-width);
+        padding: var(--spacing-md);
+        background-color: var(--surface);
+        border-top: 1px solid var(--outline-variant);
+        display: flex;
+        gap: var(--spacing-sm);
+        z-index: 50;
+      }
+
+      .bottom-actions .btn {
+        flex: 1;
+      }
+
+      .traffic-info {
+        background-color: var(--warning-container);
+        color: var(--on-warning-container);
+        padding: var(--spacing-md);
+        border-radius: var(--radius-md);
+        margin-bottom: var(--spacing-lg);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+      }
+
+      @media (max-width: 640px) {
+        .route-main-info {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: var(--spacing-sm);
+        }
+
+        .route-summary {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: var(--spacing-sm);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="citynav-bg">
+      <div class="citynav-card">
+        <div class="route-container">
+          <!-- Route Header -->
+          <div class="route-header">
+            <div class="location-input">
+              <div class="location-label">FROM</div>
+              <div class="location-value">Current Location</div>
+            </div>
+            <button class="swap-btn" onclick="swapLocations()">
+              <span class="material-icons">swap_vert</span>
+            </button>
+            <div class="location-input">
+              <div class="location-label">TO</div>
+              <div class="location-value">Phoenix MarketCity</div>
+            </div>
+          </div>
+
+          <!-- Traffic Info -->
+          <div class="traffic-info">
+            <span class="material-icons">traffic</span>
+            <div>
+              <strong>Heavy Traffic Alert</strong><br />
+              <span style="font-size: var(--body-small-size)"
+                >FC Road has moderate traffic. Consider alternate routes.</span
+              >
+            </div>
+          </div>
+
+          <!-- Transport Tabs -->
+          <div class="transport-tabs">
+            <button
+              class="transport-tab active"
+              data-transport="driving"
+              onclick="selectTransport('driving')"
+            >
+              <span class="material-icons">directions_car</span>
+              <span>Drive</span>
+            </button>
+            <button
+              class="transport-tab"
+              data-transport="transit"
+              onclick="selectTransport('transit')"
+            >
+              <span class="material-icons">directions_transit</span>
+              <span>Transit</span>
+            </button>
+            <button
+              class="transport-tab"
+              data-transport="walking"
+              onclick="selectTransport('walking')"
+            >
+              <span class="material-icons">directions_walk</span>
+              <span>Walk</span>
+            </button>
+            <button
+              class="transport-tab"
+              data-transport="cycling"
+              onclick="selectTransport('cycling')"
+            >
+              <span class="material-icons">directions_bike</span>
+              <span>Bike</span>
+            </button>
+            <button
+              class="transport-tab"
+              data-transport="auto"
+              onclick="selectTransport('auto')"
+            >
+              <span class="material-icons">local_taxi</span>
+              <span>Auto</span>
+            </button>
+          </div>
+
+          <!-- Route Options -->
+          <div class="route-options" id="routeOptions">
+            <!-- Driving Routes -->
+            <div
+              class="route-option recommended selected"
+              data-transport="driving"
+            >
+              <div class="route-summary">
+                <div class="route-main-info">
+                  <div class="route-time">18 min</div>
+                  <div class="route-distance">5.2 km</div>
+                </div>
+                <div class="route-cost">₹45 toll</div>
+              </div>
+              <div class="route-via">via FC Road and Baner Road</div>
+              <div class="route-highlights">
+                <div class="highlight-chip success">
+                  <span class="material-icons" style="font-size: 14px"
+                    >speed</span
+                  >
+                  Fastest
+                </div>
+                <div class="highlight-chip">
+                  <span class="material-icons" style="font-size: 14px"
+                    >toll</span
+                  >
+                  Tolls
+                </div>
+              </div>
+              <div class="route-details">
+                <div class="route-steps">
+                  <div class="route-step">
+                    <div class="step-icon active">
+                      <span class="material-icons" style="font-size: 14px"
+                        >my_location</span
+                      >
+                    </div>
+                    <div>Start at current location</div>
+                  </div>
+                  <div class="route-step">
+                    <div class="step-icon">
+                      <span class="material-icons" style="font-size: 14px"
+                        >turn_right</span
+                      >
+                    </div>
+                    <div>Head north on FC Road (2.1 km)</div>
+                  </div>
+                  <div class="route-step">
+                    <div class="step-icon">
+                      <span class="material-icons" style="font-size: 14px"
+                        >turn_left</span
+                      >
+                    </div>
+                    <div>Turn left onto Baner Road (2.8 km)</div>
+                  </div>
+                  <div class="route-step">
+                    <div class="step-icon">
+                      <span class="material-icons" style="font-size: 14px"
+                        >place</span
+                      >
+                    </div>
+                    <div>Arrive at Phoenix MarketCity</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="route-option" data-transport="driving">
+              <div class="route-summary">
+                <div class="route-main-info">
+                  <div class="route-time">22 min</div>
+                  <div class="route-distance">6.1 km</div>
+                </div>
+                <div class="route-cost">No tolls</div>
+              </div>
+              <div class="route-via">via Senapati Bapat Road</div>
+              <div class="route-highlights">
+                <div class="highlight-chip success">
+                  <span class="material-icons" style="font-size: 14px"
+                    >money_off</span
+                  >
+                  No tolls
+                </div>
+                <div class="highlight-chip warning">
+                  <span class="material-icons" style="font-size: 14px"
+                    >traffic</span
+                  >
+                  Heavy traffic
+                </div>
+              </div>
+            </div>
+
+            <div class="route-option" data-transport="driving">
+              <div class="route-summary">
+                <div class="route-main-info">
+                  <div class="route-time">25 min</div>
+                  <div class="route-distance">7.3 km</div>
+                </div>
+                <div class="route-cost">₹20 toll</div>
+              </div>
+              <div class="route-via">via Karve Road and Warje</div>
+              <div class="route-highlights">
+                <div class="highlight-chip">
+                  <span class="material-icons" style="font-size: 14px"
+                    >landscape</span
+                  >
+                  Scenic route
+                </div>
+                <div class="highlight-chip success">
+                  <span class="material-icons" style="font-size: 14px"
+                    >local_gas_station</span
+                  >
+                  Fuel efficient
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Actions -->
+      <div class="bottom-actions">
+        <button class="btn btn-secondary" onclick="showRoutePreview()">
+          <span class="material-icons">visibility</span>
+          Preview
+        </button>
+        <button class="btn btn-primary" onclick="startNavigation()">
+          <span class="material-icons">navigation</span>
+          Start Navigation
+        </button>
+      </div>
+    </div>
+
+    <script src="../scripts/design-system.js"></script>
+    <script>
+      let selectedTransport = "driving";
+      let selectedRoute = 0;
+
+      const routeData = {
+        driving: [
+          {
+            time: "18 min",
+            distance: "5.2 km",
+            cost: "₹45 toll",
+            via: "via FC Road and Baner Road",
+            highlights: [
+              { text: "Fastest", icon: "speed", type: "success" },
+              { text: "Tolls", icon: "toll", type: "default" },
+            ],
+            recommended: true,
+          },
+          {
+            time: "22 min",
+            distance: "6.1 km",
+            cost: "No tolls",
+            via: "via Senapati Bapat Road",
+            highlights: [
+              { text: "No tolls", icon: "money_off", type: "success" },
+              { text: "Heavy traffic", icon: "traffic", type: "warning" },
+            ],
+          },
+          {
+            time: "25 min",
+            distance: "7.3 km",
+            cost: "₹20 toll",
+            via: "via Karve Road and Warje",
+            highlights: [
+              { text: "Scenic route", icon: "landscape", type: "default" },
+              {
+                text: "Fuel efficient",
+                icon: "local_gas_station",
+                type: "success",
+              },
+            ],
+          },
+        ],
+        transit: [
+          {
+            time: "35 min",
+            distance: "4.8 km",
+            cost: "₹15",
+            via: "Bus 106 → Bus 27",
+            highlights: [
+              { text: "Eco-friendly", icon: "eco", type: "success" },
+              {
+                text: "2 transfers",
+                icon: "transfer_within_a_station",
+                type: "default",
+              },
+            ],
+            recommended: true,
+          },
+          {
+            time: "42 min",
+            distance: "5.1 km",
+            cost: "₹12",
+            via: "Metro → Bus 27",
+            highlights: [
+              { text: "Cheapest", icon: "money", type: "success" },
+              { text: "Air conditioned", icon: "ac_unit", type: "default" },
+            ],
+          },
+        ],
+        walking: [
+          {
+            time: "1 hr 15 min",
+            distance: "4.2 km",
+            cost: "Free",
+            via: "via Senapati Bapat Road",
+            highlights: [
+              { text: "Exercise", icon: "fitness_center", type: "success" },
+              { text: "Zero emissions", icon: "eco", type: "success" },
+            ],
+            recommended: true,
+          },
+        ],
+        cycling: [
+          {
+            time: "25 min",
+            distance: "4.2 km",
+            cost: "Free",
+            via: "via bike lanes on FC Road",
+            highlights: [
+              { text: "Bike lanes", icon: "directions_bike", type: "success" },
+              {
+                text: "Good exercise",
+                icon: "fitness_center",
+                type: "success",
+              },
+            ],
+            recommended: true,
+          },
+        ],
+        auto: [
+          {
+            time: "20 min",
+            distance: "5.2 km",
+            cost: "₹85-95",
+            via: "via FC Road",
+            highlights: [
+              { text: "Door to door", icon: "home", type: "success" },
+              {
+                text: "No parking needed",
+                icon: "local_parking",
+                type: "success",
+              },
+            ],
+            recommended: true,
+          },
+        ],
+      };
+
+      function selectTransport(transport) {
+        selectedTransport = transport;
+
+        // Update tabs
+        document.querySelectorAll(".transport-tab").forEach((tab) => {
+          tab.classList.remove("active");
+        });
+        document
+          .querySelector(`[data-transport="${transport}"]`)
+          .classList.add("active");
+
+        // Update route options
+        renderRouteOptions();
+      }
+
+      function renderRouteOptions() {
+        const container = document.getElementById("routeOptions");
+        const routes = routeData[selectedTransport] || [];
+
+        container.innerHTML = routes
+          .map(
+            (route, index) => `
+          <div class="route-option ${route.recommended ? "recommended" : ""} ${
+              index === 0 ? "selected" : ""
+            }" 
+               data-transport="${selectedTransport}" 
+               onclick="selectRoute(${index})">
+            <div class="route-summary">
+              <div class="route-main-info">
+                <div class="route-time">${route.time}</div>
+                <div class="route-distance">${route.distance}</div>
+              </div>
+              <div class="route-cost">${route.cost}</div>
+            </div>
+            <div class="route-via">${route.via}</div>
+            <div class="route-highlights">
+              ${route.highlights
+                .map(
+                  (highlight) => `
+                <div class="highlight-chip ${highlight.type}">
+                  <span class="material-icons" style="font-size: 14px;">${highlight.icon}</span>
+                  ${highlight.text}
+                </div>
+              `
+                )
+                .join("")}
+            </div>
+          </div>
+        `
+          )
+          .join("");
+
+        selectedRoute = 0;
+      }
+
+      function selectRoute(index) {
+        selectedRoute = index;
+
+        document.querySelectorAll(".route-option").forEach((option, i) => {
+          option.classList.toggle("selected", i === index);
+        });
+      }
+
+      function swapLocations() {
+        const fromElement = document.querySelector(
+          ".location-input:first-child .location-value"
+        );
+        const toElement = document.querySelector(
+          ".location-input:last-child .location-value"
+        );
+
+        const temp = fromElement.textContent;
+        fromElement.textContent = toElement.textContent;
+        toElement.textContent = temp;
+
+        // Re-calculate routes (in a real app)
+        setTimeout(() => {
+          renderRouteOptions();
+        }, 500);
+      }
+
+      function showRoutePreview() {
+        // Show route on map
+        showToast("Route preview loading...");
+        setTimeout(() => {
+          window.location.href = "interactive-map.html";
+        }, 1000);
+      }
+
+      function startNavigation() {
+        const routes = routeData[selectedTransport];
+        const selectedRouteData = routes[selectedRoute];
+
+        // Store route data for navigation
+        localStorage.setItem(
+          "activeRoute",
+          JSON.stringify({
+            transport: selectedTransport,
+            route: selectedRouteData,
+          })
+        );
+
+        showToast("Starting navigation...");
+        setTimeout(() => {
+          window.location.href = "route-navigation.html";
+        }, 1500);
+      }
+
+      function showToast(message) {
+        const toast = document.createElement("div");
+        toast.style.cssText = `
+          position: fixed;
+          bottom: 100px;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: var(--inverse-surface);
+          color: var(--inverse-on-surface);
+          padding: var(--spacing-md) var(--spacing-lg);
+          border-radius: var(--radius-full);
+          font-size: var(--body-medium-size);
+          z-index: 1000;
+          animation: slideUp 0.3s ease-out;
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+          toast.remove();
+        }, 3000);
+      }
+
+      // Initialize
+      renderRouteOptions();
+
+      // Add slide up animation
+      const style = document.createElement("style");
+      style.textContent = `
+        @keyframes slideUp {
+          from {
+            transform: translateX(-50%) translateY(20px);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    </script>
+  </body>
+</html>

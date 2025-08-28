@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Feature Tour - CityNav</title>
+    <link rel="stylesheet" href="../styles/design-tokens.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      .tour-container {
+        position: relative;
+        height: 100%;
+      }
+
+      .tour-slide {
+        display: none;
+        text-align: center;
+        padding: var(--spacing-xl);
+      }
+
+      .tour-slide.active {
+        display: block;
+      }
+
+      .tour-illustration {
+        width: 300px;
+        max-width: 100%;
+        height: 200px;
+        background: linear-gradient(
+          135deg,
+          var(--primary-container) 0%,
+          var(--tertiary-container) 100%
+        );
+        border-radius: var(--radius-lg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: var(--spacing-xl) auto;
+      }
+
+      .tour-navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-top: var(--spacing-xl);
+        padding-top: var(--spacing-lg);
+        border-top: 1px solid var(--outline-variant);
+      }
+
+      .tour-indicators {
+        display: flex;
+        gap: var(--spacing-xs);
+      }
+
+      .indicator {
+        width: 8px;
+        height: 8px;
+        border-radius: var(--radius-full);
+        background-color: var(--outline-variant);
+        transition: background-color var(--duration-quick) ease;
+      }
+
+      .indicator.active {
+        background-color: var(--primary);
+      }
+
+      .nav-buttons {
+        display: flex;
+        gap: var(--spacing-sm);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="citynav-bg">
+      <div class="citynav-card">
+        <div class="tour-container">
+          <!-- Slide 1: Offline Navigation -->
+          <div class="tour-slide active">
+            <div class="tour-illustration">
+              <span class="material-icons illustration-icon">offline_bolt</span>
+            </div>
+            <h2 class="display-medium">Works Offline</h2>
+            <p class="body-large">
+              Navigate your city even without internet connection. All essential
+              maps and routes are saved locally.
+            </p>
+          </div>
+
+          <!-- Slide 2: Safety First -->
+          <div class="tour-slide">
+            <div class="tour-illustration">
+              <span class="material-icons illustration-icon">security</span>
+            </div>
+            <h2 class="display-medium">Safety First</h2>
+            <p class="body-large">
+              Get real-time safety alerts, emergency contacts, and choose the
+              safest routes to your destination.
+            </p>
+          </div>
+
+          <!-- Slide 3: Local Insights -->
+          <div class="tour-slide">
+            <div class="tour-illustration">
+              <span class="material-icons illustration-icon">explore</span>
+            </div>
+            <h2 class="display-medium">Local Insights</h2>
+            <p class="body-large">
+              Discover essential places like hospitals, ATMs, and public
+              transport with crowd-sourced information.
+            </p>
+          </div>
+
+          <div class="tour-navigation">
+            <button
+              class="btn btn-outline"
+              id="skipBtn"
+              onclick="window.location.href='location-permission.html'"
+            >
+              Skip
+            </button>
+
+            <div class="tour-indicators">
+              <div class="indicator active"></div>
+              <div class="indicator"></div>
+              <div class="indicator"></div>
+            </div>
+
+            <div class="nav-buttons">
+              <button
+                class="btn btn-outline"
+                id="prevBtn"
+                style="display: none"
+              >
+                <span class="material-icons">chevron_left</span>
+                Back
+              </button>
+              <button class="btn btn-primary" id="nextBtn">
+                Next
+                <span class="material-icons">chevron_right</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="../scripts/design-system.js"></script>
+    <script>
+      class FeatureTour {
+        constructor() {
+          this.currentSlide = 0;
+          this.slides = document.querySelectorAll(".tour-slide");
+          this.indicators = document.querySelectorAll(".indicator");
+          this.prevBtn = document.getElementById("prevBtn");
+          this.nextBtn = document.getElementById("nextBtn");
+          this.skipBtn = document.getElementById("skipBtn");
+
+          this.init();
+        }
+
+        init() {
+          this.nextBtn.addEventListener("click", () => this.nextSlide());
+          this.prevBtn.addEventListener("click", () => this.prevSlide());
+          this.updateButtons();
+        }
+
+        nextSlide() {
+          if (this.currentSlide < this.slides.length - 1) {
+            this.currentSlide++;
+            this.updateSlide();
+          } else {
+            window.location.href = "location-permission.html";
+          }
+        }
+
+        prevSlide() {
+          if (this.currentSlide > 0) {
+            this.currentSlide--;
+            this.updateSlide();
+          }
+        }
+
+        updateSlide() {
+          this.slides.forEach((slide, index) => {
+            slide.classList.toggle("active", index === this.currentSlide);
+          });
+
+          this.indicators.forEach((indicator, index) => {
+            indicator.classList.toggle("active", index === this.currentSlide);
+          });
+
+          this.updateButtons();
+        }
+
+        updateButtons() {
+          this.prevBtn.style.display =
+            this.currentSlide === 0 ? "none" : "flex";
+          this.nextBtn.innerHTML =
+            this.currentSlide === this.slides.length - 1
+              ? 'Get Started <span class="material-icons">chevron_right</span>'
+              : 'Next <span class="material-icons">chevron_right</span>';
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        new FeatureTour();
+      });
+    </script>
+  </body>
+</html>

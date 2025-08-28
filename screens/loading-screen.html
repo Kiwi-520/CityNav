@@ -1,0 +1,840 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Loading - CityNav</title>
+    <link rel="stylesheet" href="../styles/design-tokens.css" />`n    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--secondary) 100%
+        );
+        overflow: hidden;
+      }
+
+      .loading-container {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        padding: var(--spacing-xl);
+        position: relative;
+      }
+
+      /* Animated Background */
+      .loading-background {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        overflow: hidden;
+        z-index: 1;
+      }
+
+      .floating-icon {
+        position: absolute;
+        color: rgba(255, 255, 255, 0.1);
+        animation: float 6s ease-in-out infinite;
+        pointer-events: none;
+      }
+
+      .floating-icon:nth-child(1) {
+        top: 10%;
+        left: 10%;
+        font-size: 24px;
+        animation-delay: 0s;
+      }
+
+      .floating-icon:nth-child(2) {
+        top: 20%;
+        right: 15%;
+        font-size: 32px;
+        animation-delay: 1s;
+      }
+
+      .floating-icon:nth-child(3) {
+        bottom: 30%;
+        left: 20%;
+        font-size: 28px;
+        animation-delay: 2s;
+      }
+
+      .floating-icon:nth-child(4) {
+        bottom: 20%;
+        right: 10%;
+        font-size: 36px;
+        animation-delay: 3s;
+      }
+
+      .floating-icon:nth-child(5) {
+        top: 50%;
+        left: 5%;
+        font-size: 20px;
+        animation-delay: 4s;
+      }
+
+      .floating-icon:nth-child(6) {
+        top: 60%;
+        right: 5%;
+        font-size: 24px;
+        animation-delay: 5s;
+      }
+
+      /* Main Loading Content */
+      .loading-content {
+        position: relative;
+        z-index: 10;
+        color: white;
+      }
+
+      /* Logo/Icon */
+      .loading-logo {
+        width: 120px;
+        height: 120px;
+        background: rgba(255, 255, 255, 0.15);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: var(--spacing-xl);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+        animation: logoRotate 3s ease-in-out infinite;
+      }
+
+      .loading-logo .material-icons {
+        font-size: 56px;
+        color: white;
+        animation: iconPulse 2s ease-in-out infinite;
+      }
+
+      /* Loading Title & Messages */
+      .loading-title {
+        font-size: var(--headline-large-size);
+        font-weight: var(--headline-large-weight);
+        margin-bottom: var(--spacing-md);
+        opacity: 0;
+        animation: fadeInUp 0.8s ease-out 0.5s forwards;
+      }
+
+      .loading-message {
+        font-size: var(--body-large-size);
+        margin-bottom: var(--spacing-xl);
+        opacity: 0.9;
+        min-height: 60px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        animation: fadeInUp 0.8s ease-out 1s forwards;
+      }
+
+      /* Progress Indicators */
+      .progress-section {
+        width: 100%;
+        max-width: 300px;
+        opacity: 0;
+        animation: fadeInUp 0.8s ease-out 1.5s forwards;
+      }
+
+      /* Circular Progress */
+      .circular-progress {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        margin: 0 auto var(--spacing-lg);
+      }
+
+      .progress-ring {
+        transform: rotate(-90deg);
+      }
+
+      .progress-circle {
+        fill: none;
+        stroke: rgba(255, 255, 255, 0.3);
+        stroke-width: 3;
+      }
+
+      .progress-circle.active {
+        stroke: white;
+        stroke-dasharray: 220;
+        stroke-dashoffset: 220;
+        animation: progressFill 3s ease-out infinite;
+        stroke-linecap: round;
+      }
+
+      /* Linear Progress Bar */
+      .progress-bar-container {
+        background: rgba(255, 255, 255, 0.2);
+        height: 4px;
+        border-radius: var(--radius-full);
+        overflow: hidden;
+        margin-bottom: var(--spacing-md);
+      }
+
+      .progress-bar {
+        height: 100%;
+        background: linear-gradient(
+          90deg,
+          white 0%,
+          rgba(255, 255, 255, 0.8) 100%
+        );
+        border-radius: var(--radius-full);
+        animation: progressSlide 2.5s ease-in-out infinite;
+      }
+
+      .progress-text {
+        font-size: var(--body-small-size);
+        text-align: center;
+        opacity: 0.8;
+      }
+
+      /* Loading Steps */
+      .loading-steps {
+        margin-top: var(--spacing-xl);
+        opacity: 0;
+        animation: fadeInUp 0.8s ease-out 2s forwards;
+      }
+
+      .step-item {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-sm);
+        font-size: var(--body-medium-size);
+        opacity: 0.6;
+        transition: opacity var(--duration-medium) ease;
+      }
+
+      .step-item.active {
+        opacity: 1;
+        animation: stepPulse 1s ease-in-out infinite;
+      }
+
+      .step-item.completed {
+        opacity: 0.8;
+      }
+
+      .step-icon {
+        width: 20px;
+        height: 20px;
+        border-radius: var(--radius-full);
+        background: rgba(255, 255, 255, 0.3);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+      }
+
+      .step-item.active .step-icon {
+        background: white;
+        color: var(--primary);
+        animation: iconRotate 1s linear infinite;
+      }
+
+      .step-item.completed .step-icon {
+        background: rgba(255, 255, 255, 0.8);
+        color: var(--primary);
+      }
+
+      /* Loading Types */
+      .loading-type-1 .loading-logo {
+        animation: bounce 2s ease-in-out infinite;
+      }
+
+      .loading-type-2 .loading-logo {
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      .loading-type-3 .loading-logo {
+        animation: rotate 2s linear infinite;
+      }
+
+      /* Keyframe Animations */
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px) rotate(0deg);
+        }
+        25% {
+          transform: translateY(-20px) rotate(5deg);
+        }
+        50% {
+          transform: translateY(-10px) rotate(-5deg);
+        }
+        75% {
+          transform: translateY(-15px) rotate(3deg);
+        }
+      }
+
+      @keyframes logoRotate {
+        0% {
+          transform: rotate(0deg) scale(1);
+        }
+        25% {
+          transform: rotate(5deg) scale(1.05);
+        }
+        50% {
+          transform: rotate(0deg) scale(1);
+        }
+        75% {
+          transform: rotate(-5deg) scale(1.05);
+        }
+        100% {
+          transform: rotate(0deg) scale(1);
+        }
+      }
+
+      @keyframes iconPulse {
+        0%,
+        100% {
+          opacity: 1;
+          transform: scale(1);
+        }
+        50% {
+          opacity: 0.8;
+          transform: scale(0.95);
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(30px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes progressFill {
+        0% {
+          stroke-dashoffset: 220;
+        }
+        100% {
+          stroke-dashoffset: 0;
+        }
+      }
+
+      @keyframes progressSlide {
+        0% {
+          width: 0%;
+        }
+        50% {
+          width: 70%;
+        }
+        100% {
+          width: 100%;
+        }
+      }
+
+      @keyframes stepPulse {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.7;
+        }
+      }
+
+      @keyframes iconRotate {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      @keyframes bounce {
+        0%,
+        100% {
+          transform: translateY(0);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      @keyframes rotate {
+        from {
+          transform: rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* Skip Button */
+      .skip-loading {
+        position: absolute;
+        top: var(--spacing-lg);
+        right: var(--spacing-lg);
+        background: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        padding: var(--spacing-sm) var(--spacing-md);
+        border-radius: var(--radius-full);
+        font-size: var(--label-medium-size);
+        cursor: pointer;
+        backdrop-filter: blur(10px);
+        transition: all var(--duration-quick) ease;
+        opacity: 0;
+        animation: fadeIn 0.5s ease-out 3s forwards;
+      }
+
+      .skip-loading:hover {
+        background: rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+      }
+
+      /* Error State */
+      .error-state {
+        display: none;
+        text-align: center;
+        color: white;
+      }
+
+      .error-state.show {
+        display: block;
+        animation: fadeInUp 0.5s ease-out;
+      }
+
+      .error-icon {
+        font-size: 64px;
+        margin-bottom: var(--spacing-md);
+        color: rgba(255, 255, 255, 0.8);
+      }
+
+      .error-title {
+        font-size: var(--headline-medium-size);
+        font-weight: var(--headline-medium-weight);
+        margin-bottom: var(--spacing-sm);
+      }
+
+      .error-message {
+        font-size: var(--body-medium-size);
+        opacity: 0.9;
+        margin-bottom: var(--spacing-xl);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="loading-container">
+      <!-- Animated Background -->
+      <div class="loading-background">
+        <span class="material-icons floating-icon">navigation</span>
+        <span class="material-icons floating-icon">location_on</span>
+        <span class="material-icons floating-icon">directions_car</span>
+        <span class="material-icons floating-icon">explore</span>
+        <span class="material-icons floating-icon">place</span>
+        <span class="material-icons floating-icon">map</span>
+      </div>
+
+      <!-- Skip Button -->
+      <button class="skip-loading" onclick="skipLoading()">Skip</button>
+
+      <!-- Main Loading Content -->
+      <div class="loading-content" id="loadingContent">
+        <div class="loading-logo">
+          <span class="material-icons">navigation</span>
+        </div>
+
+        <h1 class="loading-title" id="loadingTitle">CityNav</h1>
+
+        <div class="loading-message" id="loadingMessage">
+          Preparing your navigation experience...
+        </div>
+
+        <div class="progress-section">
+          <!-- Circular Progress -->
+          <div class="circular-progress">
+            <svg class="progress-ring" width="80" height="80">
+              <circle class="progress-circle" cx="40" cy="40" r="35"></circle>
+              <circle
+                class="progress-circle active"
+                cx="40"
+                cy="40"
+                r="35"
+              ></circle>
+            </svg>
+          </div>
+
+          <!-- Linear Progress Bar -->
+          <div class="progress-bar-container">
+            <div class="progress-bar"></div>
+          </div>
+
+          <div class="progress-text" id="progressText">Loading... 0%</div>
+        </div>
+
+        <!-- Loading Steps -->
+        <div class="loading-steps">
+          <div class="step-item" id="step1">
+            <div class="step-icon">
+              <span class="material-icons">download</span>
+            </div>
+            <span>Downloading map data</span>
+          </div>
+
+          <div class="step-item" id="step2">
+            <div class="step-icon">
+              <span class="material-icons">gps_fixed</span>
+            </div>
+            <span>Acquiring GPS location</span>
+          </div>
+
+          <div class="step-item" id="step3">
+            <div class="step-icon">
+              <span class="material-icons">cloud_sync</span>
+            </div>
+            <span>Syncing user preferences</span>
+          </div>
+
+          <div class="step-item" id="step4">
+            <div class="step-icon">
+              <span class="material-icons">check</span>
+            </div>
+            <span>Ready to navigate</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Error State -->
+      <div class="error-state" id="errorState">
+        <div class="error-icon">
+          <span class="material-icons">error_outline</span>
+        </div>
+        <h2 class="error-title">Connection Error</h2>
+        <p class="error-message">
+          Unable to load map data. Please check your internet connection and try
+          again.
+        </p>
+        <div
+          style="display: flex; gap: var(--spacing-md); justify-content: center"
+        >
+          <button
+            class="btn btn-text"
+            onclick="retryLoading()"
+            style="color: white; border-color: rgba(255, 255, 255, 0.5)"
+          >
+            <span class="material-icons">refresh</span>
+            Retry
+          </button>
+          <button
+            class="btn btn-primary"
+            onclick="goOffline()"
+            style="
+              background: rgba(255, 255, 255, 0.2);
+              backdrop-filter: blur(10px);
+            "
+          >
+            <span class="material-icons">offline_bolt</span>
+            Go Offline
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../scripts/design-system.js"></script>
+    <script>
+      let currentStep = 0;
+      let progress = 0;
+      let loadingComplete = false;
+      let loadingType = Math.floor(Math.random() * 3) + 1; // Random loading animation
+
+      const loadingMessages = [
+        "Preparing your navigation experience...",
+        "Loading map data for your area...",
+        "Optimizing routes for best performance...",
+        "Setting up safety features...",
+        "Personalizing your experience...",
+        "Almost ready to go...",
+      ];
+
+      const steps = [
+        {
+          id: "step1",
+          duration: 2000,
+          message: "Downloading latest map data...",
+        },
+        {
+          id: "step2",
+          duration: 1500,
+          message: "Getting your current location...",
+        },
+        { id: "step3", duration: 1800, message: "Loading your preferences..." },
+        { id: "step4", duration: 1000, message: "Finalizing setup..." },
+      ];
+
+      function initializeLoading() {
+        // Apply random loading animation type
+        document
+          .querySelector(".loading-container")
+          .classList.add(`loading-type-${loadingType}`);
+
+        // Check for network connectivity
+        if (!navigator.onLine) {
+          setTimeout(() => showError(), 3000);
+          return;
+        }
+
+        // Start loading sequence
+        startLoadingSequence();
+      }
+
+      function startLoadingSequence() {
+        let totalDuration = steps.reduce((sum, step) => sum + step.duration, 0);
+        let elapsed = 0;
+
+        function processNextStep() {
+          if (currentStep >= steps.length) {
+            completeLoading();
+            return;
+          }
+
+          const step = steps[currentStep];
+          const stepElement = document.getElementById(step.id);
+
+          // Update message
+          updateLoadingMessage(step.message);
+
+          // Activate current step
+          stepElement.classList.add("active");
+
+          // Mark previous steps as completed
+          for (let i = 0; i < currentStep; i++) {
+            document.getElementById(steps[i].id).classList.remove("active");
+            document.getElementById(steps[i].id).classList.add("completed");
+          }
+
+          // Update progress
+          const stepProgress = ((currentStep + 1) / steps.length) * 100;
+          updateProgress(Math.min(stepProgress, 95));
+
+          currentStep++;
+
+          setTimeout(() => {
+            processNextStep();
+          }, step.duration);
+        }
+
+        processNextStep();
+      }
+
+      function updateLoadingMessage(message) {
+        const messageElement = document.getElementById("loadingMessage");
+        messageElement.style.opacity = "0";
+
+        setTimeout(() => {
+          messageElement.textContent = message;
+          messageElement.style.opacity = "1";
+        }, 200);
+      }
+
+      function updateProgress(newProgress) {
+        progress = newProgress;
+        document.getElementById(
+          "progressText"
+        ).textContent = `Loading... ${Math.round(progress)}%`;
+
+        // Update circular progress
+        const circle = document.querySelector(".progress-circle.active");
+        const circumference = 2 * Math.PI * 35;
+        const offset = circumference - (progress / 100) * circumference;
+        circle.style.strokeDashoffset = offset;
+      }
+
+      function completeLoading() {
+        // Final progress update
+        updateProgress(100);
+        updateLoadingMessage("Ready to navigate!");
+
+        // Mark all steps as completed
+        steps.forEach((step) => {
+          const stepElement = document.getElementById(step.id);
+          stepElement.classList.remove("active");
+          stepElement.classList.add("completed");
+        });
+
+        loadingComplete = true;
+
+        // Navigate to next screen after brief delay
+        setTimeout(() => {
+          navigateToNextScreen();
+        }, 1500);
+      }
+
+      function showError() {
+        document.getElementById("loadingContent").style.display = "none";
+        document.getElementById("errorState").classList.add("show");
+      }
+
+      function retryLoading() {
+        // Reset state
+        currentStep = 0;
+        progress = 0;
+        loadingComplete = false;
+
+        // Hide error state
+        document.getElementById("errorState").classList.remove("show");
+        document.getElementById("loadingContent").style.display = "block";
+
+        // Reset steps
+        steps.forEach((step) => {
+          const stepElement = document.getElementById(step.id);
+          stepElement.classList.remove("active", "completed");
+        });
+
+        // Restart loading
+        setTimeout(() => {
+          startLoadingSequence();
+        }, 500);
+      }
+
+      function goOffline() {
+        showToast("Switching to offline mode...");
+        setTimeout(() => {
+          window.location.href = "offline-downloads.html";
+        }, 1000);
+      }
+
+      function skipLoading() {
+        if (confirm("Skip loading? Some features may not be available.")) {
+          navigateToNextScreen();
+        }
+      }
+
+      function navigateToNextScreen() {
+        // Determine next screen based on context
+        const urlParams = new URLSearchParams(window.location.search);
+        const nextScreen = urlParams.get("next") || "home-dashboard.html";
+
+        // Add fade out animation
+        document.querySelector(".loading-container").style.animation =
+          "fadeOut 0.5s ease-out";
+
+        setTimeout(() => {
+          window.location.href = nextScreen;
+        }, 500);
+      }
+
+      function showToast(message) {
+        const toast = document.createElement("div");
+        toast.style.cssText = `
+          position: fixed;
+          bottom: var(--spacing-lg);
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: rgba(0, 0, 0, 0.8);
+          color: white;
+          padding: var(--spacing-sm) var(--spacing-lg);
+          border-radius: var(--radius-full);
+          font-size: var(--body-medium-size);
+          z-index: 1000;
+          animation: slideUp 0.3s ease-out;
+          backdrop-filter: blur(10px);
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+          toast.remove();
+        }, 3000);
+      }
+
+      // Handle online/offline events
+      window.addEventListener("online", () => {
+        if (
+          !loadingComplete &&
+          document.getElementById("errorState").classList.contains("show")
+        ) {
+          retryLoading();
+        }
+      });
+
+      window.addEventListener("offline", () => {
+        if (!loadingComplete) {
+          setTimeout(showError, 1000);
+        }
+      });
+
+      // Start loading when page loads
+      document.addEventListener("DOMContentLoaded", initializeLoading);
+
+      // Handle page visibility changes
+      document.addEventListener("visibilitychange", () => {
+        if (document.hidden) {
+          // Pause animations if tab is not visible
+          document.querySelectorAll("*").forEach((el) => {
+            el.style.animationPlayState = "paused";
+          });
+        } else {
+          // Resume animations
+          document.querySelectorAll("*").forEach((el) => {
+            el.style.animationPlayState = "running";
+          });
+        }
+      });
+
+      // Add fadeOut keyframe to existing styles
+      const style = document.createElement("style");
+      style.textContent = `
+        @keyframes fadeOut {
+          from { opacity: 1; }
+          to { opacity: 0; }
+        }
+        @keyframes slideUp {
+          from {
+            opacity: 0;
+            transform: translateX(-50%) translateY(20px);
+          }
+          to {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    </script>
+  </body>
+</html>

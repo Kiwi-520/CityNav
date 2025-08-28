@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Location Permission - CityNav</title>
+    <link rel="stylesheet" href="../styles/design-tokens.css" />`n    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      .permission-icon {
+        width: 64px;
+        height: 64px;
+        color: var(--primary);
+        margin: 32px auto 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .permission-icon .material-icons {
+        font-size: 64px;
+        color: var(--primary);
+      }
+
+      .permission-content {
+        text-align: center;
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .permission-buttons {
+        display: flex;
+        gap: var(--spacing-lg);
+        margin: var(--spacing-lg) 0;
+        justify-content: center;
+      }
+
+      .permission-buttons .btn {
+        width: 165px;
+        height: 56px;
+      }
+
+      .btn-deny {
+        background: transparent;
+        color: var(--error);
+        border: 1px solid var(--error);
+      }
+
+      .privacy-note {
+        font-size: var(--body-small-size);
+        opacity: 0.7;
+        color: var(--on-surface);
+        text-align: center;
+        margin-top: 16px;
+      }
+
+      .loading-state {
+        display: none;
+        text-align: center;
+        margin: var(--spacing-xl) 0;
+      }
+
+      .spinner {
+        width: 40px;
+        height: 40px;
+        border: 4px solid var(--outline-variant);
+        border-top: 4px solid var(--primary);
+        border-radius: 50%;
+        animation: spin 1s linear infinite;
+        margin: 0 auto var(--spacing-md);
+      }
+
+      @keyframes spin {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="citynav-bg">
+      <div class="citynav-card">
+        <div class="permission-content" id="permissionContent">
+          <div class="permission-icon">
+            <span class="material-icons">location_on</span>
+          </div>
+          <h2 class="display-medium">Enable Location</h2>
+          <p class="body-large">
+            We need your location to provide accurate navigation and find nearby
+            essential services.
+          </p>
+
+          <div class="permission-buttons">
+            <button class="btn btn-primary" id="allowBtn">Allow</button>
+            <button class="btn btn-deny" id="denyBtn">Deny</button>
+          </div>
+
+          <div class="privacy-note">
+            Your location data is stored locally on your device and never shared
+            without your permission.
+          </div>
+        </div>
+
+        <div class="loading-state" id="loadingState">
+          <div class="spinner"></div>
+          <h3 class="headline-small">Getting your location...</h3>
+          <p class="body-medium">This may take a few seconds</p>
+        </div>
+
+        <div
+          class="permission-content"
+          id="successContent"
+          style="display: none"
+        >
+          <div
+            class="permission-icon"
+            style="background-color: var(--success-container)"
+          >
+            <span class="material-icons" style="color: var(--success)"
+              >check_circle</span
+            >
+          </div>
+          <h2 class="display-medium">Location Enabled!</h2>
+          <p class="body-large">
+            Great! We can now provide you with personalized navigation and local
+            information.
+          </p>
+          <button
+            class="btn btn-primary btn-large"
+            onclick="window.location.href='city-selection.html'"
+          >
+            Continue
+          </button>
+        </div>
+
+        <div class="permission-content" id="errorContent" style="display: none">
+          <div
+            class="permission-icon"
+            style="background-color: var(--error-container)"
+          >
+            <span class="material-icons" style="color: var(--error)"
+              >location_off</span
+            >
+          </div>
+          <h2 class="display-medium">Location Access Denied</h2>
+          <p class="body-large">
+            No worries! You can still use CityNav by manually selecting your
+            city.
+          </p>
+          <button
+            class="btn btn-primary btn-large"
+            onclick="window.location.href='city-selection.html'"
+          >
+            Continue Manually
+          </button>
+          <button class="btn btn-outline" id="retryBtn">Try Again</button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../scripts/design-system.js"></script>
+    <script>
+      class LocationPermission {
+        constructor() {
+          this.allowBtn = document.getElementById("allowBtn");
+          this.denyBtn = document.getElementById("denyBtn");
+          this.retryBtn = document.getElementById("retryBtn");
+          this.permissionContent = document.getElementById("permissionContent");
+          this.loadingState = document.getElementById("loadingState");
+          this.successContent = document.getElementById("successContent");
+          this.errorContent = document.getElementById("errorContent");
+
+          this.init();
+        }
+
+        init() {
+          this.allowBtn.addEventListener("click", () => this.requestLocation());
+          this.denyBtn.addEventListener("click", () => this.denyLocation());
+          this.retryBtn.addEventListener("click", () => this.retryLocation());
+        }
+
+        async requestLocation() {
+          this.showLoadingState();
+
+          try {
+            const position = await this.getCurrentPosition();
+            console.log("Location obtained:", position);
+
+            // Store location in localStorage for the prototype
+            localStorage.setItem(
+              "userLocation",
+              JSON.stringify({
+                latitude: position.coords.latitude,
+                longitude: position.coords.longitude,
+                timestamp: Date.now(),
+              })
+            );
+
+            // Simulate API call delay
+            await new Promise((resolve) => setTimeout(resolve, 1500));
+
+            this.showSuccessState();
+          } catch (error) {
+            console.error("Location error:", error);
+            this.showErrorState();
+          }
+        }
+
+        getCurrentPosition() {
+          return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+              reject(new Error("Geolocation not supported"));
+              return;
+            }
+
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: true,
+              timeout: 10000,
+              maximumAge: 60000,
+            });
+          });
+        }
+
+        denyLocation() {
+          localStorage.setItem("locationPermission", "denied");
+          window.location.href = "city-selection.html";
+        }
+
+        retryLocation() {
+          this.showInitialState();
+        }
+
+        showLoadingState() {
+          this.permissionContent.style.display = "none";
+          this.successContent.style.display = "none";
+          this.errorContent.style.display = "none";
+          this.loadingState.style.display = "block";
+        }
+
+        showSuccessState() {
+          this.permissionContent.style.display = "none";
+          this.loadingState.style.display = "none";
+          this.errorContent.style.display = "none";
+          this.successContent.style.display = "block";
+
+          localStorage.setItem("locationPermission", "granted");
+        }
+
+        showErrorState() {
+          this.permissionContent.style.display = "none";
+          this.loadingState.style.display = "none";
+          this.successContent.style.display = "none";
+          this.errorContent.style.display = "block";
+        }
+
+        showInitialState() {
+          this.loadingState.style.display = "none";
+          this.successContent.style.display = "none";
+          this.errorContent.style.display = "none";
+          this.permissionContent.style.display = "block";
+        }
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        new LocationPermission();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,780 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CityNav - Directions & Navigation</title>
+    <link rel="stylesheet" href="../styles/design-tokens.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      .directions-container {
+        height: 100vh;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      /* Route Planning Section */
+      .route-planner {
+        background-color: var(--surface);
+        padding: var(--spacing-lg);
+        border-bottom: 1px solid var(--outline-variant);
+        box-shadow: var(--elevation-1);
+        z-index: 10;
+      }
+
+      .route-inputs {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+      }
+
+      .route-input-group {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+      }
+
+      .route-marker {
+        width: 24px;
+        height: 24px;
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 12px;
+        font-weight: 600;
+        flex-shrink: 0;
+      }
+
+      .route-marker.start {
+        background-color: var(--success);
+        color: var(--on-success);
+      }
+
+      .route-marker.end {
+        background-color: var(--error);
+        color: var(--on-error);
+      }
+
+      .route-input {
+        flex: 1;
+        padding: var(--spacing-md);
+        border: 1px solid var(--outline);
+        border-radius: var(--radius-md);
+        font-size: var(--body-large-size);
+        background-color: var(--surface-variant);
+        transition: all var(--duration-quick) ease;
+      }
+
+      .route-input:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+        border-color: var(--primary);
+      }
+
+      .swap-btn {
+        position: absolute;
+        right: var(--spacing-lg);
+        top: 50%;
+        transform: translateY(-50%);
+        width: 32px;
+        height: 32px;
+        background-color: var(--surface);
+        border: 1px solid var(--outline);
+        border-radius: var(--radius-full);
+        cursor: pointer;
+        z-index: 1;
+      }
+
+      .swap-btn:hover {
+        background-color: var(--primary-container);
+      }
+
+      .route-options {
+        display: flex;
+        gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-lg);
+      }
+
+      .route-mode {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: var(--spacing-md);
+        border: 1px solid var(--outline);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+        background-color: var(--surface);
+      }
+
+      .route-mode.active {
+        background-color: var(--primary-container);
+        border-color: var(--primary);
+        color: var(--on-primary-container);
+      }
+
+      .route-mode:hover:not(.active) {
+        background-color: var(--surface-variant);
+      }
+
+      .route-mode:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .route-mode .material-icons {
+        font-size: 24px;
+        margin-bottom: var(--spacing-xs);
+        color: var(--primary);
+      }
+
+      .route-mode.active .material-icons {
+        color: var(--on-primary-container);
+      }
+
+      .route-mode-label {
+        font-size: var(--label-medium-size);
+        font-weight: var(--label-medium-weight);
+      }
+
+      /* Navigation View */
+      .navigation-view {
+        flex: 1;
+        position: relative;
+        background: linear-gradient(135deg, #e8f5e8 0%, #f0f9f0 100%);
+        overflow: hidden;
+      }
+
+      .map-view {
+        width: 100%;
+        height: 100%;
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .route-line {
+        position: absolute;
+        width: 4px;
+        background: linear-gradient(
+          to bottom,
+          var(--success) 0%,
+          var(--primary) 50%,
+          var(--error) 100%
+        );
+        height: 60%;
+        left: 50%;
+        transform: translateX(-50%);
+        border-radius: var(--radius-xs);
+        animation: routePulse 2s ease-in-out infinite;
+      }
+
+      @keyframes routePulse {
+        0%,
+        100% {
+          opacity: 0.8;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      /* Current Instruction */
+      .current-instruction {
+        position: absolute;
+        bottom: 160px;
+        left: var(--spacing-lg);
+        right: var(--spacing-lg);
+        background-color: var(--surface);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-lg);
+        box-shadow: var(--elevation-3);
+        border: 1px solid var(--outline);
+      }
+
+      .instruction-header {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-md);
+      }
+
+      .instruction-icon {
+        width: 48px;
+        height: 48px;
+        background-color: var(--primary-container);
+        color: var(--primary);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .instruction-text {
+        flex: 1;
+      }
+
+      .instruction-action {
+        font-size: var(--headline-small-size);
+        font-weight: var(--headline-small-weight);
+        color: var(--on-surface);
+        margin: 0;
+      }
+
+      .instruction-distance {
+        font-size: var(--body-medium-size);
+        color: var(--on-surface-variant);
+        margin-top: var(--spacing-xs);
+      }
+
+      .instruction-eta {
+        text-align: right;
+        color: var(--on-surface-variant);
+        font-size: var(--label-large-size);
+      }
+
+      /* Route Summary */
+      .route-summary {
+        position: absolute;
+        top: var(--spacing-lg);
+        left: var(--spacing-lg);
+        right: var(--spacing-lg);
+        background-color: var(--surface);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-md);
+        box-shadow: var(--elevation-2);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .summary-item {
+        text-align: center;
+        flex: 1;
+      }
+
+      .summary-value {
+        font-size: var(--body-large-size);
+        font-weight: var(--body-large-weight);
+        color: var(--on-surface);
+        margin: 0;
+      }
+
+      .summary-label {
+        font-size: var(--label-medium-size);
+        color: var(--on-surface-variant);
+        margin-top: var(--spacing-xs);
+      }
+
+      /* Navigation Controls */
+      .nav-controls {
+        position: absolute;
+        bottom: 80px;
+        right: var(--spacing-lg);
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+      }
+
+      .nav-control-btn {
+        width: 56px;
+        height: 56px;
+        background-color: var(--surface);
+        border: 1px solid var(--outline);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: var(--elevation-2);
+        transition: all var(--duration-quick) ease;
+      }
+
+      .nav-control-btn:hover {
+        background-color: var(--primary-container);
+        border-color: var(--primary);
+      }
+
+      .nav-control-btn:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .nav-control-btn .material-icons {
+        color: var(--on-surface);
+        font-size: 24px;
+      }
+
+      /* Speed & Status */
+      .speed-display {
+        position: absolute;
+        top: 80px;
+        right: var(--spacing-lg);
+        background-color: var(--surface);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-md);
+        box-shadow: var(--elevation-2);
+        text-align: center;
+        min-width: 80px;
+      }
+
+      .speed-value {
+        font-size: var(--display-small-size);
+        font-weight: var(--display-small-weight);
+        color: var(--primary);
+        margin: 0;
+      }
+
+      .speed-unit {
+        font-size: var(--label-small-size);
+        color: var(--on-surface-variant);
+      }
+
+      /* Safety Alert */
+      .safety-alert {
+        position: absolute;
+        top: 140px;
+        left: var(--spacing-lg);
+        right: 120px;
+        background-color: var(--error-container);
+        color: var(--on-error-container);
+        padding: var(--spacing-sm) var(--spacing-md);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        font-size: var(--label-large-size);
+        animation: alertPulse 2s ease-in-out infinite;
+      }
+
+      @keyframes alertPulse {
+        0%,
+        100% {
+          opacity: 0.9;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+
+      .safety-alert .material-icons {
+        color: var(--error);
+        font-size: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="directions-container">
+      <!-- Route Planner -->
+      <div class="route-planner" id="routePlanner">
+        <div class="route-inputs" style="position: relative">
+          <div class="route-input-group">
+            <div class="route-marker start">A</div>
+            <input
+              type="text"
+              class="route-input"
+              placeholder="Your location"
+              value="Current Location"
+              id="startInput"
+            />
+          </div>
+
+          <div class="route-input-group">
+            <div class="route-marker end">B</div>
+            <input
+              type="text"
+              class="route-input"
+              placeholder="Where to?"
+              id="endInput"
+            />
+          </div>
+
+          <button class="swap-btn" id="swapBtn">
+            <span class="material-icons">swap_vert</span>
+          </button>
+        </div>
+
+        <div class="route-options">
+          <div class="route-mode active" tabindex="0" data-mode="driving">
+            <span class="material-icons">directions_car</span>
+            <span class="route-mode-label">Drive</span>
+          </div>
+          <div class="route-mode" tabindex="0" data-mode="walking">
+            <span class="material-icons">directions_walk</span>
+            <span class="route-mode-label">Walk</span>
+          </div>
+          <div class="route-mode" tabindex="0" data-mode="transit">
+            <span class="material-icons">directions_bus</span>
+            <span class="route-mode-label">Transit</span>
+          </div>
+          <div class="route-mode" tabindex="0" data-mode="bicycle">
+            <span class="material-icons">directions_bike</span>
+            <span class="route-mode-label">Bike</span>
+          </div>
+        </div>
+
+        <button class="btn btn-primary btn-large" id="startNavigationBtn">
+          Start Navigation
+        </button>
+      </div>
+
+      <!-- Navigation View -->
+      <div class="navigation-view" id="navigationView" style="display: none">
+        <div class="map-view">
+          <!-- Route visualization -->
+          <div class="route-line"></div>
+        </div>
+
+        <!-- Route Summary -->
+        <div class="route-summary">
+          <div class="summary-item">
+            <div class="summary-value" id="totalDistance">5.2 km</div>
+            <div class="summary-label">Distance</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-value" id="totalTime">12 min</div>
+            <div class="summary-label">Time</div>
+          </div>
+          <div class="summary-item">
+            <div class="summary-value" id="arrivalTime">3:45 PM</div>
+            <div class="summary-label">Arrival</div>
+          </div>
+        </div>
+
+        <!-- Speed Display -->
+        <div class="speed-display">
+          <div class="speed-value" id="currentSpeed">45</div>
+          <div class="speed-unit">km/h</div>
+        </div>
+
+        <!-- Safety Alert -->
+        <div class="safety-alert" id="safetyAlert">
+          <span class="material-icons">warning</span>
+          <span>Speed camera ahead in 500m</span>
+        </div>
+
+        <!-- Current Instruction -->
+        <div class="current-instruction">
+          <div class="instruction-header">
+            <div class="instruction-icon">
+              <span class="material-icons" id="instructionIcon"
+                >turn_right</span
+              >
+            </div>
+            <div class="instruction-text">
+              <h3 class="instruction-action" id="instructionAction">
+                Turn right onto FC Road
+              </h3>
+              <p class="instruction-distance" id="instructionDistance">
+                In 200 meters
+              </p>
+            </div>
+            <div class="instruction-eta" id="nextETA">12 min</div>
+          </div>
+        </div>
+
+        <!-- Navigation Controls -->
+        <div class="nav-controls">
+          <button class="nav-control-btn" id="muteBtn">
+            <span class="material-icons">volume_up</span>
+          </button>
+          <button class="nav-control-btn" id="recenterBtn">
+            <span class="material-icons">my_location</span>
+          </button>
+          <button class="nav-control-btn" id="stopNavigationBtn">
+            <span class="material-icons">close</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Bar -->
+      <div class="nav-bar">
+        <a href="home-dashboard.html" class="nav-item">
+          <span class="material-icons">home</span>
+          <span class="nav-label">Home</span>
+        </a>
+        <a href="search-discovery.html" class="nav-item">
+          <span class="material-icons">search</span>
+          <span class="nav-label">Search</span>
+        </a>
+        <a href="interactive-map.html" class="nav-item">
+          <span class="material-icons">map</span>
+          <span class="nav-label">Map</span>
+        </a>
+        <a href="nearby-places.html" class="nav-item">
+          <span class="material-icons">place</span>
+          <span class="nav-label">Nearby</span>
+        </a>
+        <a href="profile-settings.html" class="nav-item">
+          <span class="material-icons">person</span>
+          <span class="nav-label">Profile</span>
+        </a>
+      </div>
+    </div>
+
+    <script src="../scripts/design-system.js"></script>
+    <script>
+      class DirectionsNavigation {
+        constructor() {
+          this.isNavigating = false;
+          this.currentMode = "driving";
+          this.isMuted = false;
+
+          this.routePlanner = document.getElementById("routePlanner");
+          this.navigationView = document.getElementById("navigationView");
+          this.startInput = document.getElementById("startInput");
+          this.endInput = document.getElementById("endInput");
+
+          this.init();
+        }
+
+        init() {
+          this.setupEventListeners();
+          this.setupInstructions();
+        }
+
+        setupEventListeners() {
+          // Start navigation
+          document
+            .getElementById("startNavigationBtn")
+            .addEventListener("click", () => {
+              this.startNavigation();
+            });
+
+          // Route mode selection
+          document.querySelectorAll(".route-mode").forEach((mode) => {
+            mode.addEventListener("click", () => this.selectMode(mode));
+            mode.addEventListener("keypress", (e) => {
+              if (e.key === "Enter") this.selectMode(mode);
+            });
+          });
+
+          // Swap locations
+          document.getElementById("swapBtn").addEventListener("click", () => {
+            this.swapLocations();
+          });
+
+          // Navigation controls
+          document.getElementById("muteBtn").addEventListener("click", () => {
+            this.toggleMute();
+          });
+
+          document
+            .getElementById("recenterBtn")
+            .addEventListener("click", () => {
+              this.recenterMap();
+            });
+
+          document
+            .getElementById("stopNavigationBtn")
+            .addEventListener("click", () => {
+              this.stopNavigation();
+            });
+
+          // Input validation
+          this.endInput.addEventListener("input", (e) => {
+            const startBtn = document.getElementById("startNavigationBtn");
+            startBtn.disabled = !e.target.value.trim();
+          });
+        }
+
+        selectMode(modeElement) {
+          // Remove active class from all modes
+          document.querySelectorAll(".route-mode").forEach((m) => {
+            m.classList.remove("active");
+          });
+
+          // Add active class to selected mode
+          modeElement.classList.add("active");
+
+          this.currentMode = modeElement.dataset.mode;
+          this.updateRouteForMode();
+        }
+
+        updateRouteForMode() {
+          const timeElement = document.getElementById("totalTime");
+          const distanceElement = document.getElementById("totalDistance");
+
+          const routes = {
+            driving: { time: "12 min", distance: "5.2 km" },
+            walking: { time: "45 min", distance: "3.8 km" },
+            transit: { time: "25 min", distance: "4.1 km" },
+            bicycle: { time: "18 min", distance: "4.5 km" },
+          };
+
+          const route = routes[this.currentMode];
+          if (timeElement) timeElement.textContent = route.time;
+          if (distanceElement) distanceElement.textContent = route.distance;
+        }
+
+        swapLocations() {
+          const startValue = this.startInput.value;
+          const endValue = this.endInput.value;
+
+          this.startInput.value = endValue;
+          this.endInput.value = startValue;
+        }
+
+        startNavigation() {
+          if (!this.endInput.value.trim()) {
+            this.showNotification("Please enter a destination", "error");
+            return;
+          }
+
+          this.isNavigating = true;
+          this.routePlanner.style.display = "none";
+          this.navigationView.style.display = "flex";
+
+          this.simulateNavigation();
+        }
+
+        stopNavigation() {
+          this.isNavigating = false;
+          this.routePlanner.style.display = "block";
+          this.navigationView.style.display = "none";
+        }
+
+        toggleMute() {
+          this.isMuted = !this.isMuted;
+          const muteBtn = document.getElementById("muteBtn");
+          const icon = muteBtn.querySelector(".material-icons");
+
+          icon.textContent = this.isMuted ? "volume_off" : "volume_up";
+          muteBtn.style.backgroundColor = this.isMuted
+            ? "var(--error-container)"
+            : "var(--surface)";
+        }
+
+        recenterMap() {
+          // Simulate recentering animation
+          const routeLine = document.querySelector(".route-line");
+          routeLine.style.animation = "none";
+          setTimeout(() => {
+            routeLine.style.animation = "routePulse 2s ease-in-out infinite";
+          }, 100);
+        }
+
+        setupInstructions() {
+          this.instructions = [
+            {
+              action: "Head north on Current Road",
+              distance: "for 500m",
+              icon: "straight",
+            },
+            {
+              action: "Turn right onto FC Road",
+              distance: "in 200m",
+              icon: "turn_right",
+            },
+            {
+              action: "Continue straight",
+              distance: "for 1.2 km",
+              icon: "straight",
+            },
+            {
+              action: "Turn left onto Destination Street",
+              distance: "in 300m",
+              icon: "turn_left",
+            },
+            {
+              action: "Destination on your right",
+              distance: "in 100m",
+              icon: "flag",
+            },
+          ];
+
+          this.currentInstructionIndex = 0;
+        }
+
+        simulateNavigation() {
+          if (!this.isNavigating) return;
+
+          // Update current instruction
+          const instruction = this.instructions[this.currentInstructionIndex];
+          if (instruction) {
+            document.getElementById("instructionAction").textContent =
+              instruction.action;
+            document.getElementById("instructionDistance").textContent =
+              instruction.distance;
+            document.getElementById("instructionIcon").textContent =
+              instruction.icon;
+          }
+
+          // Simulate speed changes
+          this.updateSpeed();
+
+          // Continue simulation
+          setTimeout(() => {
+            if (this.currentInstructionIndex < this.instructions.length - 1) {
+              this.currentInstructionIndex++;
+              this.simulateNavigation();
+            }
+          }, 8000);
+        }
+
+        updateSpeed() {
+          const speeds = [35, 42, 38, 45, 40, 48, 35];
+          const randomSpeed = speeds[Math.floor(Math.random() * speeds.length)];
+
+          const speedElement = document.getElementById("currentSpeed");
+          if (speedElement) {
+            speedElement.textContent = randomSpeed;
+          }
+        }
+
+        showNotification(message, type = "info") {
+          const notification = document.createElement("div");
+          notification.className = `notification ${type}`;
+          notification.style.cssText = `
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--surface);
+            color: var(--on-surface);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--elevation-3);
+            z-index: 20;
+            font-size: var(--body-medium-size);
+            border: 1px solid var(--outline);
+          `;
+
+          if (type === "error") {
+            notification.style.backgroundColor = "var(--error-container)";
+            notification.style.color = "var(--on-error-container)";
+            notification.style.borderColor = "var(--error)";
+          }
+
+          notification.textContent = message;
+          document.body.appendChild(notification);
+
+          setTimeout(() => {
+            notification.remove();
+          }, 3000);
+        }
+      }
+
+      // Initialize directions when page loads
+      document.addEventListener("DOMContentLoaded", () => {
+        new DirectionsNavigation();
+      });
+    </script>
+  </body>
+</html>

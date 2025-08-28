@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Navigation - CityNav</title>
+    <link rel="stylesheet" href="../styles/design-tokens.css" />`n    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      .navigation-container {
+        height: 100vh;
+        position: relative;
+        background-color: var(--background);
+        overflow: hidden;
+      }
+
+      /* Navigation Map */
+      .nav-map {
+        flex: 1;
+        background: linear-gradient(135deg, #e8f5e8 0%, #f0f9f0 100%);
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .nav-map-content {
+        text-align: center;
+        color: var(--on-surface-variant);
+      }
+
+      /* Top Navigation Bar */
+      .nav-top-bar {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(
+          180deg,
+          rgba(0, 0, 0, 0.7) 0%,
+          transparent 100%
+        );
+        padding: var(--spacing-lg) var(--spacing-md) var(--spacing-md);
+        z-index: 20;
+        color: white;
+      }
+
+      .nav-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-sm);
+      }
+
+      .nav-time-distance {
+        text-align: center;
+      }
+
+      .arrival-time {
+        font-size: var(--headline-medium-size);
+        font-weight: var(--headline-medium-weight);
+        margin-bottom: 4px;
+      }
+
+      .travel-info {
+        font-size: var(--body-small-size);
+        opacity: 0.9;
+      }
+
+      .nav-controls {
+        display: flex;
+        gap: var(--spacing-sm);
+      }
+
+      .nav-control-btn {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-full);
+        background-color: rgba(255, 255, 255, 0.2);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+        backdrop-filter: blur(8px);
+      }
+
+      .nav-control-btn:hover {
+        background-color: rgba(255, 255, 255, 0.3);
+        transform: scale(1.05);
+      }
+
+      /* Current Instruction Panel */
+      .instruction-panel {
+        position: absolute;
+        bottom: 200px;
+        left: var(--spacing-md);
+        right: var(--spacing-md);
+        background-color: var(--surface);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--elevation-4);
+        padding: var(--spacing-lg);
+        z-index: 10;
+      }
+
+      .instruction-main {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-lg);
+        margin-bottom: var(--spacing-md);
+      }
+
+      .instruction-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: var(--radius-full);
+        background-color: var(--primary);
+        color: var(--on-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 32px;
+      }
+
+      .instruction-text {
+        flex: 1;
+      }
+
+      .instruction-direction {
+        font-size: var(--headline-small-size);
+        font-weight: var(--headline-small-weight);
+        color: var(--on-surface);
+        margin-bottom: 4px;
+      }
+
+      .instruction-distance {
+        font-size: var(--body-medium-size);
+        color: var(--on-surface-variant);
+      }
+
+      .next-instruction {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        padding-top: var(--spacing-sm);
+        border-top: 1px solid var(--outline-variant);
+        font-size: var(--body-small-size);
+        color: var(--on-surface-variant);
+      }
+
+      .next-instruction .material-icons {
+        font-size: 18px;
+      }
+
+      /* Bottom Control Panel */
+      .bottom-control-panel {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background-color: var(--surface);
+        border-top: 1px solid var(--outline-variant);
+        padding: var(--spacing-md);
+        z-index: 10;
+      }
+
+      .control-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-md);
+      }
+
+      .speed-info {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+      }
+
+      .speed-display {
+        font-size: var(--headline-small-size);
+        font-weight: var(--headline-small-weight);
+        color: var(--on-surface);
+      }
+
+      .speed-unit {
+        font-size: var(--body-small-size);
+        color: var(--on-surface-variant);
+      }
+
+      .route-progress {
+        flex: 1;
+        margin: 0 var(--spacing-lg);
+      }
+
+      .progress-bar {
+        background-color: var(--outline-variant);
+        height: 6px;
+        border-radius: var(--radius-full);
+        overflow: hidden;
+        margin-bottom: var(--spacing-xs);
+      }
+
+      .progress-fill {
+        background-color: var(--primary);
+        height: 100%;
+        border-radius: var(--radius-full);
+        transition: width var(--duration-medium) ease;
+        width: 35%;
+      }
+
+      .progress-text {
+        font-size: var(--label-small-size);
+        color: var(--on-surface-variant);
+        text-align: center;
+      }
+
+      .control-actions {
+        display: flex;
+        justify-content: center;
+        gap: var(--spacing-md);
+      }
+
+      .action-btn {
+        flex: 1;
+        max-width: 140px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: var(--spacing-sm);
+        background: none;
+        border: none;
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+        color: var(--on-surface-variant);
+        border-radius: var(--radius-md);
+      }
+
+      .action-btn:hover {
+        background-color: var(--surface-variant);
+        color: var(--on-surface);
+      }
+
+      .action-btn.danger {
+        color: var(--error);
+      }
+
+      .action-btn.danger:hover {
+        background-color: var(--error-container);
+        color: var(--on-error-container);
+      }
+
+      .action-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: var(--radius-md);
+        background-color: var(--surface-variant);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .action-btn:hover .action-icon {
+        background-color: var(--primary-container);
+        color: var(--on-primary-container);
+      }
+
+      .action-btn.danger:hover .action-icon {
+        background-color: var(--error);
+        color: var(--on-error);
+      }
+
+      .action-label {
+        font-size: var(--label-small-size);
+      }
+
+      /* Lane Guidance */
+      .lane-guidance {
+        position: absolute;
+        top: 120px;
+        left: var(--spacing-md);
+        right: var(--spacing-md);
+        background-color: var(--surface);
+        border-radius: var(--radius-md);
+        box-shadow: var(--elevation-2);
+        padding: var(--spacing-md);
+        z-index: 15;
+        display: none;
+      }
+
+      .lane-guidance.show {
+        display: block;
+        animation: slideDown 0.3s ease-out;
+      }
+
+      .lanes-container {
+        display: flex;
+        justify-content: center;
+        gap: 4px;
+        margin-bottom: var(--spacing-sm);
+      }
+
+      .lane {
+        width: 30px;
+        height: 40px;
+        background-color: var(--outline-variant);
+        border-radius: var(--radius-xs);
+        position: relative;
+        transition: all var(--duration-quick) ease;
+      }
+
+      .lane.recommended {
+        background-color: var(--primary);
+      }
+
+      .lane.restricted {
+        background-color: var(--error-container);
+      }
+
+      .lane::after {
+        content: "";
+        position: absolute;
+        bottom: 4px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 4px solid transparent;
+        border-right: 4px solid transparent;
+        border-bottom: 8px solid var(--surface);
+      }
+
+      .lane.recommended::after {
+        border-bottom-color: var(--on-primary);
+      }
+
+      .lane-instruction {
+        text-align: center;
+        font-size: var(--body-small-size);
+        color: var(--on-surface-variant);
+      }
+
+      /* Speed Alert */
+      .speed-alert {
+        position: absolute;
+        top: 180px;
+        right: var(--spacing-md);
+        background-color: var(--error-container);
+        color: var(--on-error-container);
+        padding: var(--spacing-sm) var(--spacing-md);
+        border-radius: var(--radius-full);
+        font-size: var(--label-medium-size);
+        font-weight: var(--label-medium-weight);
+        z-index: 15;
+        animation: pulse 1s ease-in-out infinite;
+        display: none;
+      }
+
+      .speed-alert.show {
+        display: block;
+      }
+
+      @keyframes slideDown {
+        from {
+          transform: translateY(-20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.05);
+        }
+      }
+
+      /* Navigation ended state */
+      .nav-completed {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        text-align: center;
+        background-color: var(--surface);
+        padding: var(--spacing-xl);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--elevation-4);
+        z-index: 100;
+        display: none;
+      }
+
+      .nav-completed.show {
+        display: block;
+        animation: zoomIn 0.5s ease-out;
+      }
+
+      @keyframes zoomIn {
+        from {
+          transform: translate(-50%, -50%) scale(0.8);
+          opacity: 0;
+        }
+        to {
+          transform: translate(-50%, -50%) scale(1);
+          opacity: 1;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="navigation-container">
+      <!-- Navigation Map -->
+      <div class="nav-map">
+        <div class="nav-map-content">
+          <span
+            class="material-icons"
+            style="
+              font-size: 64px;
+              margin-bottom: var(--spacing-md);
+              color: var(--primary);
+            "
+            >navigation</span
+          >
+          <div style="font-size: var(--headline-small-size)">
+            Turn-by-Turn Navigation
+          </div>
+          <div
+            style="
+              font-size: var(--body-medium-size);
+              margin-top: var(--spacing-xs);
+            "
+          >
+            GPS tracking and real-time guidance
+          </div>
+        </div>
+      </div>
+
+      <!-- Top Navigation Bar -->
+      <div class="nav-top-bar">
+        <div class="nav-header">
+          <button class="nav-control-btn" onclick="exitNavigation()">
+            <span class="material-icons">close</span>
+          </button>
+
+          <div class="nav-time-distance">
+            <div class="arrival-time">3:42 PM</div>
+            <div class="travel-info">15 min • 3.2 km remaining</div>
+          </div>
+
+          <div class="nav-controls">
+            <button class="nav-control-btn" onclick="toggleMute()">
+              <span class="material-icons" id="muteIcon">volume_up</span>
+            </button>
+            <button class="nav-control-btn" onclick="showRouteOptions()">
+              <span class="material-icons">alt_route</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Lane Guidance -->
+      <div class="lane-guidance" id="laneGuidance">
+        <div class="lanes-container">
+          <div class="lane"></div>
+          <div class="lane recommended"></div>
+          <div class="lane recommended"></div>
+          <div class="lane"></div>
+          <div class="lane restricted"></div>
+        </div>
+        <div class="lane-instruction">Stay in right lanes for FC Road</div>
+      </div>
+
+      <!-- Speed Alert -->
+      <div class="speed-alert" id="speedAlert">Speed Limit: 50 km/h</div>
+
+      <!-- Current Instruction Panel -->
+      <div class="instruction-panel">
+        <div class="instruction-main">
+          <div class="instruction-icon">
+            <span class="material-icons">turn_right</span>
+          </div>
+          <div class="instruction-text">
+            <div class="instruction-direction">Turn right onto FC Road</div>
+            <div class="instruction-distance">In 200 meters</div>
+          </div>
+        </div>
+        <div class="next-instruction">
+          <span class="material-icons">turn_left</span>
+          <span>Then continue straight for 1.2 km</span>
+        </div>
+      </div>
+
+      <!-- Bottom Control Panel -->
+      <div class="bottom-control-panel">
+        <div class="control-row">
+          <div class="speed-info">
+            <div>
+              <span class="speed-display">42</span>
+              <span class="speed-unit">km/h</span>
+            </div>
+          </div>
+
+          <div class="route-progress">
+            <div class="progress-bar">
+              <div class="progress-fill"></div>
+            </div>
+            <div class="progress-text">2.8 km of 5.2 km completed</div>
+          </div>
+
+          <div>
+            <span
+              style="
+                font-size: var(--label-small-size);
+                color: var(--on-surface-variant);
+              "
+              >ETA</span
+            >
+            <div
+              style="
+                font-size: var(--body-large-size);
+                font-weight: var(--body-large-weight);
+                color: var(--primary);
+              "
+            >
+              3:42 PM
+            </div>
+          </div>
+        </div>
+
+        <div class="control-actions">
+          <button class="action-btn" onclick="showSearchAlongRoute()">
+            <div class="action-icon">
+              <span class="material-icons">search</span>
+            </div>
+            <span class="action-label">Search</span>
+          </button>
+
+          <button class="action-btn" onclick="reportIncident()">
+            <div class="action-icon">
+              <span class="material-icons">report_problem</span>
+            </div>
+            <span class="action-label">Report</span>
+          </button>
+
+          <button class="action-btn" onclick="showAlternates()">
+            <div class="action-icon">
+              <span class="material-icons">alt_route</span>
+            </div>
+            <span class="action-label">Routes</span>
+          </button>
+
+          <button class="action-btn danger" onclick="emergencySOS()">
+            <div class="action-icon">
+              <span class="material-icons">emergency</span>
+            </div>
+            <span class="action-label">SOS</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Completed -->
+      <div class="nav-completed" id="navCompleted">
+        <div
+          style="
+            width: 80px;
+            height: 80px;
+            margin: 0 auto var(--spacing-lg);
+            background-color: var(--primary);
+            border-radius: var(--radius-full);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          "
+        >
+          <span
+            class="material-icons"
+            style="font-size: 40px; color: var(--on-primary)"
+            >check_circle</span
+          >
+        </div>
+        <h2 style="margin-bottom: var(--spacing-md)">Destination Reached!</h2>
+        <p
+          style="
+            color: var(--on-surface-variant);
+            margin-bottom: var(--spacing-xl);
+          "
+        >
+          You have arrived at Phoenix MarketCity.<br />
+          Total time: 18 minutes • Distance: 5.2 km
+        </p>
+        <div style="display: flex; gap: var(--spacing-sm)">
+          <button class="btn btn-text" onclick="goHome()">Home</button>
+          <button class="btn btn-primary" onclick="rateTrip()">
+            Rate Trip
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script src="../scripts/design-system.js"></script>
+    <script>
+      let navigationActive = true;
+      let currentStep = 0;
+      let isMuted = false;
+      let showingLaneGuidance = false;
+      let speedAlertActive = false;
+
+      const navigationSteps = [
+        {
+          instruction: "Head north on current road",
+          distance: "400m",
+          icon: "straight",
+          nextInstruction: "Then turn right onto FC Road",
+        },
+        {
+          instruction: "Turn right onto FC Road",
+          distance: "200m",
+          icon: "turn_right",
+          nextInstruction: "Then continue straight for 1.2 km",
+        },
+        {
+          instruction: "Continue straight on FC Road",
+          distance: "1.2km",
+          icon: "straight",
+          nextInstruction: "Then turn left onto Baner Road",
+        },
+        {
+          instruction: "Turn left onto Baner Road",
+          distance: "500m",
+          icon: "turn_left",
+          nextInstruction: "Then continue for 2.8 km",
+        },
+        {
+          instruction: "Continue on Baner Road",
+          distance: "2.8km",
+          icon: "straight",
+          nextInstruction: "Destination will be on your right",
+        },
+      ];
+
+      function updateNavigationStep() {
+        if (currentStep >= navigationSteps.length) {
+          completeNavigation();
+          return;
+        }
+
+        const step = navigationSteps[currentStep];
+
+        // Update instruction panel
+        document.querySelector(
+          ".instruction-icon .material-icons"
+        ).textContent = step.icon;
+        document.querySelector(".instruction-direction").textContent =
+          step.instruction;
+        document.querySelector(
+          ".instruction-distance"
+        ).textContent = `In ${step.distance}`;
+        document.querySelector(
+          ".next-instruction span:last-child"
+        ).textContent = step.nextInstruction;
+
+        // Update progress
+        const progress = ((currentStep + 1) / navigationSteps.length) * 100;
+        document.querySelector(".progress-fill").style.width = `${progress}%`;
+
+        // Update remaining distance/time
+        const remainingSteps = navigationSteps.length - currentStep - 1;
+        const remainingDistance = (remainingSteps * 1.2).toFixed(1);
+        const remainingTime = Math.max(5, remainingSteps * 3);
+
+        document.querySelector(
+          ".travel-info"
+        ).textContent = `${remainingTime} min • ${remainingDistance} km remaining`;
+
+        // Show lane guidance for certain steps
+        if (currentStep === 1) {
+          // For FC Road turn
+          showLaneGuidance(true);
+        } else {
+          showLaneGuidance(false);
+        }
+
+        // Simulate speed alerts
+        if (currentStep === 2) {
+          showSpeedAlert(true);
+        } else {
+          showSpeedAlert(false);
+        }
+
+        currentStep++;
+      }
+
+      function showLaneGuidance(show) {
+        const laneGuidance = document.getElementById("laneGuidance");
+        if (show && !showingLaneGuidance) {
+          laneGuidance.classList.add("show");
+          showingLaneGuidance = true;
+          setTimeout(() => {
+            laneGuidance.classList.remove("show");
+            showingLaneGuidance = false;
+          }, 5000);
+        }
+      }
+
+      function showSpeedAlert(show) {
+        const speedAlert = document.getElementById("speedAlert");
+        if (show && !speedAlertActive) {
+          speedAlert.classList.add("show");
+          speedAlertActive = true;
+          setTimeout(() => {
+            speedAlert.classList.remove("show");
+            speedAlertActive = false;
+          }, 8000);
+        }
+      }
+
+      function completeNavigation() {
+        navigationActive = false;
+        document.getElementById("navCompleted").classList.add("show");
+      }
+
+      function exitNavigation() {
+        if (confirm("Are you sure you want to exit navigation?")) {
+          window.location.href = "home-dashboard.html";
+        }
+      }
+
+      function toggleMute() {
+        isMuted = !isMuted;
+        const muteIcon = document.getElementById("muteIcon");
+        muteIcon.textContent = isMuted ? "volume_off" : "volume_up";
+        showToast(isMuted ? "Voice guidance muted" : "Voice guidance enabled");
+      }
+
+      function showRouteOptions() {
+        showModal("Route Options", "Choose an alternative route:", [
+          {
+            text: "🚗 Fastest route (current)",
+            action: () => console.log("Current route"),
+          },
+          {
+            text: "🛣️ Avoid tolls (+5 min)",
+            action: () => switchRoute("no-tolls"),
+          },
+          {
+            text: "🌳 Scenic route (+8 min)",
+            action: () => switchRoute("scenic"),
+          },
+        ]);
+      }
+
+      function showSearchAlongRoute() {
+        showModal("Search Along Route", "What are you looking for?", [
+          {
+            text: "⛽ Gas Stations",
+            action: () => console.log("Gas stations"),
+          },
+          { text: "🍕 Restaurants", action: () => console.log("Restaurants") },
+          { text: "🏥 Hospitals", action: () => console.log("Hospitals") },
+          { text: "🏧 ATMs", action: () => console.log("ATMs") },
+        ]);
+      }
+
+      function reportIncident() {
+        showModal("Report Incident", "What would you like to report?", [
+          {
+            text: "🚧 Road closure",
+            action: () => console.log("Road closure"),
+          },
+          { text: "🚗 Accident", action: () => console.log("Accident") },
+          { text: "👮 Police", action: () => console.log("Police") },
+          {
+            text: "🚜 Construction",
+            action: () => console.log("Construction"),
+          },
+        ]);
+      }
+
+      function showAlternates() {
+        window.location.href = "route-options.html";
+      }
+
+      function emergencySOS() {
+        if (confirm("This will contact emergency services. Continue?")) {
+          showToast("Contacting emergency services...");
+          // Implement SOS functionality
+        }
+      }
+
+      function switchRoute(routeType) {
+        showToast(`Switching to ${routeType} route...`);
+        setTimeout(() => {
+          showToast("Route updated successfully");
+        }, 2000);
+      }
+
+      function goHome() {
+        window.location.href = "home-dashboard.html";
+      }
+
+      function rateTrip() {
+        window.location.href = "feedback-modal.html";
+      }
+
+      function showToast(message) {
+        const toast = document.createElement("div");
+        toast.style.cssText = `
+          position: fixed;
+          top: 80px;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: var(--inverse-surface);
+          color: var(--inverse-on-surface);
+          padding: var(--spacing-sm) var(--spacing-lg);
+          border-radius: var(--radius-full);
+          font-size: var(--body-medium-size);
+          z-index: 1000;
+          animation: slideDown 0.3s ease-out;
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+          toast.remove();
+        }, 3000);
+      }
+
+      function showModal(title, message, actions) {
+        const modal = document.createElement("div");
+        modal.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.7);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 2000;
+          padding: var(--spacing-lg);
+          backdrop-filter: blur(4px);
+        `;
+
+        const modalContent = document.createElement("div");
+        modalContent.style.cssText = `
+          background-color: var(--surface);
+          border-radius: var(--radius-lg);
+          padding: var(--spacing-lg);
+          max-width: 400px;
+          width: 100%;
+          max-height: 70vh;
+          overflow-y: auto;
+        `;
+
+        modalContent.innerHTML = `
+          <h3 style="margin-bottom: var(--spacing-sm); color: var(--on-surface);">${title}</h3>
+          <p style="margin-bottom: var(--spacing-lg); color: var(--on-surface-variant);">${message}</p>
+          <div style="display: flex; flex-direction: column; gap: var(--spacing-xs);">
+            ${actions
+              .map(
+                (action, index) => `
+              <button class="btn btn-text" onclick="handleModalAction(${index})" style="justify-content: flex-start; padding: var(--spacing-md);">
+                ${action.text}
+              </button>
+            `
+              )
+              .join("")}
+            <button class="btn btn-text" onclick="closeModal()" style="justify-content: flex-start; margin-top: var(--spacing-sm); padding: var(--spacing-md);">
+              Cancel
+            </button>
+          </div>
+        `;
+
+        modal.appendChild(modalContent);
+        document.body.appendChild(modal);
+
+        window.currentModalActions = actions;
+        window.currentModal = modal;
+      }
+
+      function handleModalAction(index) {
+        window.currentModalActions[index].action();
+        closeModal();
+      }
+
+      function closeModal() {
+        if (window.currentModal) {
+          window.currentModal.remove();
+          window.currentModal = null;
+          window.currentModalActions = null;
+        }
+      }
+
+      // Start navigation simulation
+      setTimeout(() => {
+        updateNavigationStep();
+      }, 2000);
+
+      setInterval(() => {
+        if (navigationActive) {
+          updateNavigationStep();
+        }
+      }, 8000);
+
+      // Simulate speed changes
+      setInterval(() => {
+        if (navigationActive) {
+          const speed = 35 + Math.random() * 20;
+          document.querySelector(".speed-display").textContent =
+            Math.round(speed);
+        }
+      }, 3000);
+    </script>
+  </body>
+</html>

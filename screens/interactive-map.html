@@ -1,0 +1,553 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CityNav - Interactive Map</title>
+    <link rel="stylesheet" href="../styles/design-tokens.css" />`n    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      .map-container {
+        position: relative;
+        height: 100vh;
+        width: 100%;
+        background: linear-gradient(135deg, #e8f5e8 0%, #f0f9f0 100%);
+        overflow: hidden;
+      }
+
+      .map-placeholder {
+        width: 100%;
+        height: 100%;
+        background-image: radial-gradient(
+            circle at 30% 20%,
+            rgba(46, 125, 94, 0.1) 0%,
+            transparent 50%
+          ),
+          radial-gradient(
+            circle at 70% 60%,
+            rgba(46, 125, 94, 0.15) 0%,
+            transparent 40%
+          ),
+          radial-gradient(
+            circle at 20% 80%,
+            rgba(46, 125, 94, 0.08) 0%,
+            transparent 50%
+          );
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .map-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+      }
+
+      /* Search Bar */
+      .search-overlay {
+        position: absolute;
+        top: var(--spacing-lg);
+        left: var(--spacing-lg);
+        right: var(--spacing-lg);
+        z-index: 10;
+        pointer-events: auto;
+      }
+
+      .map-search-container {
+        background-color: var(--surface);
+        border-radius: var(--radius-lg);
+        box-shadow: var(--elevation-3);
+        padding: var(--spacing-sm);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+      }
+
+      .map-search-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: var(--body-large-size);
+        color: var(--on-surface);
+        padding: var(--spacing-md);
+      }
+
+      .map-search-input::placeholder {
+        color: var(--on-surface-variant);
+      }
+
+      .search-icon {
+        color: var(--on-surface-variant);
+        padding: var(--spacing-sm);
+      }
+
+      /* Location Controls */
+      .location-controls {
+        position: absolute;
+        right: var(--spacing-lg);
+        top: 120px;
+        z-index: 10;
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+        pointer-events: auto;
+      }
+
+      .control-btn {
+        width: 48px;
+        height: 48px;
+        background-color: var(--surface);
+        border: 1px solid var(--outline);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: var(--elevation-2);
+        transition: all var(--duration-quick) ease;
+      }
+
+      .control-btn:hover {
+        background-color: var(--primary-container);
+        border-color: var(--primary);
+      }
+
+      .control-btn:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .control-btn .material-icons {
+        color: var(--on-surface);
+        font-size: 24px;
+      }
+
+      /* Bottom Actions */
+      .map-actions {
+        position: absolute;
+        bottom: 80px;
+        left: var(--spacing-lg);
+        right: var(--spacing-lg);
+        z-index: 10;
+        display: flex;
+        gap: var(--spacing-md);
+        pointer-events: auto;
+      }
+
+      .action-chip {
+        background-color: var(--surface);
+        color: var(--on-surface);
+        padding: var(--spacing-md) var(--spacing-lg);
+        border-radius: var(--radius-full);
+        box-shadow: var(--elevation-2);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+        font-size: var(--label-large-size);
+        font-weight: var(--label-large-weight);
+        border: 1px solid var(--outline);
+      }
+
+      .action-chip:hover {
+        background-color: var(--primary-container);
+        border-color: var(--primary);
+        color: var(--on-primary-container);
+      }
+
+      .action-chip:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .action-chip .material-icons {
+        font-size: 20px;
+      }
+
+      /* Map Markers */
+      .map-marker {
+        position: absolute;
+        width: 32px;
+        height: 32px;
+        background-color: var(--primary);
+        border: 3px solid var(--surface);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: var(--elevation-2);
+        animation: markerPulse 2s infinite ease-in-out;
+      }
+
+      .map-marker.user-location {
+        background-color: var(--secondary);
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+      }
+
+      .map-marker.poi {
+        background-color: var(--tertiary);
+      }
+
+      .marker-1 {
+        top: 35%;
+        left: 40%;
+      }
+      .marker-2 {
+        top: 60%;
+        left: 65%;
+      }
+      .marker-3 {
+        top: 25%;
+        left: 70%;
+      }
+
+      .map-marker .material-icons {
+        color: var(--surface);
+        font-size: 16px;
+      }
+
+      @keyframes markerPulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      /* Current Location Indicator */
+      .current-location {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        width: 20px;
+        height: 20px;
+        background-color: var(--secondary);
+        border: 4px solid var(--surface);
+        border-radius: var(--radius-full);
+        box-shadow: var(--elevation-2);
+        animation: locationPulse 2s infinite ease-in-out;
+      }
+
+      @keyframes locationPulse {
+        0% {
+          box-shadow: 0 0 0 0 rgba(46, 125, 94, 0.4);
+        }
+        70% {
+          box-shadow: 0 0 0 20px rgba(46, 125, 94, 0);
+        }
+        100% {
+          box-shadow: 0 0 0 0 rgba(46, 125, 94, 0);
+        }
+      }
+
+      /* Status Bar */
+      .status-bar {
+        position: absolute;
+        top: var(--spacing-lg);
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: var(--success-container);
+        color: var(--on-success-container);
+        padding: var(--spacing-xs) var(--spacing-md);
+        border-radius: var(--radius-full);
+        font-size: var(--label-medium-size);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        z-index: 15;
+        pointer-events: auto;
+      }
+
+      .status-bar .material-icons {
+        font-size: 18px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="map-container">
+      <!-- Map Placeholder -->
+      <div class="map-placeholder">
+        <!-- Current Location Indicator -->
+        <div class="current-location"></div>
+
+        <!-- Map Markers -->
+        <div class="map-marker poi marker-1">
+          <span class="material-icons">local_hospital</span>
+        </div>
+        <div class="map-marker poi marker-2">
+          <span class="material-icons">local_gas_station</span>
+        </div>
+        <div class="map-marker poi marker-3">
+          <span class="material-icons">restaurant</span>
+        </div>
+      </div>
+
+      <!-- Status Bar -->
+      <div class="status-bar">
+        <span class="material-icons">signal_cellular_4_bar</span>
+        <span>GPS Active</span>
+      </div>
+
+      <!-- Search Overlay -->
+      <div class="search-overlay">
+        <div class="map-search-container">
+          <span class="material-icons search-icon">search</span>
+          <input
+            type="text"
+            class="map-search-input"
+            placeholder="Search places, addresses..."
+            id="mapSearchInput"
+          />
+          <button class="control-btn" style="width: 40px; height: 40px">
+            <span class="material-icons">mic</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Location Controls -->
+      <div class="location-controls">
+        <button class="control-btn" id="zoomInBtn">
+          <span class="material-icons">add</span>
+        </button>
+        <button class="control-btn" id="zoomOutBtn">
+          <span class="material-icons">remove</span>
+        </button>
+        <button class="control-btn" id="currentLocationBtn">
+          <span class="material-icons">my_location</span>
+        </button>
+        <button class="control-btn" id="layersBtn">
+          <span class="material-icons">layers</span>
+        </button>
+      </div>
+
+      <!-- Bottom Actions -->
+      <div class="map-actions">
+        <button class="action-chip" id="directionsBtn">
+          <span class="material-icons">directions</span>
+          <span>Directions</span>
+        </button>
+        <button class="action-chip" id="nearbyBtn">
+          <span class="material-icons">place</span>
+          <span>Nearby</span>
+        </button>
+        <button class="action-chip" id="safetyBtn">
+          <span class="material-icons">shield</span>
+          <span>Safety</span>
+        </button>
+      </div>
+
+      <!-- Navigation Bar -->
+      <div class="nav-bar">
+        <a href="home-dashboard.html" class="nav-item">
+          <span class="material-icons">home</span>
+          <span class="nav-label">Home</span>
+        </a>
+        <a href="search-discovery.html" class="nav-item">
+          <span class="material-icons">search</span>
+          <span class="nav-label">Search</span>
+        </a>
+        <a href="interactive-map.html" class="nav-item active">
+          <span class="material-icons">map</span>
+          <span class="nav-label">Map</span>
+        </a>
+        <a href="nearby-places.html" class="nav-item">
+          <span class="material-icons">place</span>
+          <span class="nav-label">Nearby</span>
+        </a>
+        <a href="profile-settings.html" class="nav-item">
+          <span class="material-icons">person</span>
+          <span class="nav-label">Profile</span>
+        </a>
+      </div>
+    </div>
+
+    <script src="../scripts/design-system.js"></script>
+    <script>
+      class InteractiveMap {
+        constructor() {
+          this.currentZoom = 1;
+          this.isGPSActive = true;
+          this.markers = document.querySelectorAll(".map-marker");
+          this.init();
+        }
+
+        init() {
+          this.setupEventListeners();
+          this.updateLocationStatus();
+        }
+
+        setupEventListeners() {
+          // Zoom controls
+          document
+            .getElementById("zoomInBtn")
+            .addEventListener("click", () => this.zoomIn());
+          document
+            .getElementById("zoomOutBtn")
+            .addEventListener("click", () => this.zoomOut());
+
+          // Location controls
+          document
+            .getElementById("currentLocationBtn")
+            .addEventListener("click", () => this.centerOnLocation());
+          document
+            .getElementById("layersBtn")
+            .addEventListener("click", () => this.toggleLayers());
+
+          // Action buttons
+          document
+            .getElementById("directionsBtn")
+            .addEventListener("click", () => this.openDirections());
+          document
+            .getElementById("nearbyBtn")
+            .addEventListener("click", () => this.showNearbyPlaces());
+          document
+            .getElementById("safetyBtn")
+            .addEventListener("click", () => this.openSafetyFeatures());
+
+          // Search functionality
+          document
+            .getElementById("mapSearchInput")
+            .addEventListener("input", (e) =>
+              this.handleSearch(e.target.value)
+            );
+
+          // Marker interactions
+          this.markers.forEach((marker) => {
+            marker.addEventListener("click", () => this.showMarkerInfo(marker));
+          });
+        }
+
+        zoomIn() {
+          if (this.currentZoom < 3) {
+            this.currentZoom += 0.2;
+            this.updateMapTransform();
+          }
+        }
+
+        zoomOut() {
+          if (this.currentZoom > 0.5) {
+            this.currentZoom -= 0.2;
+            this.updateMapTransform();
+          }
+        }
+
+        updateMapTransform() {
+          const mapPlaceholder = document.querySelector(".map-placeholder");
+          mapPlaceholder.style.transform = `scale(${this.currentZoom})`;
+        }
+
+        centerOnLocation() {
+          const currentLocation = document.querySelector(".current-location");
+          currentLocation.style.animation = "none";
+          setTimeout(() => {
+            currentLocation.style.animation =
+              "locationPulse 2s infinite ease-in-out";
+          }, 100);
+
+          this.showNotification("Centered on your location", "info");
+        }
+
+        toggleLayers() {
+          this.showNotification("Layer options coming soon", "info");
+        }
+
+        openDirections() {
+          window.location.href = "directions-navigation.html";
+        }
+
+        showNearbyPlaces() {
+          window.location.href = "nearby-places.html";
+        }
+
+        openSafetyFeatures() {
+          window.location.href = "safety-features.html";
+        }
+
+        handleSearch(query) {
+          if (query.length > 2) {
+            // Simulate search functionality
+            console.log("Searching for:", query);
+          }
+        }
+
+        showMarkerInfo(marker) {
+          const icons = {
+            local_hospital: "City Hospital - 0.5 km",
+            local_gas_station: "Shell Petrol Pump - 0.8 km",
+            restaurant: "Popular Restaurant - 1.2 km",
+          };
+
+          const iconName = marker.querySelector(".material-icons").textContent;
+          const info = icons[iconName] || "Point of Interest";
+
+          this.showNotification(info, "info");
+        }
+
+        updateLocationStatus() {
+          const statusBar = document.querySelector(".status-bar");
+          if (this.isGPSActive) {
+            statusBar.innerHTML = `
+              <span class="material-icons">signal_cellular_4_bar</span>
+              <span>GPS Active</span>
+            `;
+            statusBar.style.backgroundColor = "var(--success-container)";
+            statusBar.style.color = "var(--on-success-container)";
+          }
+        }
+
+        showNotification(message, type = "info") {
+          const notification = document.createElement("div");
+          notification.className = `notification ${type}`;
+          notification.style.cssText = `
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--surface);
+            color: var(--on-surface);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--elevation-3);
+            z-index: 20;
+            font-size: var(--body-medium-size);
+            border: 1px solid var(--outline);
+          `;
+          notification.textContent = message;
+
+          document.body.appendChild(notification);
+
+          setTimeout(() => {
+            notification.remove();
+          }, 3000);
+        }
+      }
+
+      // Initialize map when page loads
+      document.addEventListener("DOMContentLoaded", () => {
+        new InteractiveMap();
+      });
+    </script>
+  </body>
+</html>

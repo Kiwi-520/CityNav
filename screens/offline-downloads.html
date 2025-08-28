@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CityNav - Offline Downloads</title>
+    <link rel="stylesheet" href="../styles/design-tokens.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      .offline-container {
+        padding: var(--spacing-lg) var(--spacing-lg) 100px;
+      }
+
+      /* Storage Overview */
+      .storage-overview {
+        background-color: var(--surface);
+        border: 1px solid var(--outline);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-xl);
+        margin-bottom: var(--spacing-xl);
+        text-align: center;
+      }
+
+      .storage-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(
+          135deg,
+          var(--primary) 0%,
+          var(--primary-dark) 100%
+        );
+        color: var(--on-primary);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto var(--spacing-lg);
+        font-size: 32px;
+      }
+
+      .storage-stats {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: var(--spacing-lg);
+      }
+
+      .storage-stat {
+        text-align: center;
+      }
+
+      .storage-value {
+        font-size: var(--headline-medium-size);
+        font-weight: var(--headline-medium-weight);
+        color: var(--primary);
+        margin: 0;
+      }
+
+      .storage-label {
+        font-size: var(--label-medium-size);
+        color: var(--on-surface-variant);
+        margin-top: var(--spacing-xs);
+      }
+
+      .storage-bar {
+        background-color: var(--outline-variant);
+        height: 8px;
+        border-radius: var(--radius-full);
+        overflow: hidden;
+        margin-bottom: var(--spacing-md);
+      }
+
+      .storage-fill {
+        background: linear-gradient(
+          90deg,
+          var(--success) 0%,
+          var(--primary) 70%,
+          var(--warning) 90%,
+          var(--error) 100%
+        );
+        height: 100%;
+        width: 45%;
+        border-radius: var(--radius-full);
+        transition: width var(--duration-medium) ease;
+      }
+
+      .storage-info {
+        font-size: var(--body-small-size);
+        color: var(--on-surface-variant);
+      }
+
+      /* Download Options */
+      .download-section {
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .section-title {
+        font-size: var(--headline-small-size);
+        font-weight: var(--headline-small-weight);
+        color: var(--on-surface);
+        margin: 0 0 var(--spacing-lg) 0;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+      }
+
+      .section-title .material-icons {
+        color: var(--primary);
+        font-size: 24px;
+      }
+
+      .download-options {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+      }
+
+      .download-option {
+        background-color: var(--surface);
+        border: 1px solid var(--outline);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-lg);
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+      }
+
+      .download-option:hover {
+        background-color: var(--surface-variant);
+        border-color: var(--primary);
+        transform: translateY(-1px);
+      }
+
+      .download-option:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .option-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: var(--spacing-md);
+      }
+
+      .option-info {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+      }
+
+      .option-icon {
+        width: 48px;
+        height: 48px;
+        background-color: var(--primary-container);
+        color: var(--primary);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+      }
+
+      .option-content {
+        flex: 1;
+      }
+
+      .option-title {
+        font-size: var(--body-large-size);
+        font-weight: var(--body-large-weight);
+        color: var(--on-surface);
+        margin: 0 0 var(--spacing-xs) 0;
+      }
+
+      .option-description {
+        font-size: var(--body-small-size);
+        color: var(--on-surface-variant);
+        margin: 0;
+      }
+
+      .option-size {
+        font-size: var(--label-medium-size);
+        font-weight: var(--label-medium-weight);
+        color: var(--primary);
+      }
+
+      .download-btn {
+        background-color: var(--primary);
+        color: var(--on-primary);
+        border: none;
+        padding: var(--spacing-sm) var(--spacing-lg);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-size: var(--label-medium-size);
+        font-weight: var(--label-medium-weight);
+        transition: all var(--duration-quick) ease;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+      }
+
+      .download-btn:hover {
+        background-color: var(--primary-dark);
+        transform: scale(1.02);
+      }
+
+      .download-btn:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .download-btn.downloading {
+        background-color: var(--secondary);
+        cursor: not-allowed;
+      }
+
+      .download-btn .material-icons {
+        font-size: 18px;
+      }
+
+      /* Downloaded Maps */
+      .downloaded-maps {
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .map-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+      }
+
+      .map-item {
+        background-color: var(--surface);
+        border: 1px solid var(--outline);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-lg);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+      }
+
+      .map-item.updating {
+        border-color: var(--secondary);
+        background-color: var(--secondary-container);
+      }
+
+      .map-icon {
+        width: 40px;
+        height: 40px;
+        background-color: var(--success-container);
+        color: var(--success);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 20px;
+        flex-shrink: 0;
+      }
+
+      .map-info {
+        flex: 1;
+      }
+
+      .map-name {
+        font-size: var(--body-large-size);
+        font-weight: var(--body-large-weight);
+        color: var(--on-surface);
+        margin: 0 0 var(--spacing-xs) 0;
+      }
+
+      .map-details {
+        font-size: var(--body-small-size);
+        color: var(--on-surface-variant);
+        margin: 0;
+      }
+
+      .map-actions {
+        display: flex;
+        gap: var(--spacing-sm);
+      }
+
+      .map-action-btn {
+        width: 36px;
+        height: 36px;
+        background-color: var(--surface-variant);
+        border: 1px solid var(--outline);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+      }
+
+      .map-action-btn:hover {
+        background-color: var(--primary-container);
+        border-color: var(--primary);
+      }
+
+      .map-action-btn:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .map-action-btn.delete:hover {
+        background-color: var(--error-container);
+        border-color: var(--error);
+      }
+
+      .map-action-btn .material-icons {
+        font-size: 18px;
+        color: var(--on-surface-variant);
+      }
+
+      .map-action-btn:hover .material-icons {
+        color: var(--primary);
+      }
+
+      .map-action-btn.delete:hover .material-icons {
+        color: var(--error);
+      }
+
+      /* Progress Indicators */
+      .progress-container {
+        margin-top: var(--spacing-sm);
+      }
+
+      .progress-bar {
+        background-color: var(--outline-variant);
+        height: 4px;
+        border-radius: var(--radius-full);
+        overflow: hidden;
+        margin-bottom: var(--spacing-xs);
+      }
+
+      .progress-fill {
+        background-color: var(--primary);
+        height: 100%;
+        border-radius: var(--radius-full);
+        transition: width var(--duration-medium) ease;
+        width: 0%;
+      }
+
+      .progress-text {
+        font-size: var(--label-small-size);
+        color: var(--on-surface-variant);
+        display: flex;
+        justify-content: space-between;
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: var(--spacing-xxl);
+        color: var(--on-surface-variant);
+      }
+
+      .empty-icon {
+        font-size: 64px;
+        margin-bottom: var(--spacing-md);
+        opacity: 0.5;
+      }
+
+      .empty-title {
+        font-size: var(--headline-small-size);
+        margin-bottom: var(--spacing-sm);
+      }
+
+      .empty-subtitle {
+        font-size: var(--body-medium-size);
+      }
+
+      /* Settings */
+      .offline-settings {
+        background-color: var(--surface-variant);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-lg);
+      }
+
+      .setting-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--spacing-md) 0;
+        border-bottom: 1px solid var(--outline-variant);
+      }
+
+      .setting-item:last-child {
+        border-bottom: none;
+      }
+
+      .setting-info {
+        flex: 1;
+      }
+
+      .setting-title {
+        font-size: var(--body-medium-size);
+        font-weight: var(--body-medium-weight);
+        color: var(--on-surface);
+        margin: 0 0 var(--spacing-xs) 0;
+      }
+
+      .setting-description {
+        font-size: var(--body-small-size);
+        color: var(--on-surface-variant);
+        margin: 0;
+      }
+
+      .setting-toggle {
+        position: relative;
+        width: 52px;
+        height: 28px;
+        background-color: var(--outline-variant);
+        border-radius: var(--radius-full);
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+      }
+
+      .setting-toggle.active {
+        background-color: var(--primary);
+      }
+
+      .setting-toggle::after {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 24px;
+        height: 24px;
+        background-color: var(--surface);
+        border-radius: var(--radius-full);
+        transition: transform var(--duration-quick) ease;
+      }
+
+      .setting-toggle.active::after {
+        transform: translateX(24px);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="citynav-bg">
+      <div class="citynav-card">
+        <div class="offline-container">
+          <!-- Storage Overview -->
+          <div class="storage-overview">
+            <div class="storage-icon">
+              <span class="material-icons">cloud_download</span>
+            </div>
+
+            <div class="storage-stats">
+              <div class="storage-stat">
+                <div class="storage-value" id="usedStorage">2.1 GB</div>
+                <div class="storage-label">Used</div>
+              </div>
+              <div class="storage-stat">
+                <div class="storage-value" id="totalStorage">8 GB</div>
+                <div class="storage-label">Available</div>
+              </div>
+            </div>
+
+            <div class="storage-bar">
+              <div class="storage-fill" id="storageBar"></div>
+            </div>
+
+            <div class="storage-info">5.9 GB remaining • 3 maps downloaded</div>
+          </div>
+
+          <!-- Download Options -->
+          <div class="download-section">
+            <h3 class="section-title">
+              <span class="material-icons">download</span>
+              Available Downloads
+            </h3>
+
+            <div class="download-options">
+              <div class="download-option" tabindex="0" data-map="pune-city">
+                <div class="option-header">
+                  <div class="option-info">
+                    <div class="option-icon">
+                      <span class="material-icons">location_city</span>
+                    </div>
+                    <div class="option-content">
+                      <h4 class="option-title">Pune City Center</h4>
+                      <p class="option-description">
+                        Detailed map with all major landmarks and routes
+                      </p>
+                    </div>
+                  </div>
+                  <div class="option-size">450 MB</div>
+                </div>
+                <button class="download-btn" data-map="pune-city">
+                  <span class="material-icons">download</span>
+                  <span>Download</span>
+                </button>
+              </div>
+
+              <div class="download-option" tabindex="0" data-map="mumbai">
+                <div class="option-header">
+                  <div class="option-info">
+                    <div class="option-icon">
+                      <span class="material-icons">location_city</span>
+                    </div>
+                    <div class="option-content">
+                      <h4 class="option-title">Mumbai Metropolitan</h4>
+                      <p class="option-description">
+                        Complete Mumbai region including suburbs
+                      </p>
+                    </div>
+                  </div>
+                  <div class="option-size">1.2 GB</div>
+                </div>
+                <button class="download-btn" data-map="mumbai">
+                  <span class="material-icons">download</span>
+                  <span>Download</span>
+                </button>
+              </div>
+
+              <div class="download-option" tabindex="0" data-map="delhi">
+                <div class="option-header">
+                  <div class="option-info">
+                    <div class="option-icon">
+                      <span class="material-icons">location_city</span>
+                    </div>
+                    <div class="option-content">
+                      <h4 class="option-title">Delhi NCR</h4>
+                      <p class="option-description">
+                        Delhi, Gurgaon, Noida and surrounding areas
+                      </p>
+                    </div>
+                  </div>
+                  <div class="option-size">950 MB</div>
+                </div>
+                <button class="download-btn" data-map="delhi">
+                  <span class="material-icons">download</span>
+                  <span>Download</span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Downloaded Maps -->
+          <div class="downloaded-maps">
+            <h3 class="section-title">
+              <span class="material-icons">offline_pin</span>
+              Downloaded Maps
+            </h3>
+
+            <div class="map-list" id="downloadedMapsList">
+              <div class="map-item">
+                <div class="map-icon">
+                  <span class="material-icons">map</span>
+                </div>
+                <div class="map-info">
+                  <h4 class="map-name">Pune Central Areas</h4>
+                  <p class="map-details">
+                    Downloaded 2 days ago • 680 MB • Last updated today
+                  </p>
+                </div>
+                <div class="map-actions">
+                  <button class="map-action-btn" title="Update">
+                    <span class="material-icons">refresh</span>
+                  </button>
+                  <button class="map-action-btn delete" title="Delete">
+                    <span class="material-icons">delete</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="map-item">
+                <div class="map-icon">
+                  <span class="material-icons">map</span>
+                </div>
+                <div class="map-info">
+                  <h4 class="map-name">Bangalore IT Corridor</h4>
+                  <p class="map-details">
+                    Downloaded 5 days ago • 520 MB • Update available
+                  </p>
+                </div>
+                <div class="map-actions">
+                  <button class="map-action-btn" title="Update">
+                    <span class="material-icons">refresh</span>
+                  </button>
+                  <button class="map-action-btn delete" title="Delete">
+                    <span class="material-icons">delete</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="map-item updating">
+                <div class="map-icon">
+                  <span class="material-icons">sync</span>
+                </div>
+                <div class="map-info">
+                  <h4 class="map-name">Hyderabad Central</h4>
+                  <p class="map-details">Updating... • 890 MB</p>
+                  <div class="progress-container">
+                    <div class="progress-bar">
+                      <div class="progress-fill" style="width: 65%"></div>
+                    </div>
+                    <div class="progress-text">
+                      <span>Updating map data...</span>
+                      <span>65%</span>
+                    </div>
+                  </div>
+                </div>
+                <div class="map-actions">
+                  <button class="map-action-btn" title="Cancel">
+                    <span class="material-icons">close</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Offline Settings -->
+          <div class="offline-settings">
+            <h3 class="section-title">
+              <span class="material-icons">settings</span>
+              Offline Settings
+            </h3>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-title">Auto-update maps</div>
+                <div class="setting-description">
+                  Automatically update downloaded maps when connected to WiFi
+                </div>
+              </div>
+              <div
+                class="setting-toggle active"
+                data-setting="auto-update"
+              ></div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-title">WiFi only downloads</div>
+                <div class="setting-description">
+                  Only download maps when connected to WiFi
+                </div>
+              </div>
+              <div class="setting-toggle active" data-setting="wifi-only"></div>
+            </div>
+
+            <div class="setting-item">
+              <div class="setting-info">
+                <div class="setting-title">Battery optimization</div>
+                <div class="setting-description">
+                  Pause downloads when battery is low
+                </div>
+              </div>
+              <div
+                class="setting-toggle"
+                data-setting="battery-optimization"
+              ></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <div class="nav-bar">
+          <a href="home-dashboard.html" class="nav-item">
+            <span class="material-icons">home</span>
+            <span class="nav-label">Home</span>
+          </a>
+          <a href="search-discovery.html" class="nav-item">
+            <span class="material-icons">search</span>
+            <span class="nav-label">Search</span>
+          </a>
+          <a href="interactive-map.html" class="nav-item">
+            <span class="material-icons">map</span>
+            <span class="nav-label">Map</span>
+          </a>
+          <a href="nearby-places.html" class="nav-item">
+            <span class="material-icons">place</span>
+            <span class="nav-label">Nearby</span>
+          </a>
+          <a href="profile-settings.html" class="nav-item">
+            <span class="material-icons">person</span>
+            <span class="nav-label">Profile</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <script src="../scripts/design-system.js"></script>
+    <script>
+      class OfflineDownloads {
+        constructor() {
+          this.downloads = new Map();
+          this.settings = {
+            "auto-update": true,
+            "wifi-only": true,
+            "battery-optimization": false,
+          };
+
+          this.init();
+        }
+
+        init() {
+          this.setupEventListeners();
+          this.loadSettings();
+          this.updateStorageDisplay();
+        }
+
+        setupEventListeners() {
+          // Download buttons
+          document.querySelectorAll(".download-btn").forEach((btn) => {
+            btn.addEventListener("click", (e) => {
+              e.stopPropagation();
+              const mapId = btn.dataset.map;
+              this.startDownload(mapId, btn);
+            });
+          });
+
+          // Map actions
+          document.querySelectorAll(".map-action-btn").forEach((btn) => {
+            btn.addEventListener("click", () => this.handleMapAction(btn));
+          });
+
+          // Settings toggles
+          document.querySelectorAll(".setting-toggle").forEach((toggle) => {
+            toggle.addEventListener("click", () => this.toggleSetting(toggle));
+          });
+
+          // Download options (keyboard navigation)
+          document.querySelectorAll(".download-option").forEach((option) => {
+            option.addEventListener("keypress", (e) => {
+              if (e.key === "Enter") {
+                const btn = option.querySelector(".download-btn");
+                btn.click();
+              }
+            });
+          });
+        }
+
+        startDownload(mapId, button) {
+          if (this.downloads.has(mapId)) {
+            this.showNotification("Download already in progress", "warning");
+            return;
+          }
+
+          // Update button state
+          button.classList.add("downloading");
+          button.innerHTML = `
+            <span class="material-icons">downloading</span>
+            <span>Downloading...</span>
+          `;
+          button.disabled = true;
+
+          // Create progress container
+          const progressContainer = document.createElement("div");
+          progressContainer.className = "progress-container";
+          progressContainer.innerHTML = `
+            <div class="progress-bar">
+              <div class="progress-fill" id="progress-${mapId}"></div>
+            </div>
+            <div class="progress-text">
+              <span>Downloading map data...</span>
+              <span id="progress-text-${mapId}">0%</span>
+            </div>
+          `;
+
+          const option = button.closest(".download-option");
+          option.appendChild(progressContainer);
+
+          // Simulate download progress
+          this.simulateDownload(mapId, button, progressContainer);
+        }
+
+        simulateDownload(mapId, button, progressContainer) {
+          let progress = 0;
+          const progressBar = document.getElementById(`progress-${mapId}`);
+          const progressText = document.getElementById(
+            `progress-text-${mapId}`
+          );
+
+          const downloadInterval = setInterval(() => {
+            progress += Math.random() * 15;
+            if (progress > 100) progress = 100;
+
+            progressBar.style.width = `${progress}%`;
+            progressText.textContent = `${Math.round(progress)}%`;
+
+            if (progress >= 100) {
+              clearInterval(downloadInterval);
+              this.completeDownload(mapId, button, progressContainer);
+            }
+          }, 200);
+
+          this.downloads.set(mapId, downloadInterval);
+        }
+
+        completeDownload(mapId, button, progressContainer) {
+          this.downloads.delete(mapId);
+
+          // Remove the download option
+          const option = button.closest(".download-option");
+          option.remove();
+
+          // Add to downloaded maps
+          this.addToDownloadedMaps(mapId);
+
+          // Update storage
+          this.updateStorageDisplay();
+
+          this.showNotification("Map downloaded successfully!", "success");
+        }
+
+        addToDownloadedMaps(mapId) {
+          const mapNames = {
+            "pune-city": "Pune City Center",
+            mumbai: "Mumbai Metropolitan",
+            delhi: "Delhi NCR",
+          };
+
+          const mapSizes = {
+            "pune-city": "450 MB",
+            mumbai: "1.2 GB",
+            delhi: "950 MB",
+          };
+
+          const mapList = document.getElementById("downloadedMapsList");
+          const newMapItem = document.createElement("div");
+          newMapItem.className = "map-item";
+          newMapItem.innerHTML = `
+            <div class="map-icon">
+              <span class="material-icons">map</span>
+            </div>
+            <div class="map-info">
+              <h4 class="map-name">${mapNames[mapId]}</h4>
+              <p class="map-details">Downloaded just now • ${mapSizes[mapId]} • Up to date</p>
+            </div>
+            <div class="map-actions">
+              <button class="map-action-btn" title="Update">
+                <span class="material-icons">refresh</span>
+              </button>
+              <button class="map-action-btn delete" title="Delete">
+                <span class="material-icons">delete</span>
+              </button>
+            </div>
+          `;
+
+          mapList.insertBefore(newMapItem, mapList.firstChild);
+
+          // Add event listeners to new buttons
+          newMapItem.querySelectorAll(".map-action-btn").forEach((btn) => {
+            btn.addEventListener("click", () => this.handleMapAction(btn));
+          });
+        }
+
+        handleMapAction(button) {
+          const title = button.getAttribute("title");
+          const mapItem = button.closest(".map-item");
+          const mapName = mapItem.querySelector(".map-name").textContent;
+
+          switch (title) {
+            case "Update":
+              this.updateMap(mapItem, mapName);
+              break;
+            case "Delete":
+              this.deleteMap(mapItem, mapName);
+              break;
+            case "Cancel":
+              this.cancelUpdate(mapItem);
+              break;
+          }
+        }
+
+        updateMap(mapItem, mapName) {
+          mapItem.classList.add("updating");
+          mapItem.querySelector(".map-icon .material-icons").textContent =
+            "sync";
+          mapItem.querySelector(".map-details").textContent =
+            "Updating... • Checking for changes";
+
+          // Add progress bar
+          const progressContainer = document.createElement("div");
+          progressContainer.className = "progress-container";
+          progressContainer.innerHTML = `
+            <div class="progress-bar">
+              <div class="progress-fill" style="width: 0%;"></div>
+            </div>
+            <div class="progress-text">
+              <span>Updating map data...</span>
+              <span>0%</span>
+            </div>
+          `;
+
+          mapItem.querySelector(".map-info").appendChild(progressContainer);
+
+          // Change action button to cancel
+          const actionBtn = mapItem.querySelector(".map-action-btn");
+          actionBtn.innerHTML = '<span class="material-icons">close</span>';
+          actionBtn.setAttribute("title", "Cancel");
+
+          this.showNotification(`Updating ${mapName}...`, "info");
+        }
+
+        deleteMap(mapItem, mapName) {
+          this.confirmDelete(mapName, () => {
+            mapItem.remove();
+            this.updateStorageDisplay();
+            this.showNotification(`${mapName} deleted`, "success");
+          });
+        }
+
+        cancelUpdate(mapItem) {
+          mapItem.classList.remove("updating");
+          mapItem.querySelector(".map-icon .material-icons").textContent =
+            "map";
+
+          // Remove progress container
+          const progressContainer = mapItem.querySelector(
+            ".progress-container"
+          );
+          if (progressContainer) {
+            progressContainer.remove();
+          }
+
+          // Reset action buttons
+          const actions = mapItem.querySelector(".map-actions");
+          actions.innerHTML = `
+            <button class="map-action-btn" title="Update">
+              <span class="material-icons">refresh</span>
+            </button>
+            <button class="map-action-btn delete" title="Delete">
+              <span class="material-icons">delete</span>
+            </button>
+          `;
+
+          // Re-add event listeners
+          actions.querySelectorAll(".map-action-btn").forEach((btn) => {
+            btn.addEventListener("click", () => this.handleMapAction(btn));
+          });
+
+          this.showNotification("Update cancelled", "info");
+        }
+
+        confirmDelete(mapName, onConfirm) {
+          const modal = document.createElement("div");
+          modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+          `;
+
+          const dialog = document.createElement("div");
+          dialog.style.cssText = `
+            background-color: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid var(--outline);
+          `;
+
+          dialog.innerHTML = `
+            <h3 style="margin: 0 0 var(--spacing-md) 0; color: var(--on-surface);">Delete Map?</h3>
+            <p style="margin: 0 0 var(--spacing-lg) 0; color: var(--on-surface-variant);">
+              This will delete "${mapName}" and free up storage space. You can download it again later.
+            </p>
+            <div style="display: flex; gap: var(--spacing-md); justify-content: center;">
+              <button id="cancelBtn" class="btn btn-outline">Cancel</button>
+              <button id="deleteBtn" class="btn btn-primary" style="background-color: var(--error); border-color: var(--error);">Delete</button>
+            </div>
+          `;
+
+          modal.appendChild(dialog);
+          document.body.appendChild(modal);
+
+          dialog.querySelector("#cancelBtn").addEventListener("click", () => {
+            document.body.removeChild(modal);
+          });
+
+          dialog.querySelector("#deleteBtn").addEventListener("click", () => {
+            onConfirm();
+            document.body.removeChild(modal);
+          });
+        }
+
+        toggleSetting(toggle) {
+          const settingKey = toggle.dataset.setting;
+          const isActive = toggle.classList.contains("active");
+
+          toggle.classList.toggle("active", !isActive);
+          this.settings[settingKey] = !isActive;
+
+          // Save settings
+          localStorage.setItem(
+            "cityNavOfflineSettings",
+            JSON.stringify(this.settings)
+          );
+
+          this.showNotification(
+            `${this.getSettingLabel(settingKey)} ${
+              !isActive ? "enabled" : "disabled"
+            }`,
+            "info"
+          );
+        }
+
+        getSettingLabel(settingKey) {
+          const labels = {
+            "auto-update": "Auto-update",
+            "wifi-only": "WiFi only downloads",
+            "battery-optimization": "Battery optimization",
+          };
+          return labels[settingKey] || settingKey;
+        }
+
+        loadSettings() {
+          const saved = localStorage.getItem("cityNavOfflineSettings");
+          if (saved) {
+            this.settings = { ...this.settings, ...JSON.parse(saved) };
+          }
+
+          Object.keys(this.settings).forEach((key) => {
+            const toggle = document.querySelector(`[data-setting="${key}"]`);
+            if (toggle) {
+              toggle.classList.toggle("active", this.settings[key]);
+            }
+          });
+        }
+
+        updateStorageDisplay() {
+          // Simulate storage calculation
+          const downloadedMaps = document.querySelectorAll(
+            "#downloadedMapsList .map-item"
+          ).length;
+          const usedGB = downloadedMaps * 0.7; // Average 700MB per map
+          const totalGB = 8;
+          const percentage = (usedGB / totalGB) * 100;
+
+          document.getElementById(
+            "usedStorage"
+          ).textContent = `${usedGB.toFixed(1)} GB`;
+          document.getElementById("storageBar").style.width = `${percentage}%`;
+        }
+
+        showNotification(message, type = "info") {
+          const notification = document.createElement("div");
+          notification.className = `notification ${type}`;
+          notification.style.cssText = `
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--surface);
+            color: var(--on-surface);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--elevation-3);
+            z-index: 20;
+            font-size: var(--body-medium-size);
+            border: 1px solid var(--outline);
+          `;
+
+          if (type === "success") {
+            notification.style.backgroundColor = "var(--success-container)";
+            notification.style.color = "var(--on-success-container)";
+            notification.style.borderColor = "var(--success)";
+          } else if (type === "warning") {
+            notification.style.backgroundColor = "var(--warning-container)";
+            notification.style.color = "var(--on-warning-container)";
+            notification.style.borderColor = "var(--warning)";
+          }
+
+          notification.textContent = message;
+          document.body.appendChild(notification);
+
+          setTimeout(() => {
+            notification.remove();
+          }, 3000);
+        }
+      }
+
+      // Initialize offline downloads when page loads
+      document.addEventListener("DOMContentLoaded", () => {
+        new OfflineDownloads();
+      });
+    </script>
+  </body>
+</html>

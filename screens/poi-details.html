@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>POI Details - CityNav</title>
+    <link rel="stylesheet" href="../styles/design-tokens.css" />`n    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      .poi-container {
+        padding-bottom: 80px;
+      }
+
+      .poi-header {
+        position: relative;
+        height: 200px;
+        background: linear-gradient(
+          135deg,
+          var(--primary-container),
+          var(--secondary-container)
+        );
+        border-radius: var(--radius-lg);
+        margin-bottom: var(--spacing-lg);
+        overflow: hidden;
+      }
+
+      .poi-image {
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(45deg, #e8f5e8, #f0f8f0);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--on-surface-variant);
+        font-size: 48px;
+      }
+
+      .poi-image-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
+        padding: var(--spacing-lg);
+        color: white;
+      }
+
+      .poi-title {
+        font-size: var(--headline-medium-size);
+        font-weight: var(--headline-medium-weight);
+        margin-bottom: var(--spacing-xs);
+      }
+
+      .poi-category {
+        font-size: var(--body-medium-size);
+        opacity: 0.9;
+      }
+
+      .poi-actions {
+        position: absolute;
+        top: var(--spacing-md);
+        right: var(--spacing-md);
+        display: flex;
+        gap: var(--spacing-sm);
+      }
+
+      .poi-action-btn {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-full);
+        background-color: rgba(255, 255, 255, 0.9);
+        border: none;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+        backdrop-filter: blur(8px);
+      }
+
+      .poi-action-btn:hover {
+        background-color: white;
+        transform: scale(1.05);
+      }
+
+      .poi-info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .info-card {
+        text-align: center;
+        padding: var(--spacing-lg);
+        background-color: var(--surface);
+        border-radius: var(--radius-lg);
+        border: 1px solid var(--outline-variant);
+      }
+
+      .info-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto var(--spacing-sm);
+        background-color: var(--primary-container);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--on-primary-container);
+      }
+
+      .info-value {
+        font-size: var(--headline-small-size);
+        font-weight: var(--headline-small-weight);
+        color: var(--on-surface);
+        margin-bottom: 4px;
+      }
+
+      .info-label {
+        font-size: var(--body-small-size);
+        color: var(--on-surface-variant);
+      }
+
+      .poi-details {
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .detail-section {
+        margin-bottom: var(--spacing-lg);
+      }
+
+      .detail-title {
+        font-size: var(--headline-small-size);
+        font-weight: var(--headline-small-weight);
+        color: var(--on-surface);
+        margin-bottom: var(--spacing-md);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+      }
+
+      .contact-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+      }
+
+      .contact-item {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+        padding: var(--spacing-md);
+        background-color: var(--surface);
+        border-radius: var(--radius-md);
+        border: 1px solid var(--outline-variant);
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+      }
+
+      .contact-item:hover {
+        background-color: var(--surface-variant);
+        border-color: var(--primary);
+      }
+
+      .contact-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-md);
+        background-color: var(--primary-container);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--on-primary-container);
+      }
+
+      .contact-info {
+        flex: 1;
+      }
+
+      .contact-label {
+        font-weight: var(--label-medium-weight);
+        margin-bottom: 2px;
+      }
+
+      .contact-value {
+        font-size: var(--body-small-size);
+        color: var(--on-surface-variant);
+      }
+
+      .reviews-section {
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .reviews-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-md);
+      }
+
+      .rating-overview {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+      }
+
+      .rating-stars {
+        color: var(--warning);
+        font-size: 20px;
+      }
+
+      .review-item {
+        background-color: var(--surface);
+        border: 1px solid var(--outline-variant);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-md);
+        margin-bottom: var(--spacing-md);
+      }
+
+      .review-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-sm);
+      }
+
+      .reviewer-info {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+      }
+
+      .reviewer-avatar {
+        width: 32px;
+        height: 32px;
+        border-radius: var(--radius-full);
+        background-color: var(--primary);
+        color: var(--on-primary);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: var(--body-small-size);
+        font-weight: var(--label-medium-weight);
+      }
+
+      .review-rating {
+        color: var(--warning);
+        font-size: 16px;
+      }
+
+      .bottom-actions {
+        position: fixed;
+        bottom: 0;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 100%;
+        max-width: var(--card-max-width);
+        padding: var(--spacing-md);
+        background-color: var(--surface);
+        border-top: 1px solid var(--outline-variant);
+        display: flex;
+        gap: var(--spacing-sm);
+        z-index: 50;
+      }
+
+      .action-secondary {
+        flex: 1;
+      }
+
+      .action-primary {
+        flex: 2;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="citynav-bg">
+      <div class="citynav-card">
+        <div class="poi-container">
+          <!-- POI Header with Image -->
+          <div class="poi-header">
+            <div class="poi-image">
+              <span class="material-icons">restaurant</span>
+            </div>
+            <div class="poi-image-overlay">
+              <h1 class="poi-title">Vaishali Restaurant</h1>
+              <p class="poi-category">South Indian Restaurant • ₹₹</p>
+            </div>
+            <div class="poi-actions">
+              <button class="poi-action-btn" onclick="sharePOI()">
+                <span class="material-icons">share</span>
+              </button>
+              <button class="poi-action-btn" onclick="savePOI()">
+                <span class="material-icons">bookmark_border</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Info Cards -->
+          <div class="poi-info-grid">
+            <div class="info-card">
+              <div class="info-icon">
+                <span class="material-icons">star</span>
+              </div>
+              <div class="info-value">4.5</div>
+              <div class="info-label">Rating</div>
+            </div>
+            <div class="info-card">
+              <div class="info-icon">
+                <span class="material-icons">schedule</span>
+              </div>
+              <div class="info-value">25 min</div>
+              <div class="info-label">Wait Time</div>
+            </div>
+            <div class="info-card">
+              <div class="info-icon">
+                <span class="material-icons">directions_walk</span>
+              </div>
+              <div class="info-value">800m</div>
+              <div class="info-label">Distance</div>
+            </div>
+            <div class="info-card">
+              <div class="info-icon">
+                <span class="material-icons">local_parking</span>
+              </div>
+              <div class="info-value">Available</div>
+              <div class="info-label">Parking</div>
+            </div>
+          </div>
+
+          <!-- Contact Information -->
+          <div class="detail-section">
+            <h3 class="detail-title">
+              <span class="material-icons">contact_phone</span>
+              Contact Information
+            </h3>
+            <div class="contact-list">
+              <div class="contact-item" onclick="callPOI('+91 20 2567 8901')">
+                <div class="contact-icon">
+                  <span class="material-icons">phone</span>
+                </div>
+                <div class="contact-info">
+                  <div class="contact-label">Phone</div>
+                  <div class="contact-value">+91 20 2567 8901</div>
+                </div>
+                <span class="material-icons">call</span>
+              </div>
+              <div
+                class="contact-item"
+                onclick="openWebsite('https://vaishali.com')"
+              >
+                <div class="contact-icon">
+                  <span class="material-icons">language</span>
+                </div>
+                <div class="contact-info">
+                  <div class="contact-label">Website</div>
+                  <div class="contact-value">www.vaishali.com</div>
+                </div>
+                <span class="material-icons">open_in_new</span>
+              </div>
+              <div class="contact-item">
+                <div class="contact-icon">
+                  <span class="material-icons">schedule</span>
+                </div>
+                <div class="contact-info">
+                  <div class="contact-label">Hours</div>
+                  <div class="contact-value">Open • Closes 11:00 PM</div>
+                </div>
+                <span class="material-icons" style="color: var(--primary)"
+                  >schedule</span
+                >
+              </div>
+              <div class="contact-item" onclick="openLocation()">
+                <div class="contact-icon">
+                  <span class="material-icons">place</span>
+                </div>
+                <div class="contact-info">
+                  <div class="contact-label">Address</div>
+                  <div class="contact-value">
+                    FC Road, Shivajinagar, Pune 411005
+                  </div>
+                </div>
+                <span class="material-icons">directions</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Reviews Section -->
+          <div class="reviews-section">
+            <div class="reviews-header">
+              <h3 class="detail-title">
+                <span class="material-icons">star</span>
+                Reviews & Ratings
+              </h3>
+              <div class="rating-overview">
+                <span class="rating-stars">★★★★★</span>
+                <span class="body-medium">4.5 (1,234)</span>
+              </div>
+            </div>
+
+            <div class="review-item">
+              <div class="review-header">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">A</div>
+                  <div>
+                    <div class="label-medium">Anita Sharma</div>
+                    <div
+                      class="body-small"
+                      style="color: var(--on-surface-variant)"
+                    >
+                      2 days ago
+                    </div>
+                  </div>
+                </div>
+                <div class="review-rating">★★★★★</div>
+              </div>
+              <p class="body-medium">
+                Excellent food quality and service. The dosas are particularly
+                good. Highly recommended for South Indian food lovers.
+              </p>
+            </div>
+
+            <div class="review-item">
+              <div class="review-header">
+                <div class="reviewer-info">
+                  <div class="reviewer-avatar">R</div>
+                  <div>
+                    <div class="label-medium">Raj Patel</div>
+                    <div
+                      class="body-small"
+                      style="color: var(--on-surface-variant)"
+                    >
+                      1 week ago
+                    </div>
+                  </div>
+                </div>
+                <div class="review-rating">★★★★☆</div>
+              </div>
+              <p class="body-medium">
+                Good food but can get crowded during peak hours. The wait time
+                mentioned is quite accurate.
+              </p>
+            </div>
+
+            <button class="btn btn-text" onclick="showAllReviews()">
+              View All Reviews
+              <span class="material-icons">arrow_forward</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Actions -->
+      <div class="bottom-actions">
+        <button
+          class="btn btn-secondary action-secondary"
+          onclick="reportPOI()"
+        >
+          <span class="material-icons">flag</span>
+          Report
+        </button>
+        <button
+          class="btn btn-primary action-primary"
+          onclick="getDirections()"
+        >
+          <span class="material-icons">directions</span>
+          Get Directions
+        </button>
+      </div>
+    </div>
+
+    <script src="../scripts/design-system.js"></script>
+    <script>
+      function sharePOI() {
+        if (navigator.share) {
+          navigator.share({
+            title: "Vaishali Restaurant",
+            text: "Check out this great South Indian restaurant!",
+            url: window.location.href,
+          });
+        } else {
+          // Fallback
+          navigator.clipboard.writeText(window.location.href);
+          showToast("Link copied to clipboard!");
+        }
+      }
+
+      function savePOI() {
+        const saveBtn = document.querySelector(
+          ".poi-actions button:last-child .material-icons"
+        );
+        const isSaved = saveBtn.textContent === "bookmark";
+
+        if (isSaved) {
+          saveBtn.textContent = "bookmark_border";
+          showToast("Removed from saved places");
+        } else {
+          saveBtn.textContent = "bookmark";
+          showToast("Added to saved places");
+        }
+
+        // Store in localStorage
+        const savedPlaces = JSON.parse(
+          localStorage.getItem("savedPlaces") || "[]"
+        );
+        const poiData = {
+          id: "vaishali-restaurant",
+          name: "Vaishali Restaurant",
+          category: "South Indian Restaurant",
+        };
+
+        if (isSaved) {
+          const index = savedPlaces.findIndex(
+            (place) => place.id === poiData.id
+          );
+          if (index > -1) savedPlaces.splice(index, 1);
+        } else {
+          savedPlaces.push(poiData);
+        }
+
+        localStorage.setItem("savedPlaces", JSON.stringify(savedPlaces));
+      }
+
+      function callPOI(number) {
+        window.open(`tel:${number}`, "_self");
+      }
+
+      function openWebsite(url) {
+        window.open(url, "_blank");
+      }
+
+      function openLocation() {
+        // Open in maps app or navigate to map screen
+        window.location.href = "interactive-map.html";
+      }
+
+      function getDirections() {
+        // Navigate to route planning
+        window.location.href = "directions-navigation.html";
+      }
+
+      function reportPOI() {
+        showModal(
+          "Report this place",
+          "Please select a reason for reporting this place.",
+          [
+            {
+              text: "Incorrect information",
+              action: () => console.log("Incorrect info"),
+            },
+            {
+              text: "Inappropriate content",
+              action: () => console.log("Inappropriate"),
+            },
+            { text: "Spam or fake", action: () => console.log("Spam") },
+            { text: "Other", action: () => console.log("Other") },
+          ]
+        );
+      }
+
+      function showAllReviews() {
+        // Navigate to reviews screen or show expanded reviews
+        console.log("Show all reviews");
+      }
+
+      function showToast(message) {
+        const toast = document.createElement("div");
+        toast.style.cssText = `
+          position: fixed;
+          bottom: 100px;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: var(--inverse-surface);
+          color: var(--inverse-on-surface);
+          padding: var(--spacing-md) var(--spacing-lg);
+          border-radius: var(--radius-full);
+          font-size: var(--body-medium-size);
+          z-index: 1000;
+          animation: slideUp 0.3s ease-out;
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+          toast.remove();
+        }, 3000);
+      }
+
+      function showModal(title, message, actions) {
+        const modal = document.createElement("div");
+        modal.style.cssText = `
+          position: fixed;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          background-color: rgba(0, 0, 0, 0.5);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 1000;
+          padding: var(--spacing-lg);
+        `;
+
+        const modalContent = document.createElement("div");
+        modalContent.style.cssText = `
+          background-color: var(--surface);
+          border-radius: var(--radius-lg);
+          padding: var(--spacing-lg);
+          max-width: 400px;
+          width: 100%;
+        `;
+
+        modalContent.innerHTML = `
+          <h3 style="margin-bottom: var(--spacing-md);">${title}</h3>
+          <p style="margin-bottom: var(--spacing-lg); color: var(--on-surface-variant);">${message}</p>
+          <div style="display: flex; flex-direction: column; gap: var(--spacing-sm);">
+            ${actions
+              .map(
+                (action, index) => `
+              <button class="btn btn-text" onclick="handleModalAction(${index})" style="justify-content: flex-start;">
+                ${action.text}
+              </button>
+            `
+              )
+              .join("")}
+            <button class="btn btn-text" onclick="closeModal()" style="justify-content: flex-start; margin-top: var(--spacing-sm);">
+              Cancel
+            </button>
+          </div>
+        `;
+
+        modal.appendChild(modalContent);
+        document.body.appendChild(modal);
+
+        window.currentModalActions = actions;
+        window.currentModal = modal;
+      }
+
+      function handleModalAction(index) {
+        window.currentModalActions[index].action();
+        closeModal();
+      }
+
+      function closeModal() {
+        if (window.currentModal) {
+          window.currentModal.remove();
+          window.currentModal = null;
+          window.currentModalActions = null;
+        }
+      }
+
+      // Add slide up animation
+      const style = document.createElement("style");
+      style.textContent = `
+        @keyframes slideUp {
+          from {
+            transform: translateX(-50%) translateY(20px);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    </script>
+  </body>
+</html>

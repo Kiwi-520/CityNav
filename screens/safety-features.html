@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CityNav - Safety Features</title>
+    <link rel="stylesheet" href="../styles/design-tokens.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      .safety-container {
+        padding: var(--spacing-lg) var(--spacing-lg) 100px;
+      }
+
+      /* Emergency Actions */
+      .emergency-section {
+        background: linear-gradient(
+          135deg,
+          var(--error-container) 0%,
+          color-mix(in srgb, var(--error-container) 80%, transparent) 100%
+        );
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-xl);
+        margin-bottom: var(--spacing-xl);
+        text-align: center;
+        border: 2px solid var(--error);
+      }
+
+      .emergency-title {
+        font-size: var(--headline-large-size);
+        font-weight: var(--headline-large-weight);
+        color: var(--on-error-container);
+        margin: 0 0 var(--spacing-md) 0;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-sm);
+      }
+
+      .emergency-title .material-icons {
+        color: var(--error);
+        font-size: 32px;
+        animation: emergencyPulse 2s ease-in-out infinite;
+      }
+
+      @keyframes emergencyPulse {
+        0%,
+        100% {
+          transform: scale(1);
+        }
+        50% {
+          transform: scale(1.1);
+        }
+      }
+
+      .emergency-subtitle {
+        font-size: var(--body-large-size);
+        color: var(--on-error-container);
+        margin-bottom: var(--spacing-lg);
+        opacity: 0.9;
+      }
+
+      .emergency-button {
+        width: 120px;
+        height: 120px;
+        background-color: var(--error);
+        color: var(--on-error);
+        border: 4px solid var(--surface);
+        border-radius: var(--radius-full);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+        margin: 0 auto var(--spacing-lg);
+        box-shadow: var(--elevation-3);
+        font-size: var(--headline-small-size);
+        font-weight: var(--headline-small-weight);
+      }
+
+      .emergency-button:hover {
+        transform: scale(1.05);
+        box-shadow: var(--elevation-4);
+      }
+
+      .emergency-button:focus {
+        outline: 4px solid var(--error);
+        outline-offset: 4px;
+      }
+
+      .emergency-button .material-icons {
+        font-size: 48px;
+        margin-bottom: var(--spacing-xs);
+      }
+
+      .emergency-note {
+        font-size: var(--body-small-size);
+        color: var(--on-error-container);
+        opacity: 0.8;
+      }
+
+      /* Safety Tools */
+      .safety-tools {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .safety-tool {
+        background-color: var(--surface);
+        border: 1px solid var(--outline);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-lg);
+        cursor: pointer;
+        transition: all var(--duration-medium) ease;
+        text-align: center;
+        height: 140px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .safety-tool:hover {
+        background-color: var(--primary-container);
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: var(--elevation-2);
+      }
+
+      .safety-tool:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .safety-tool.active {
+        background-color: var(--success-container);
+        border-color: var(--success);
+        color: var(--on-success-container);
+      }
+
+      .safety-tool .material-icons {
+        font-size: 40px;
+        color: var(--primary);
+        margin-bottom: var(--spacing-sm);
+      }
+
+      .safety-tool.active .material-icons {
+        color: var(--success);
+      }
+
+      .safety-tool-title {
+        font-size: var(--body-large-size);
+        font-weight: var(--body-large-weight);
+        color: var(--on-surface);
+        margin: 0 0 var(--spacing-xs) 0;
+      }
+
+      .safety-tool.active .safety-tool-title {
+        color: var(--on-success-container);
+      }
+
+      .safety-tool-subtitle {
+        font-size: var(--label-medium-size);
+        color: var(--on-surface-variant);
+        margin: 0;
+        text-align: center;
+      }
+
+      .safety-tool.active .safety-tool-subtitle {
+        color: var(--on-success-container);
+        opacity: 0.8;
+      }
+
+      /* Emergency Contacts */
+      .contacts-section {
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .section-title {
+        font-size: var(--headline-small-size);
+        font-weight: var(--headline-small-weight);
+        color: var(--on-surface);
+        margin: 0 0 var(--spacing-lg) 0;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+      }
+
+      .section-title .material-icons {
+        color: var(--primary);
+        font-size: 24px;
+      }
+
+      .contact-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+      }
+
+      .contact-item {
+        display: flex;
+        align-items: center;
+        background-color: var(--surface);
+        border: 1px solid var(--outline);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-lg);
+        transition: all var(--duration-quick) ease;
+      }
+
+      .contact-item:hover {
+        background-color: var(--surface-variant);
+        border-color: var(--primary);
+      }
+
+      .contact-avatar {
+        width: 48px;
+        height: 48px;
+        background-color: var(--primary-container);
+        color: var(--primary);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: var(--spacing-md);
+        font-size: 24px;
+      }
+
+      .contact-info {
+        flex: 1;
+      }
+
+      .contact-name {
+        font-size: var(--body-large-size);
+        font-weight: var(--body-large-weight);
+        color: var(--on-surface);
+        margin: 0 0 var(--spacing-xs) 0;
+      }
+
+      .contact-relation {
+        font-size: var(--body-small-size);
+        color: var(--on-surface-variant);
+        margin: 0;
+      }
+
+      .contact-actions {
+        display: flex;
+        gap: var(--spacing-sm);
+      }
+
+      .contact-btn {
+        width: 40px;
+        height: 40px;
+        background-color: var(--surface-variant);
+        border: 1px solid var(--outline);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+      }
+
+      .contact-btn:hover {
+        background-color: var(--primary-container);
+        border-color: var(--primary);
+      }
+
+      .contact-btn:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .contact-btn .material-icons {
+        color: var(--on-surface-variant);
+        font-size: 20px;
+      }
+
+      .contact-btn:hover .material-icons {
+        color: var(--primary);
+      }
+
+      /* Add Contact Button */
+      .add-contact {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--surface);
+        border: 2px dashed var(--outline);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-lg);
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+        color: var(--on-surface-variant);
+        text-decoration: none;
+      }
+
+      .add-contact:hover {
+        background-color: var(--primary-container);
+        border-color: var(--primary);
+        color: var(--on-primary-container);
+      }
+
+      .add-contact:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .add-contact .material-icons {
+        margin-right: var(--spacing-sm);
+        font-size: 24px;
+      }
+
+      /* Safety Tips */
+      .safety-tips {
+        background-color: var(--surface-variant);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-lg);
+      }
+
+      .tip-item {
+        display: flex;
+        align-items: flex-start;
+        margin-bottom: var(--spacing-md);
+        padding: var(--spacing-md);
+        background-color: var(--surface);
+        border-radius: var(--radius-sm);
+      }
+
+      .tip-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .tip-icon {
+        color: var(--primary);
+        margin-right: var(--spacing-md);
+        margin-top: 2px;
+        flex-shrink: 0;
+      }
+
+      .tip-text {
+        font-size: var(--body-medium-size);
+        color: var(--on-surface);
+        line-height: 1.5;
+      }
+
+      /* Status Indicators */
+      .status-indicator {
+        position: absolute;
+        top: var(--spacing-sm);
+        right: var(--spacing-sm);
+        width: 12px;
+        height: 12px;
+        border-radius: var(--radius-full);
+        background-color: var(--success);
+        border: 2px solid var(--surface);
+      }
+
+      .status-indicator.inactive {
+        background-color: var(--outline-variant);
+      }
+
+      /* Alert Modal */
+      .alert-sent {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: var(--success-container);
+        color: var(--on-success-container);
+        padding: var(--spacing-xl);
+        border-radius: var(--radius-lg);
+        text-align: center;
+        box-shadow: var(--elevation-4);
+        z-index: 50;
+        border: 2px solid var(--success);
+        display: none;
+      }
+
+      .alert-sent .material-icons {
+        font-size: 48px;
+        color: var(--success);
+        margin-bottom: var(--spacing-md);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="citynav-bg">
+      <div class="citynav-card">
+        <div class="safety-container">
+          <!-- Emergency Section -->
+          <div class="emergency-section">
+            <h2 class="emergency-title">
+              <span class="material-icons">emergency</span>
+              Emergency SOS
+            </h2>
+            <p class="emergency-subtitle">
+              Press and hold for 3 seconds to alert emergency services and
+              contacts
+            </p>
+
+            <button class="emergency-button" id="emergencyBtn" tabindex="0">
+              <span class="material-icons">emergency</span>
+              <span>SOS</span>
+            </button>
+
+            <p class="emergency-note">
+              This will call 112 and share your location with emergency contacts
+            </p>
+          </div>
+
+          <!-- Safety Tools -->
+          <div class="safety-tools">
+            <div class="safety-tool" id="shareLocationTool" tabindex="0">
+              <span class="material-icons">share_location</span>
+              <h3 class="safety-tool-title">Share Location</h3>
+              <p class="safety-tool-subtitle">Real-time location sharing</p>
+            </div>
+
+            <div class="safety-tool" id="safeRouteTool" tabindex="0">
+              <span class="material-icons">shield</span>
+              <h3 class="safety-tool-title">Safe Route</h3>
+              <p class="safety-tool-subtitle">Well-lit, populated routes</p>
+            </div>
+
+            <div class="safety-tool active" id="alertsTool" tabindex="0">
+              <span class="material-icons">notifications_active</span>
+              <h3 class="safety-tool-title">Safety Alerts</h3>
+              <p class="safety-tool-subtitle">Area warnings & updates</p>
+              <div class="status-indicator"></div>
+            </div>
+
+            <div class="safety-tool" id="checkInTool" tabindex="0">
+              <span class="material-icons">schedule</span>
+              <h3 class="safety-tool-title">Check-in Timer</h3>
+              <p class="safety-tool-subtitle">Automated safety check-ins</p>
+            </div>
+          </div>
+
+          <!-- Emergency Contacts -->
+          <div class="contacts-section">
+            <h3 class="section-title">
+              <span class="material-icons">contacts</span>
+              Emergency Contacts
+            </h3>
+
+            <div class="contact-list">
+              <div class="contact-item">
+                <div class="contact-avatar">
+                  <span class="material-icons">person</span>
+                </div>
+                <div class="contact-info">
+                  <h4 class="contact-name">Priya Kumar</h4>
+                  <p class="contact-relation">Wife</p>
+                </div>
+                <div class="contact-actions">
+                  <button class="contact-btn" title="Call">
+                    <span class="material-icons">call</span>
+                  </button>
+                  <button class="contact-btn" title="Message">
+                    <span class="material-icons">message</span>
+                  </button>
+                  <button class="contact-btn" title="Share Location">
+                    <span class="material-icons">share</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="contact-item">
+                <div class="contact-avatar">
+                  <span class="material-icons">person</span>
+                </div>
+                <div class="contact-info">
+                  <h4 class="contact-name">Dr. Amit Sharma</h4>
+                  <p class="contact-relation">Family Doctor</p>
+                </div>
+                <div class="contact-actions">
+                  <button class="contact-btn" title="Call">
+                    <span class="material-icons">call</span>
+                  </button>
+                  <button class="contact-btn" title="Message">
+                    <span class="material-icons">message</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="contact-item">
+                <div class="contact-avatar">
+                  <span class="material-icons">person</span>
+                </div>
+                <div class="contact-info">
+                  <h4 class="contact-name">Rohit Kumar</h4>
+                  <p class="contact-relation">Son</p>
+                </div>
+                <div class="contact-actions">
+                  <button class="contact-btn" title="Call">
+                    <span class="material-icons">call</span>
+                  </button>
+                  <button class="contact-btn" title="Message">
+                    <span class="material-icons">message</span>
+                  </button>
+                  <button class="contact-btn" title="Share Location">
+                    <span class="material-icons">share</span>
+                  </button>
+                </div>
+              </div>
+
+              <a href="#" class="add-contact">
+                <span class="material-icons">add</span>
+                <span>Add Emergency Contact</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Safety Tips -->
+          <div class="safety-tips">
+            <h3 class="section-title">
+              <span class="material-icons">lightbulb</span>
+              Safety Tips
+            </h3>
+
+            <div class="tip-item">
+              <span class="material-icons tip-icon">visibility</span>
+              <div class="tip-text">
+                Stay visible when walking at night. Wear bright or reflective
+                clothing.
+              </div>
+            </div>
+
+            <div class="tip-item">
+              <span class="material-icons tip-icon">group</span>
+              <div class="tip-text">
+                Travel in groups when possible, especially in unfamiliar areas.
+              </div>
+            </div>
+
+            <div class="tip-item">
+              <span class="material-icons tip-icon">phone</span>
+              <div class="tip-text">
+                Keep your phone charged and inform someone of your route and
+                expected arrival.
+              </div>
+            </div>
+
+            <div class="tip-item">
+              <span class="material-icons tip-icon">route</span>
+              <div class="tip-text">
+                Use well-lit, populated routes and trust your instincts about
+                unsafe areas.
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <div class="nav-bar">
+          <a href="home-dashboard.html" class="nav-item">
+            <span class="material-icons">home</span>
+            <span class="nav-label">Home</span>
+          </a>
+          <a href="search-discovery.html" class="nav-item">
+            <span class="material-icons">search</span>
+            <span class="nav-label">Search</span>
+          </a>
+          <a href="interactive-map.html" class="nav-item">
+            <span class="material-icons">map</span>
+            <span class="nav-label">Map</span>
+          </a>
+          <a href="nearby-places.html" class="nav-item">
+            <span class="material-icons">place</span>
+            <span class="nav-label">Nearby</span>
+          </a>
+          <a href="profile-settings.html" class="nav-item">
+            <span class="material-icons">person</span>
+            <span class="nav-label">Profile</span>
+          </a>
+        </div>
+
+        <!-- Alert Confirmation Modal -->
+        <div class="alert-sent" id="alertSentModal">
+          <span class="material-icons">check_circle</span>
+          <h3>Emergency Alert Sent</h3>
+          <p>
+            Your location has been shared with emergency services and contacts.
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <script src="../scripts/design-system.js"></script>
+    <script>
+      class SafetyFeatures {
+        constructor() {
+          this.emergencyTimer = null;
+          this.isEmergencyActive = false;
+          this.safetyTools = {
+            shareLocation: false,
+            safeRoute: false,
+            alerts: true,
+            checkIn: false,
+          };
+
+          this.init();
+        }
+
+        init() {
+          this.setupEventListeners();
+          this.loadSafetySettings();
+        }
+
+        setupEventListeners() {
+          // Emergency SOS button
+          const emergencyBtn = document.getElementById("emergencyBtn");
+          emergencyBtn.addEventListener("mousedown", () =>
+            this.startEmergencyTimer()
+          );
+          emergencyBtn.addEventListener("mouseup", () =>
+            this.cancelEmergencyTimer()
+          );
+          emergencyBtn.addEventListener("mouseleave", () =>
+            this.cancelEmergencyTimer()
+          );
+          emergencyBtn.addEventListener("touchstart", () =>
+            this.startEmergencyTimer()
+          );
+          emergencyBtn.addEventListener("touchend", () =>
+            this.cancelEmergencyTimer()
+          );
+
+          // Safety tools
+          document.querySelectorAll(".safety-tool").forEach((tool) => {
+            tool.addEventListener("click", () => this.toggleSafetyTool(tool));
+            tool.addEventListener("keypress", (e) => {
+              if (e.key === "Enter") this.toggleSafetyTool(tool);
+            });
+          });
+
+          // Contact actions
+          document.querySelectorAll(".contact-btn").forEach((btn) => {
+            btn.addEventListener("click", () => this.handleContactAction(btn));
+          });
+        }
+
+        startEmergencyTimer() {
+          if (this.isEmergencyActive) return;
+
+          this.emergencyTimer = setTimeout(() => {
+            this.triggerEmergency();
+          }, 3000);
+
+          // Visual feedback
+          const btn = document.getElementById("emergencyBtn");
+          btn.style.background =
+            "linear-gradient(45deg, var(--error) 0%, var(--error-dark) 100%)";
+          btn.style.transform = "scale(1.1)";
+
+          this.showNotification(
+            "Hold for 3 seconds to trigger emergency alert...",
+            "warning"
+          );
+        }
+
+        cancelEmergencyTimer() {
+          if (this.emergencyTimer) {
+            clearTimeout(this.emergencyTimer);
+            this.emergencyTimer = null;
+
+            // Reset visual feedback
+            const btn = document.getElementById("emergencyBtn");
+            btn.style.background = "var(--error)";
+            btn.style.transform = "scale(1)";
+          }
+        }
+
+        triggerEmergency() {
+          this.isEmergencyActive = true;
+
+          // Show alert sent modal
+          const modal = document.getElementById("alertSentModal");
+          modal.style.display = "block";
+
+          // Simulate emergency actions
+          this.callEmergencyServices();
+          this.alertEmergencyContacts();
+          this.shareLocationWithContacts();
+
+          // Hide modal after delay
+          setTimeout(() => {
+            modal.style.display = "none";
+            this.isEmergencyActive = false;
+          }, 4000);
+        }
+
+        callEmergencyServices() {
+          // Simulate calling 112
+          console.log("Calling emergency services (112)...");
+          this.showNotification("Calling emergency services...", "error");
+        }
+
+        alertEmergencyContacts() {
+          // Simulate alerting contacts
+          const contacts = ["Priya Kumar", "Dr. Amit Sharma", "Rohit Kumar"];
+          contacts.forEach((contact) => {
+            console.log(`Alerting ${contact}...`);
+          });
+        }
+
+        shareLocationWithContacts() {
+          // Simulate location sharing
+          console.log("Sharing current location with emergency contacts...");
+        }
+
+        toggleSafetyTool(tool) {
+          const toolId = tool.id;
+          const isActive = tool.classList.contains("active");
+
+          // Toggle visual state
+          tool.classList.toggle("active", !isActive);
+
+          // Update tool status
+          const toolKey = toolId
+            .replace("Tool", "")
+            .replace(/([A-Z])/g, (match, p1) => {
+              return p1.toLowerCase();
+            });
+
+          this.safetyTools[this.camelCaseToKey(toolId)] = !isActive;
+
+          // Handle specific tool actions
+          this.handleToolToggle(toolId, !isActive);
+
+          this.showNotification(
+            `${this.getToolLabel(toolId)} ${
+              !isActive ? "activated" : "deactivated"
+            }`,
+            "info"
+          );
+        }
+
+        camelCaseToKey(str) {
+          return str
+            .replace("Tool", "")
+            .replace(/([A-Z])/g, (match, p1, offset) => {
+              return offset > 0 ? p1.toLowerCase() : p1.toLowerCase();
+            });
+        }
+
+        getToolLabel(toolId) {
+          const labels = {
+            shareLocationTool: "Location Sharing",
+            safeRouteTool: "Safe Route",
+            alertsTool: "Safety Alerts",
+            checkInTool: "Check-in Timer",
+          };
+          return labels[toolId] || toolId;
+        }
+
+        handleToolToggle(toolId, isActive) {
+          switch (toolId) {
+            case "shareLocationTool":
+              if (isActive) {
+                this.startLocationSharing();
+              } else {
+                this.stopLocationSharing();
+              }
+              break;
+            case "safeRouteTool":
+              // Toggle safe route preference
+              break;
+            case "alertsTool":
+              if (isActive) {
+                this.enableSafetyAlerts();
+              } else {
+                this.disableSafetyAlerts();
+              }
+              break;
+            case "checkInTool":
+              if (isActive) {
+                this.startCheckInTimer();
+              } else {
+                this.stopCheckInTimer();
+              }
+              break;
+          }
+        }
+
+        startLocationSharing() {
+          console.log("Starting real-time location sharing...");
+        }
+
+        stopLocationSharing() {
+          console.log("Stopping location sharing...");
+        }
+
+        enableSafetyAlerts() {
+          console.log("Enabling safety alerts...");
+        }
+
+        disableSafetyAlerts() {
+          console.log("Disabling safety alerts...");
+        }
+
+        startCheckInTimer() {
+          console.log("Starting automated check-in timer...");
+        }
+
+        stopCheckInTimer() {
+          console.log("Stopping check-in timer...");
+        }
+
+        handleContactAction(btn) {
+          const action = btn.getAttribute("title");
+          const contactItem = btn.closest(".contact-item");
+          const contactName =
+            contactItem.querySelector(".contact-name").textContent;
+
+          switch (action) {
+            case "Call":
+              this.callContact(contactName);
+              break;
+            case "Message":
+              this.messageContact(contactName);
+              break;
+            case "Share Location":
+              this.shareLocationWithContact(contactName);
+              break;
+          }
+        }
+
+        callContact(name) {
+          this.showNotification(`Calling ${name}...`, "info");
+        }
+
+        messageContact(name) {
+          this.showNotification(`Opening message to ${name}...`, "info");
+        }
+
+        shareLocationWithContact(name) {
+          this.showNotification(`Sharing location with ${name}...`, "info");
+        }
+
+        loadSafetySettings() {
+          // Load settings from localStorage or server
+          const saved = localStorage.getItem("cityNavSafety");
+          if (saved) {
+            this.safetyTools = JSON.parse(saved);
+          }
+
+          // Update UI based on settings
+          Object.keys(this.safetyTools).forEach((key) => {
+            const toolId = key + "Tool";
+            const tool = document.getElementById(toolId);
+            if (tool) {
+              tool.classList.toggle("active", this.safetyTools[key]);
+            }
+          });
+        }
+
+        showNotification(message, type = "info") {
+          const notification = document.createElement("div");
+          notification.className = `notification ${type}`;
+          notification.style.cssText = `
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--surface);
+            color: var(--on-surface);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--elevation-3);
+            z-index: 20;
+            font-size: var(--body-medium-size);
+            border: 1px solid var(--outline);
+          `;
+
+          if (type === "error") {
+            notification.style.backgroundColor = "var(--error-container)";
+            notification.style.color = "var(--on-error-container)";
+            notification.style.borderColor = "var(--error)";
+          } else if (type === "warning") {
+            notification.style.backgroundColor = "var(--warning-container)";
+            notification.style.color = "var(--on-warning-container)";
+            notification.style.borderColor = "var(--warning)";
+          }
+
+          notification.textContent = message;
+          document.body.appendChild(notification);
+
+          setTimeout(() => {
+            notification.remove();
+          }, 3000);
+        }
+      }
+
+      // Initialize safety features when page loads
+      document.addEventListener("DOMContentLoaded", () => {
+        new SafetyFeatures();
+      });
+    </script>
+  </body>
+</html>

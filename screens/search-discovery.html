@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CityNav - Search & Discovery</title>
+    <link rel="stylesheet" href="../styles/design-tokens.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      .search-container {
+        padding: var(--spacing-lg) var(--spacing-lg) var(--spacing-xl);
+      }
+
+      .search-header {
+        margin-bottom: var(--spacing-lg);
+      }
+
+      .search-bar {
+        display: flex;
+        align-items: center;
+        background-color: var(--surface-variant);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-sm);
+        margin-bottom: var(--spacing-md);
+        border: 2px solid var(--outline-variant);
+        transition: all var(--duration-quick) ease;
+      }
+
+      .search-bar:focus-within {
+        border-color: var(--primary);
+        box-shadow: var(--elevation-2);
+      }
+
+      .search-input {
+        flex: 1;
+        border: none;
+        background: transparent;
+        font-size: var(--body-large-size);
+        color: var(--on-surface);
+        padding: var(--spacing-md);
+      }
+
+      .search-input::placeholder {
+        color: var(--on-surface-variant);
+      }
+
+      .search-btn {
+        width: 48px;
+        height: 48px;
+        background-color: var(--primary);
+        border: none;
+        border-radius: var(--radius-lg);
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+      }
+
+      .search-btn:hover {
+        background-color: var(--primary-dark);
+        transform: scale(1.05);
+      }
+
+      .search-btn:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .search-btn .material-icons {
+        color: var(--on-primary);
+        font-size: 24px;
+      }
+
+      /* Quick Filters */
+      .quick-filters {
+        display: flex;
+        gap: var(--spacing-sm);
+        overflow-x: auto;
+        padding-bottom: var(--spacing-sm);
+        margin-bottom: var(--spacing-lg);
+      }
+
+      .filter-chip {
+        background-color: var(--surface);
+        color: var(--on-surface-variant);
+        padding: var(--spacing-sm) var(--spacing-md);
+        border-radius: var(--radius-full);
+        border: 1px solid var(--outline);
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+        white-space: nowrap;
+        font-size: var(--label-large-size);
+        font-weight: var(--label-large-weight);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+      }
+
+      .filter-chip.active {
+        background-color: var(--primary-container);
+        color: var(--on-primary-container);
+        border-color: var(--primary);
+      }
+
+      .filter-chip:hover:not(.active) {
+        background-color: var(--surface-variant);
+      }
+
+      .filter-chip:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .filter-chip .material-icons {
+        font-size: 18px;
+      }
+
+      /* Recent Searches */
+      .recent-searches {
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .section-title {
+        font-size: var(--headline-small-size);
+        font-weight: var(--headline-small-weight);
+        color: var(--on-surface);
+        margin-bottom: var(--spacing-md);
+      }
+
+      .recent-item {
+        display: flex;
+        align-items: center;
+        padding: var(--spacing-md);
+        margin-bottom: var(--spacing-xs);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+      }
+
+      .recent-item:hover {
+        background-color: var(--surface-variant);
+      }
+
+      .recent-item:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+        background-color: var(--primary-container);
+      }
+
+      .recent-icon {
+        color: var(--on-surface-variant);
+        margin-right: var(--spacing-md);
+      }
+
+      .recent-content {
+        flex: 1;
+      }
+
+      .recent-title {
+        font-size: var(--body-large-size);
+        font-weight: var(--body-large-weight);
+        color: var(--on-surface);
+        margin-bottom: var(--spacing-xs);
+      }
+
+      .recent-subtitle {
+        font-size: var(--body-medium-size);
+        color: var(--on-surface-variant);
+      }
+
+      /* Popular Categories */
+      .popular-categories {
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .category-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-md);
+      }
+
+      .category-card {
+        background-color: var(--surface);
+        border: 1px solid var(--outline);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-lg);
+        text-align: center;
+        cursor: pointer;
+        transition: all var(--duration-medium) ease;
+        height: 120px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-sm);
+      }
+
+      .category-card:hover {
+        background-color: var(--primary-container);
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: var(--elevation-2);
+      }
+
+      .category-card:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .category-icon {
+        font-size: 32px;
+        color: var(--primary);
+        margin-bottom: var(--spacing-xs);
+      }
+
+      .category-title {
+        font-size: var(--body-large-size);
+        font-weight: var(--body-large-weight);
+        color: var(--on-surface);
+        margin: 0;
+      }
+
+      .category-count {
+        font-size: var(--body-small-size);
+        color: var(--on-surface-variant);
+      }
+
+      /* Search Suggestions */
+      .search-suggestions {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background-color: var(--surface);
+        border: 1px solid var(--outline);
+        border-radius: var(--radius-md);
+        box-shadow: var(--elevation-3);
+        max-height: 300px;
+        overflow-y: auto;
+        z-index: 10;
+        display: none;
+      }
+
+      .suggestion-item {
+        padding: var(--spacing-md);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        border-bottom: 1px solid var(--outline-variant);
+        transition: background-color var(--duration-quick) ease;
+      }
+
+      .suggestion-item:last-child {
+        border-bottom: none;
+      }
+
+      .suggestion-item:hover {
+        background-color: var(--surface-variant);
+      }
+
+      .suggestion-icon {
+        color: var(--on-surface-variant);
+        font-size: 20px;
+      }
+
+      .suggestion-text {
+        flex: 1;
+        font-size: var(--body-medium-size);
+        color: var(--on-surface);
+      }
+
+      /* Voice Search Button */
+      .voice-search-btn {
+        width: 48px;
+        height: 48px;
+        background-color: var(--secondary-container);
+        border: none;
+        border-radius: var(--radius-full);
+        cursor: pointer;
+        margin-left: var(--spacing-sm);
+        transition: all var(--duration-quick) ease;
+      }
+
+      .voice-search-btn:hover {
+        background-color: var(--secondary);
+      }
+
+      .voice-search-btn:focus {
+        outline: 3px solid var(--secondary);
+        outline-offset: 2px;
+      }
+
+      .voice-search-btn .material-icons {
+        color: var(--on-secondary-container);
+        font-size: 24px;
+      }
+
+      .voice-search-btn:hover .material-icons {
+        color: var(--on-secondary);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="citynav-bg">
+      <div class="citynav-card">
+        <div class="search-container">
+          <!-- Search Header -->
+          <div class="search-header">
+            <h2 class="display-medium">Discover Places</h2>
+
+            <!-- Search Bar -->
+            <div class="search-bar" style="position: relative">
+              <span
+                class="material-icons"
+                style="
+                  color: var(--on-surface-variant);
+                  margin-left: var(--spacing-sm);
+                "
+                >search</span
+              >
+              <input
+                type="text"
+                class="search-input"
+                placeholder="Search restaurants, hospitals, ATMs..."
+                id="searchInput"
+              />
+              <button class="voice-search-btn" id="voiceSearchBtn">
+                <span class="material-icons">mic</span>
+              </button>
+              <button class="search-btn" id="searchBtn">
+                <span class="material-icons">search</span>
+              </button>
+
+              <!-- Search Suggestions -->
+              <div class="search-suggestions" id="searchSuggestions">
+                <div class="suggestion-item">
+                  <span class="material-icons suggestion-icon">restaurant</span>
+                  <span class="suggestion-text">Restaurants near me</span>
+                </div>
+                <div class="suggestion-item">
+                  <span class="material-icons suggestion-icon"
+                    >local_hospital</span
+                  >
+                  <span class="suggestion-text">Hospitals in Pune</span>
+                </div>
+                <div class="suggestion-item">
+                  <span class="material-icons suggestion-icon">atm</span>
+                  <span class="suggestion-text">ATMs nearby</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Quick Filters -->
+            <div class="quick-filters">
+              <div class="filter-chip active" data-category="all">
+                <span class="material-icons">explore</span>
+                <span>All</span>
+              </div>
+              <div class="filter-chip" data-category="food">
+                <span class="material-icons">restaurant</span>
+                <span>Food</span>
+              </div>
+              <div class="filter-chip" data-category="health">
+                <span class="material-icons">local_hospital</span>
+                <span>Health</span>
+              </div>
+              <div class="filter-chip" data-category="transport">
+                <span class="material-icons">directions_bus</span>
+                <span>Transport</span>
+              </div>
+              <div class="filter-chip" data-category="shopping">
+                <span class="material-icons">shopping_cart</span>
+                <span>Shopping</span>
+              </div>
+              <div class="filter-chip" data-category="emergency">
+                <span class="material-icons">emergency</span>
+                <span>Emergency</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Recent Searches -->
+          <div class="recent-searches">
+            <h3 class="section-title">Recent Searches</h3>
+
+            <div class="recent-item" tabindex="0">
+              <span class="material-icons recent-icon">history</span>
+              <div class="recent-content">
+                <div class="recent-title">City Hospital</div>
+                <div class="recent-subtitle">2.1 km away</div>
+              </div>
+            </div>
+
+            <div class="recent-item" tabindex="0">
+              <span class="material-icons recent-icon">history</span>
+              <div class="recent-content">
+                <div class="recent-title">McDonald's FC Road</div>
+                <div class="recent-subtitle">1.5 km away</div>
+              </div>
+            </div>
+
+            <div class="recent-item" tabindex="0">
+              <span class="material-icons recent-icon">history</span>
+              <div class="recent-content">
+                <div class="recent-title">HDFC Bank ATM</div>
+                <div class="recent-subtitle">0.8 km away</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Popular Categories -->
+          <div class="popular-categories">
+            <h3 class="section-title">Popular Categories</h3>
+
+            <div class="category-grid">
+              <div
+                class="category-card"
+                tabindex="0"
+                data-category="restaurant"
+              >
+                <span class="material-icons category-icon">restaurant</span>
+                <h4 class="category-title">Restaurants</h4>
+                <span class="category-count">245+ places</span>
+              </div>
+
+              <div class="category-card" tabindex="0" data-category="hospital">
+                <span class="material-icons category-icon">local_hospital</span>
+                <h4 class="category-title">Hospitals</h4>
+                <span class="category-count">18+ places</span>
+              </div>
+
+              <div
+                class="category-card"
+                tabindex="0"
+                data-category="gas_station"
+              >
+                <span class="material-icons category-icon"
+                  >local_gas_station</span
+                >
+                <h4 class="category-title">Fuel Stations</h4>
+                <span class="category-count">32+ places</span>
+              </div>
+
+              <div class="category-card" tabindex="0" data-category="pharmacy">
+                <span class="material-icons category-icon">local_pharmacy</span>
+                <h4 class="category-title">Pharmacies</h4>
+                <span class="category-count">89+ places</span>
+              </div>
+
+              <div class="category-card" tabindex="0" data-category="atm">
+                <span class="material-icons category-icon">atm</span>
+                <h4 class="category-title">ATMs</h4>
+                <span class="category-count">156+ places</span>
+              </div>
+
+              <div class="category-card" tabindex="0" data-category="police">
+                <span class="material-icons category-icon">local_police</span>
+                <h4 class="category-title">Police Stations</h4>
+                <span class="category-count">12+ places</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <div class="nav-bar">
+          <a href="home-dashboard.html" class="nav-item">
+            <span class="material-icons">home</span>
+            <span class="nav-label">Home</span>
+          </a>
+          <a href="search-discovery.html" class="nav-item active">
+            <span class="material-icons">search</span>
+            <span class="nav-label">Search</span>
+          </a>
+          <a href="interactive-map.html" class="nav-item">
+            <span class="material-icons">map</span>
+            <span class="nav-label">Map</span>
+          </a>
+          <a href="nearby-places.html" class="nav-item">
+            <span class="material-icons">place</span>
+            <span class="nav-label">Nearby</span>
+          </a>
+          <a href="profile-settings.html" class="nav-item">
+            <span class="material-icons">person</span>
+            <span class="nav-label">Profile</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <script src="../scripts/design-system.js"></script>
+    <script>
+      class SearchDiscovery {
+        constructor() {
+          this.searchInput = document.getElementById("searchInput");
+          this.searchSuggestions = document.getElementById("searchSuggestions");
+          this.filterChips = document.querySelectorAll(".filter-chip");
+          this.categoryCards = document.querySelectorAll(".category-card");
+          this.recentItems = document.querySelectorAll(".recent-item");
+
+          this.init();
+        }
+
+        init() {
+          this.setupEventListeners();
+        }
+
+        setupEventListeners() {
+          // Search input
+          this.searchInput.addEventListener("input", (e) =>
+            this.handleSearch(e.target.value)
+          );
+          this.searchInput.addEventListener("focus", () =>
+            this.showSuggestions()
+          );
+          this.searchInput.addEventListener("blur", () => {
+            // Delay hiding to allow clicking on suggestions
+            setTimeout(() => this.hideSuggestions(), 200);
+          });
+
+          // Search button
+          document
+            .getElementById("searchBtn")
+            .addEventListener("click", () => this.performSearch());
+
+          // Voice search
+          document
+            .getElementById("voiceSearchBtn")
+            .addEventListener("click", () => this.startVoiceSearch());
+
+          // Filter chips
+          this.filterChips.forEach((chip) => {
+            chip.addEventListener("click", () => this.selectFilter(chip));
+          });
+
+          // Category cards
+          this.categoryCards.forEach((card) => {
+            card.addEventListener("click", () => this.selectCategory(card));
+            card.addEventListener("keypress", (e) => {
+              if (e.key === "Enter") this.selectCategory(card);
+            });
+          });
+
+          // Recent items
+          this.recentItems.forEach((item) => {
+            item.addEventListener("click", () => this.selectRecentItem(item));
+            item.addEventListener("keypress", (e) => {
+              if (e.key === "Enter") this.selectRecentItem(item);
+            });
+          });
+
+          // Suggestion items
+          document.querySelectorAll(".suggestion-item").forEach((item) => {
+            item.addEventListener("click", () => this.selectSuggestion(item));
+          });
+        }
+
+        handleSearch(query) {
+          if (query.length > 0) {
+            this.showSuggestions();
+          } else {
+            this.hideSuggestions();
+          }
+        }
+
+        showSuggestions() {
+          this.searchSuggestions.style.display = "block";
+        }
+
+        hideSuggestions() {
+          this.searchSuggestions.style.display = "none";
+        }
+
+        performSearch() {
+          const query = this.searchInput.value.trim();
+          if (query) {
+            this.hideSuggestions();
+            // Navigate to search results (would show results in real app)
+            window.location.href = `nearby-places.html?search=${encodeURIComponent(
+              query
+            )}`;
+          }
+        }
+
+        startVoiceSearch() {
+          // Simulate voice search
+          this.searchInput.placeholder = "Listening...";
+          this.searchInput.style.color = "var(--primary)";
+
+          setTimeout(() => {
+            this.searchInput.value = "Restaurants near me";
+            this.searchInput.placeholder =
+              "Search restaurants, hospitals, ATMs...";
+            this.searchInput.style.color = "var(--on-surface)";
+            this.performSearch();
+          }, 2000);
+        }
+
+        selectFilter(chip) {
+          // Remove active class from all chips
+          this.filterChips.forEach((c) => c.classList.remove("active"));
+
+          // Add active class to selected chip
+          chip.classList.add("active");
+
+          const category = chip.dataset.category;
+          this.filterByCategory(category);
+        }
+
+        filterByCategory(category) {
+          // In a real app, this would filter the visible content
+          console.log("Filtering by category:", category);
+        }
+
+        selectCategory(card) {
+          const category = card.dataset.category;
+          // Navigate to category-specific results
+          window.location.href = `nearby-places.html?category=${category}`;
+        }
+
+        selectRecentItem(item) {
+          const title = item.querySelector(".recent-title").textContent;
+          this.searchInput.value = title;
+          this.performSearch();
+        }
+
+        selectSuggestion(item) {
+          const text = item.querySelector(".suggestion-text").textContent;
+          this.searchInput.value = text;
+          this.performSearch();
+        }
+      }
+
+      // Initialize search when page loads
+      document.addEventListener("DOMContentLoaded", () => {
+        new SearchDiscovery();
+      });
+    </script>
+  </body>
+</html>

@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Home Dashboard - CityNav</title>
+    <link rel="stylesheet" href="../styles/design-tokens.css" />
+    `n
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      .dashboard-container {
+        position: relative;
+        padding-bottom: 80px; /* Space for bottom nav */
+      }
+
+      .dashboard-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: var(--spacing-xl);
+        padding-bottom: var(--spacing-md);
+        border-bottom: 1px solid var(--outline-variant);
+      }
+
+      .city-info h3 {
+        margin-bottom: 4px;
+      }
+
+      .weather-info {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+      }
+
+      .weather-info .material-icons {
+        font-size: var(--icon-size-large);
+        color: var(--warning);
+      }
+
+      .quick-actions {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: var(--spacing-lg);
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .action-button {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: var(--spacing-xs);
+        text-decoration: none;
+        color: inherit;
+        transition: transform var(--duration-quick) ease;
+      }
+
+      .action-button:hover {
+        transform: translateY(-2px);
+      }
+
+      .action-button .btn-icon {
+        background-color: var(--primary-container);
+        color: var(--primary);
+      }
+
+      .action-label {
+        font-size: var(--label-medium-size);
+        font-weight: var(--label-medium-weight);
+        color: var(--on-surface-variant);
+        text-align: center;
+      }
+
+      .daily-tip {
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .tip-card {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+        padding: var(--spacing-md);
+        background-color: var(--surface-variant);
+        border-radius: var(--radius-md);
+        color: var(--on-surface-variant);
+        position: relative;
+      }
+
+      .tip-card .material-icons {
+        color: var(--primary);
+        margin-top: 2px;
+      }
+
+      .tip-content {
+        flex: 1;
+      }
+
+      .tip-dismiss {
+        background: none;
+        border: none;
+        color: var(--on-surface-variant);
+        cursor: pointer;
+        padding: 4px;
+        border-radius: var(--radius-xs);
+        transition: background-color var(--duration-quick) ease;
+      }
+
+      .tip-dismiss:hover {
+        background-color: color-mix(in srgb, var(--on-surface) 8%, transparent);
+      }
+
+      .safety-alert {
+        background-color: var(--warning-container);
+        color: var(--on-warning-container);
+        padding: var(--spacing-sm) var(--spacing-md);
+        border-radius: var(--radius-sm);
+        margin-bottom: var(--spacing-lg);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        animation: pulseWarning 2s ease-in-out infinite;
+      }
+
+      .safety-alert.hidden {
+        display: none;
+      }
+
+      @keyframes pulseWarning {
+        0%,
+        100% {
+          opacity: 1;
+        }
+        50% {
+          opacity: 0.8;
+        }
+      }
+
+      .recent-activity {
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .activity-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+      }
+
+      .activity-item {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+        padding: var(--spacing-sm);
+        background-color: white;
+        border-radius: var(--radius-sm);
+        box-shadow: var(--elevation-1);
+        transition: box-shadow var(--duration-quick) ease;
+      }
+
+      .activity-item:hover {
+        box-shadow: var(--elevation-2);
+      }
+
+      .activity-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+      }
+
+      .activity-icon.route {
+        background-color: var(--primary);
+      }
+      .activity-icon.location {
+        background-color: var(--tertiary);
+      }
+      .activity-icon.safety {
+        background-color: var(--error);
+      }
+
+      .activity-info {
+        flex: 1;
+      }
+
+      .activity-title {
+        font-weight: var(--label-large-weight);
+        margin-bottom: 2px;
+      }
+
+      .activity-time {
+        font-size: var(--body-small-size);
+        color: var(--on-surface-variant);
+      }
+
+      .sos-button {
+        position: fixed;
+        bottom: 100px;
+        right: 20px;
+        width: 72px;
+        height: 72px;
+        border-radius: var(--radius-full);
+        box-shadow: var(--elevation-4);
+        z-index: 100;
+      }
+
+      .bottom-nav {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        display: flex;
+        background-color: var(--surface);
+        border-top: 1px solid var(--outline-variant);
+        padding: var(--spacing-sm) 0;
+        box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+        z-index: 50;
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+      }
+
+      .nav-item {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 4px;
+        padding: var(--spacing-sm);
+        color: var(--on-surface-variant);
+        cursor: pointer;
+        transition: color var(--duration-quick) ease;
+        text-decoration: none;
+      }
+
+      .nav-item.active {
+        color: var(--primary);
+      }
+
+      .nav-item:hover {
+        color: var(--primary);
+      }
+
+      .nav-label {
+        font-size: var(--label-small-size);
+        font-weight: var(--label-small-weight);
+      }
+
+      @media (max-width: 640px) {
+        .quick-actions {
+          grid-template-columns: 1fr;
+          gap: var(--spacing-md);
+          text-align: center;
+        }
+
+        .action-button {
+          flex-direction: row;
+          justify-content: flex-start;
+          text-align: left;
+          padding: var(--spacing-md);
+          background-color: var(--surface-variant);
+          border-radius: var(--radius-md);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="citynav-bg">
+      <div class="citynav-card">
+        <div class="dashboard-container">
+          <!-- Safety Alert (conditional) -->
+          <div class="safety-alert" id="safetyAlert">
+            <span class="material-icons">warning</span>
+            <span>Traffic jam on FC Road. Consider alternate routes.</span>
+          </div>
+
+          <!-- Header -->
+          <div class="dashboard-header">
+            <div class="city-info">
+              <h3 class="headline-small" id="cityName">Pune</h3>
+              <span class="body-small"
+                >Today, <span id="currentTime">24°C</span></span
+              >
+            </div>
+            <div class="weather-info">
+              <span class="material-icons" id="weatherIcon">wb_sunny</span>
+              <span class="body-medium" id="temperature">24°C</span>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="quick-actions">
+            <a href="search-discovery.html" class="action-button">
+              <button class="btn btn-icon btn-large">
+                <span class="material-icons">search</span>
+              </button>
+              <span class="action-label">Find Place</span>
+            </a>
+            <a href="route-options.html" class="action-button">
+              <button class="btn btn-icon btn-large">
+                <span class="material-icons">directions</span>
+              </button>
+              <span class="action-label">Plan Route</span>
+            </a>
+            <a href="interactive-map.html" class="action-button">
+              <button class="btn btn-icon btn-large">
+                <span class="material-icons">map</span>
+              </button>
+              <span class="action-label">Essentials</span>
+            </a>
+          </div>
+
+          <!-- Daily Tip -->
+          <div class="daily-tip">
+            <div class="tip-card" id="dailyTip">
+              <span class="material-icons">lightbulb</span>
+              <div class="tip-content">
+                <span class="body-medium"
+                  >Tip: Peak hours for local buses are 8-10 AM and 6-8 PM. Plan
+                  accordingly!</span
+                >
+              </div>
+              <button class="tip-dismiss" onclick="dismissTip()">
+                <span class="material-icons">close</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Recent Activity -->
+          <div class="recent-activity">
+            <h3 class="headline-small">Recent Activity</h3>
+            <div class="activity-list">
+              <div class="activity-item">
+                <div class="activity-icon route">
+                  <span class="material-icons">directions</span>
+                </div>
+                <div class="activity-info">
+                  <div class="activity-title">Route to Phoenix Mall</div>
+                  <div class="activity-time">2 hours ago</div>
+                </div>
+                <span class="material-icons">chevron_right</span>
+              </div>
+
+              <div class="activity-item">
+                <div class="activity-icon location">
+                  <span class="material-icons">location_on</span>
+                </div>
+                <div class="activity-info">
+                  <div class="activity-title">Saved: Ruby Hall Clinic</div>
+                  <div class="activity-time">Yesterday</div>
+                </div>
+                <span class="material-icons">bookmark</span>
+              </div>
+
+              <div class="activity-item">
+                <div class="activity-icon safety">
+                  <span class="material-icons">security</span>
+                </div>
+                <div class="activity-info">
+                  <div class="activity-title">Safety check-in sent</div>
+                  <div class="activity-time">2 days ago</div>
+                </div>
+                <span class="material-icons">check_circle</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Emergency SOS Button -->
+          <button class="btn btn-emergency sos-button" id="sosButton">
+            <span class="material-icons">emergency</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Bottom Navigation -->
+      <div class="bottom-nav">
+        <a href="home-dashboard.html" class="nav-item active">
+          <span class="material-icons">home</span>
+          <span class="nav-label">Home</span>
+        </a>
+        <a href="interactive-map.html" class="nav-item">
+          <span class="material-icons">map</span>
+          <span class="nav-label">Map</span>
+        </a>
+        <a href="safety-center.html" class="nav-item">
+          <span class="material-icons">security</span>
+          <span class="nav-label">Safety</span>
+        </a>
+        <a href="profile.html" class="nav-item">
+          <span class="material-icons">person</span>
+          <span class="nav-label">Profile</span>
+        </a>
+      </div>
+    </div>
+
+    <script src="../scripts/design-system.js"></script>
+    <script>
+      class HomeDashboard {
+        constructor() {
+          this.init();
+        }
+
+        init() {
+          this.loadUserData();
+          this.updateDateTime();
+          this.setupInteractions();
+          this.loadRecentActivity();
+          this.checkSafetyAlerts();
+
+          // Update time every minute
+          setInterval(() => this.updateDateTime(), 60000);
+        }
+
+        loadUserData() {
+          const selectedCity = localStorage.getItem("selectedCity") || "Pune";
+          const cityElement = document.getElementById("cityName");
+          if (cityElement) {
+            cityElement.textContent = selectedCity;
+          }
+        }
+
+        updateDateTime() {
+          const now = new Date();
+          const timeElement = document.getElementById("currentTime");
+
+          if (timeElement) {
+            const timeString = now.toLocaleTimeString("en-US", {
+              hour: "2-digit",
+              minute: "2-digit",
+            });
+            timeElement.textContent = `Today, ${timeString}`;
+          }
+
+          // Simulate weather update
+          this.updateWeather();
+        }
+
+        updateWeather() {
+          const weather = this.getWeatherForTime();
+          const temperatureElement = document.getElementById("temperature");
+          const weatherIconElement = document.getElementById("weatherIcon");
+
+          if (temperatureElement) {
+            temperatureElement.textContent = weather.temp;
+          }
+
+          if (weatherIconElement) {
+            weatherIconElement.textContent = weather.icon;
+          }
+        }
+
+        getWeatherForTime() {
+          const hour = new Date().getHours();
+
+          if (hour >= 6 && hour < 18) {
+            return { temp: "28°C", icon: "wb_sunny" };
+          } else if (hour >= 18 && hour < 20) {
+            return { temp: "25°C", icon: "wb_twilight" };
+          } else {
+            return { temp: "22°C", icon: "nights_stay" };
+          }
+        }
+
+        setupInteractions() {
+          // SOS Button interaction
+          const sosButton = document.getElementById("sosButton");
+          let sosTimer;
+
+          sosButton.addEventListener("mousedown", () => {
+            sosTimer = setTimeout(() => {
+              this.activateEmergency();
+            }, 3000);
+
+            // Visual feedback
+            sosButton.style.transform = "scale(1.1)";
+            sosButton.style.animation = "none";
+          });
+
+          sosButton.addEventListener("mouseup", () => {
+            clearTimeout(sosTimer);
+            sosButton.style.transform = "";
+            sosButton.style.animation = "";
+          });
+
+          sosButton.addEventListener("mouseleave", () => {
+            clearTimeout(sosTimer);
+            sosButton.style.transform = "";
+            sosButton.style.animation = "";
+          });
+
+          // Activity items interaction
+          const activityItems = document.querySelectorAll(".activity-item");
+          activityItems.forEach((item) => {
+            item.addEventListener("click", () => {
+              this.handleActivityClick(item);
+            });
+          });
+        }
+
+        loadRecentActivity() {
+          // In a real app, this would load from API/storage
+          const activities = JSON.parse(
+            localStorage.getItem("recentActivity") || "[]"
+          );
+
+          if (activities.length > 0) {
+            this.updateActivityList(activities);
+          }
+        }
+
+        updateActivityList(activities) {
+          const activityList = document.querySelector(".activity-list");
+          if (!activityList) return;
+
+          activityList.innerHTML = "";
+
+          activities.slice(0, 3).forEach((activity) => {
+            const item = document.createElement("div");
+            item.className = "activity-item";
+            item.innerHTML = `
+                        <div class="activity-icon ${activity.type}">
+                            <span class="material-icons">${activity.icon}</span>
+                        </div>
+                        <div class="activity-info">
+                            <div class="activity-title">${activity.title}</div>
+                            <div class="activity-time">${activity.time}</div>
+                        </div>
+                        <span class="material-icons">chevron_right</span>
+                    `;
+
+            activityList.appendChild(item);
+          });
+        }
+
+        checkSafetyAlerts() {
+          // Simulate checking for safety alerts
+          const alerts = JSON.parse(
+            localStorage.getItem("safetyAlerts") || "[]"
+          );
+          const safetyAlert = document.getElementById("safetyAlert");
+
+          if (alerts.length === 0 || Math.random() > 0.3) {
+            safetyAlert.classList.add("hidden");
+          }
+        }
+
+        activateEmergency() {
+          console.log("Emergency activated!");
+
+          // Show emergency overlay
+          const overlay = document.createElement("div");
+          overlay.style.cssText = `
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    right: 0;
+                    bottom: 0;
+                    background: rgba(186, 26, 26, 0.95);
+                    color: white;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center;
+                    z-index: 1000;
+                    animation: emergencyFlash 0.5s ease-in-out infinite alternate;
+                `;
+
+          overlay.innerHTML = `
+                    <div style="text-align: center;">
+                        <span class="material-icons" style="font-size: 120px; margin-bottom: 20px;">emergency</span>
+                        <h2 style="font-size: 32px; margin-bottom: 16px;">EMERGENCY ACTIVATED</h2>
+                        <p style="font-size: 18px; margin-bottom: 32px;">Contacting emergency services...</p>
+                        <button onclick="this.parentElement.parentElement.remove()" 
+                                style="background: white; color: var(--error); border: none; padding: 12px 24px; border-radius: 6px; font-size: 16px; cursor: pointer;">
+                            Cancel Emergency
+                        </button>
+                    </div>
+                `;
+
+          // Add flash animation
+          const style = document.createElement("style");
+          style.textContent = `
+                    @keyframes emergencyFlash {
+                        0% { background: rgba(186, 26, 26, 0.95); }
+                        100% { background: rgba(186, 26, 26, 0.8); }
+                    }
+                `;
+          document.head.appendChild(style);
+
+          document.body.appendChild(overlay);
+
+          // Vibrate if supported
+          if (navigator.vibrate) {
+            navigator.vibrate([200, 100, 200, 100, 200]);
+          }
+        }
+
+        handleActivityClick(item) {
+          const title = item.querySelector(".activity-title").textContent;
+          console.log("Activity clicked:", title);
+
+          // Add some visual feedback
+          item.style.transform = "scale(0.98)";
+          setTimeout(() => {
+            item.style.transform = "";
+          }, 150);
+        }
+      }
+
+      // Global function for tip dismissal
+      function dismissTip() {
+        const tipCard = document.getElementById("dailyTip");
+        tipCard.style.animation = "slideOut 300ms ease";
+        setTimeout(() => {
+          tipCard.style.display = "none";
+        }, 300);
+
+        localStorage.setItem("dailyTipDismissed", Date.now().toString());
+      }
+
+      document.addEventListener("DOMContentLoaded", () => {
+        new HomeDashboard();
+      });
+    </script>
+  </body>
+</html>

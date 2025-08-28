@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Welcome - CityNav</title>
+    <link rel="stylesheet" href="../styles/design-tokens.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="citynav-bg">
+      <div class="citynav-card">
+        <a class="skip-setup" href="home-dashboard.html">Skip Setup</a>
+        <div class="welcome-illustration">
+          <span class="material-icons illustration-icon">location_city</span>
+        </div>
+        <h1 class="display-large">Welcome to CityNav</h1>
+        <p class="body-large subtitle">
+          Your offline city companion for safe exploration
+        </p>
+        <div class="language-selector">
+          <div class="lang-card active">English</div>
+          <div class="lang-card">हिन्दी</div>
+          <div class="lang-card">मराठी</div>
+        </div>
+        <button
+          class="btn btn-primary btn-large"
+          onclick="window.location.href='feature-tour.html'"
+        >
+          Get Started
+        </button>
+      </div>
+    </div>
+    <script src="../scripts/design-system.js"></script>
+  </body>
+</html>

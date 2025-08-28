@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CityNav - Nearby Places</title>
+    <link rel="stylesheet" href="../styles/design-tokens.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      .nearby-container {
+        padding: var(--spacing-lg) var(--spacing-lg) 100px;
+      }
+
+      .nearby-header {
+        margin-bottom: var(--spacing-lg);
+      }
+
+      .location-info {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-md);
+        color: var(--on-surface-variant);
+      }
+
+      .location-info .material-icons {
+        font-size: 18px;
+        color: var(--primary);
+      }
+
+      .category-filters {
+        display: flex;
+        gap: var(--spacing-sm);
+        overflow-x: auto;
+        padding-bottom: var(--spacing-sm);
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .category-filter {
+        background-color: var(--surface);
+        color: var(--on-surface-variant);
+        padding: var(--spacing-sm) var(--spacing-lg);
+        border-radius: var(--radius-full);
+        border: 1px solid var(--outline);
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+        white-space: nowrap;
+        font-size: var(--label-large-size);
+        font-weight: var(--label-large-weight);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        min-height: 40px;
+      }
+
+      .category-filter.active {
+        background-color: var(--primary-container);
+        color: var(--on-primary-container);
+        border-color: var(--primary);
+      }
+
+      .category-filter:hover:not(.active) {
+        background-color: var(--surface-variant);
+      }
+
+      .category-filter:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .category-filter .material-icons {
+        font-size: 18px;
+      }
+
+      /* Places List */
+      .places-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+      }
+
+      .place-card {
+        background-color: var(--surface);
+        border: 1px solid var(--outline);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-lg);
+        cursor: pointer;
+        transition: all var(--duration-medium) ease;
+      }
+
+      .place-card:hover {
+        background-color: var(--surface-variant);
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: var(--elevation-2);
+      }
+
+      .place-card:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .place-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: var(--spacing-sm);
+      }
+
+      .place-info {
+        flex: 1;
+      }
+
+      .place-name {
+        font-size: var(--body-large-size);
+        font-weight: var(--body-large-weight);
+        color: var(--on-surface);
+        margin: 0 0 var(--spacing-xs) 0;
+      }
+
+      .place-category {
+        font-size: var(--label-medium-size);
+        color: var(--on-surface-variant);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+      }
+
+      .place-category .material-icons {
+        font-size: 16px;
+      }
+
+      .place-distance {
+        text-align: right;
+        color: var(--on-surface-variant);
+      }
+
+      .distance-value {
+        font-size: var(--body-medium-size);
+        font-weight: var(--body-medium-weight);
+        color: var(--primary);
+      }
+
+      .distance-time {
+        font-size: var(--label-small-size);
+        margin-top: var(--spacing-xs);
+      }
+
+      .place-details {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-top: var(--spacing-md);
+      }
+
+      .place-rating {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        color: var(--on-surface-variant);
+      }
+
+      .rating-stars {
+        color: #ffa000;
+        font-size: 16px;
+      }
+
+      .rating-count {
+        font-size: var(--label-small-size);
+      }
+
+      .place-status {
+        font-size: var(--label-small-size);
+        padding: var(--spacing-xs) var(--spacing-sm);
+        border-radius: var(--radius-sm);
+        font-weight: var(--label-small-weight);
+      }
+
+      .status-open {
+        background-color: var(--success-container);
+        color: var(--on-success-container);
+      }
+
+      .status-closed {
+        background-color: var(--error-container);
+        color: var(--on-error-container);
+      }
+
+      .status-closing {
+        background-color: var(--warning-container);
+        color: var(--on-warning-container);
+      }
+
+      .place-actions {
+        display: flex;
+        gap: var(--spacing-sm);
+        margin-top: var(--spacing-md);
+      }
+
+      .action-btn {
+        flex: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-xs);
+        padding: var(--spacing-sm) var(--spacing-md);
+        border: 1px solid var(--outline);
+        border-radius: var(--radius-md);
+        background-color: var(--surface);
+        color: var(--on-surface);
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+        font-size: var(--label-medium-size);
+        text-decoration: none;
+      }
+
+      .action-btn:hover {
+        background-color: var(--primary-container);
+        border-color: var(--primary);
+        color: var(--on-primary-container);
+      }
+
+      .action-btn:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .action-btn.primary {
+        background-color: var(--primary);
+        color: var(--on-primary);
+        border-color: var(--primary);
+      }
+
+      .action-btn.primary:hover {
+        background-color: var(--primary-dark);
+      }
+
+      .action-btn .material-icons {
+        font-size: 18px;
+      }
+
+      /* Empty State */
+      .empty-state {
+        text-align: center;
+        padding: var(--spacing-xxl);
+        color: var(--on-surface-variant);
+      }
+
+      .empty-icon {
+        font-size: 64px;
+        margin-bottom: var(--spacing-md);
+        opacity: 0.5;
+      }
+
+      .empty-title {
+        font-size: var(--headline-small-size);
+        margin-bottom: var(--spacing-sm);
+      }
+
+      .empty-subtitle {
+        font-size: var(--body-medium-size);
+      }
+
+      /* Loading State */
+      .loading-places {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+      }
+
+      .place-skeleton {
+        height: 120px;
+        background-color: var(--surface-variant);
+        border-radius: var(--radius-lg);
+        position: relative;
+        overflow: hidden;
+      }
+
+      .place-skeleton::after {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        bottom: 0;
+        left: 0;
+        background: linear-gradient(
+          90deg,
+          transparent,
+          rgba(255, 255, 255, 0.4),
+          transparent
+        );
+        animation: shimmer 1.5s infinite;
+      }
+
+      @keyframes shimmer {
+        0% {
+          transform: translateX(-100%);
+        }
+        100% {
+          transform: translateX(100%);
+        }
+      }
+
+      /* Distance Filter */
+      .distance-filter {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+        padding: var(--spacing-md);
+        background-color: var(--surface-variant);
+        border-radius: var(--radius-md);
+      }
+
+      .filter-label {
+        font-size: var(--label-medium-size);
+        color: var(--on-surface-variant);
+        min-width: 80px;
+      }
+
+      .distance-slider {
+        flex: 1;
+        -webkit-appearance: none;
+        height: 4px;
+        border-radius: var(--radius-xs);
+        background: var(--outline-variant);
+        outline: none;
+      }
+
+      .distance-slider::-webkit-slider-thumb {
+        -webkit-appearance: none;
+        appearance: none;
+        width: 20px;
+        height: 20px;
+        border-radius: var(--radius-full);
+        background: var(--primary);
+        cursor: pointer;
+        border: 2px solid var(--surface);
+        box-shadow: var(--elevation-1);
+      }
+
+      .distance-slider::-moz-range-thumb {
+        width: 20px;
+        height: 20px;
+        border-radius: var(--radius-full);
+        background: var(--primary);
+        cursor: pointer;
+        border: 2px solid var(--surface);
+      }
+
+      .distance-value {
+        font-size: var(--label-large-size);
+        font-weight: var(--label-large-weight);
+        color: var(--primary);
+        min-width: 60px;
+        text-align: right;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="citynav-bg">
+      <div class="citynav-card">
+        <div class="nearby-container">
+          <!-- Header -->
+          <div class="nearby-header">
+            <h2 class="display-medium">Nearby Places</h2>
+            <div class="location-info">
+              <span class="material-icons">location_on</span>
+              <span>Around your current location</span>
+            </div>
+          </div>
+
+          <!-- Distance Filter -->
+          <div class="distance-filter">
+            <span class="filter-label">Range:</span>
+            <input
+              type="range"
+              class="distance-slider"
+              min="0.5"
+              max="10"
+              step="0.5"
+              value="2"
+              id="distanceSlider"
+            />
+            <span class="distance-value" id="distanceValue">2 km</span>
+          </div>
+
+          <!-- Category Filters -->
+          <div class="category-filters">
+            <div
+              class="category-filter active"
+              data-category="all"
+              tabindex="0"
+            >
+              <span class="material-icons">explore</span>
+              <span>All</span>
+            </div>
+            <div class="category-filter" data-category="food" tabindex="0">
+              <span class="material-icons">restaurant</span>
+              <span>Food</span>
+            </div>
+            <div class="category-filter" data-category="health" tabindex="0">
+              <span class="material-icons">local_hospital</span>
+              <span>Health</span>
+            </div>
+            <div class="category-filter" data-category="fuel" tabindex="0">
+              <span class="material-icons">local_gas_station</span>
+              <span>Fuel</span>
+            </div>
+            <div class="category-filter" data-category="atm" tabindex="0">
+              <span class="material-icons">atm</span>
+              <span>ATM</span>
+            </div>
+            <div class="category-filter" data-category="shopping" tabindex="0">
+              <span class="material-icons">shopping_cart</span>
+              <span>Shopping</span>
+            </div>
+            <div class="category-filter" data-category="emergency" tabindex="0">
+              <span class="material-icons">emergency</span>
+              <span>Emergency</span>
+            </div>
+          </div>
+
+          <!-- Places List -->
+          <div class="places-list" id="placesList">
+            <!-- Example Place Card -->
+            <div class="place-card" tabindex="0" data-place-id="1">
+              <div class="place-header">
+                <div class="place-info">
+                  <h3 class="place-name">City Hospital</h3>
+                  <div class="place-category">
+                    <span class="material-icons">local_hospital</span>
+                    <span>Hospital</span>
+                  </div>
+                </div>
+                <div class="place-distance">
+                  <div class="distance-value">0.8 km</div>
+                  <div class="distance-time">3 min drive</div>
+                </div>
+              </div>
+
+              <div class="place-details">
+                <div class="place-rating">
+                  <span class="material-icons rating-stars">star</span>
+                  <span>4.2</span>
+                  <span class="rating-count">(124 reviews)</span>
+                </div>
+                <div class="place-status status-open">Open 24/7</div>
+              </div>
+
+              <div class="place-actions">
+                <button class="action-btn primary">
+                  <span class="material-icons">directions</span>
+                  <span>Directions</span>
+                </button>
+                <button class="action-btn">
+                  <span class="material-icons">phone</span>
+                  <span>Call</span>
+                </button>
+                <button class="action-btn">
+                  <span class="material-icons">info</span>
+                  <span>Details</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- More Place Cards -->
+            <div class="place-card" tabindex="0" data-place-id="2">
+              <div class="place-header">
+                <div class="place-info">
+                  <h3 class="place-name">McDonald's FC Road</h3>
+                  <div class="place-category">
+                    <span class="material-icons">restaurant</span>
+                    <span>Fast Food</span>
+                  </div>
+                </div>
+                <div class="place-distance">
+                  <div class="distance-value">1.2 km</div>
+                  <div class="distance-time">5 min drive</div>
+                </div>
+              </div>
+
+              <div class="place-details">
+                <div class="place-rating">
+                  <span class="material-icons rating-stars">star</span>
+                  <span>4.1</span>
+                  <span class="rating-count">(89 reviews)</span>
+                </div>
+                <div class="place-status status-open">Open until 11 PM</div>
+              </div>
+
+              <div class="place-actions">
+                <button class="action-btn primary">
+                  <span class="material-icons">directions</span>
+                  <span>Directions</span>
+                </button>
+                <button class="action-btn">
+                  <span class="material-icons">phone</span>
+                  <span>Call</span>
+                </button>
+                <button class="action-btn">
+                  <span class="material-icons">info</span>
+                  <span>Details</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="place-card" tabindex="0" data-place-id="3">
+              <div class="place-header">
+                <div class="place-info">
+                  <h3 class="place-name">Shell Petrol Pump</h3>
+                  <div class="place-category">
+                    <span class="material-icons">local_gas_station</span>
+                    <span>Fuel Station</span>
+                  </div>
+                </div>
+                <div class="place-distance">
+                  <div class="distance-value">1.5 km</div>
+                  <div class="distance-time">6 min drive</div>
+                </div>
+              </div>
+
+              <div class="place-details">
+                <div class="place-rating">
+                  <span class="material-icons rating-stars">star</span>
+                  <span>4.0</span>
+                  <span class="rating-count">(45 reviews)</span>
+                </div>
+                <div class="place-status status-open">Open until 10 PM</div>
+              </div>
+
+              <div class="place-actions">
+                <button class="action-btn primary">
+                  <span class="material-icons">directions</span>
+                  <span>Directions</span>
+                </button>
+                <button class="action-btn">
+                  <span class="material-icons">phone</span>
+                  <span>Call</span>
+                </button>
+                <button class="action-btn">
+                  <span class="material-icons">info</span>
+                  <span>Details</span>
+                </button>
+              </div>
+            </div>
+
+            <div class="place-card" tabindex="0" data-place-id="4">
+              <div class="place-header">
+                <div class="place-info">
+                  <h3 class="place-name">HDFC Bank ATM</h3>
+                  <div class="place-category">
+                    <span class="material-icons">atm</span>
+                    <span>ATM</span>
+                  </div>
+                </div>
+                <div class="place-distance">
+                  <div class="distance-value">0.5 km</div>
+                  <div class="distance-time">2 min walk</div>
+                </div>
+              </div>
+
+              <div class="place-details">
+                <div class="place-rating">
+                  <span class="material-icons rating-stars">star</span>
+                  <span>3.8</span>
+                  <span class="rating-count">(12 reviews)</span>
+                </div>
+                <div class="place-status status-open">Open 24/7</div>
+              </div>
+
+              <div class="place-actions">
+                <button class="action-btn primary">
+                  <span class="material-icons">directions</span>
+                  <span>Directions</span>
+                </button>
+                <button class="action-btn">
+                  <span class="material-icons">info</span>
+                  <span>Details</span>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <div class="nav-bar">
+          <a href="home-dashboard.html" class="nav-item">
+            <span class="material-icons">home</span>
+            <span class="nav-label">Home</span>
+          </a>
+          <a href="search-discovery.html" class="nav-item">
+            <span class="material-icons">search</span>
+            <span class="nav-label">Search</span>
+          </a>
+          <a href="interactive-map.html" class="nav-item">
+            <span class="material-icons">map</span>
+            <span class="nav-label">Map</span>
+          </a>
+          <a href="nearby-places.html" class="nav-item active">
+            <span class="material-icons">place</span>
+            <span class="nav-label">Nearby</span>
+          </a>
+          <a href="profile-settings.html" class="nav-item">
+            <span class="material-icons">person</span>
+            <span class="nav-label">Profile</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <script src="../scripts/design-system.js"></script>
+    <script>
+      class NearbyPlaces {
+        constructor() {
+          this.currentCategory = "all";
+          this.currentDistance = 2;
+          this.places = this.generateMockPlaces();
+
+          this.init();
+        }
+
+        init() {
+          this.setupEventListeners();
+          this.renderPlaces();
+        }
+
+        setupEventListeners() {
+          // Category filters
+          document.querySelectorAll(".category-filter").forEach((filter) => {
+            filter.addEventListener("click", () => this.selectCategory(filter));
+            filter.addEventListener("keypress", (e) => {
+              if (e.key === "Enter") this.selectCategory(filter);
+            });
+          });
+
+          // Distance slider
+          const distanceSlider = document.getElementById("distanceSlider");
+          const distanceValue = document.getElementById("distanceValue");
+
+          distanceSlider.addEventListener("input", (e) => {
+            this.currentDistance = parseFloat(e.target.value);
+            distanceValue.textContent = `${this.currentDistance} km`;
+            this.filterPlacesByDistance();
+          });
+
+          // Place card interactions
+          document.addEventListener("click", (e) => {
+            if (e.target.closest(".action-btn")) {
+              const btn = e.target.closest(".action-btn");
+              const action = btn.textContent.trim();
+              const placeCard = btn.closest(".place-card");
+              const placeId = placeCard.dataset.placeId;
+
+              this.handlePlaceAction(action, placeId);
+            }
+          });
+        }
+
+        selectCategory(filterElement) {
+          // Remove active class from all filters
+          document.querySelectorAll(".category-filter").forEach((f) => {
+            f.classList.remove("active");
+          });
+
+          // Add active class to selected filter
+          filterElement.classList.add("active");
+
+          this.currentCategory = filterElement.dataset.category;
+          this.filterPlaces();
+        }
+
+        filterPlaces() {
+          const filteredPlaces = this.places.filter((place) => {
+            const categoryMatch =
+              this.currentCategory === "all" ||
+              place.category === this.currentCategory;
+            const distanceMatch = place.distance <= this.currentDistance;
+            return categoryMatch && distanceMatch;
+          });
+
+          this.renderPlaces(filteredPlaces);
+        }
+
+        filterPlacesByDistance() {
+          this.filterPlaces();
+        }
+
+        generateMockPlaces() {
+          return [
+            {
+              id: "1",
+              name: "City Hospital",
+              category: "health",
+              icon: "local_hospital",
+              distance: 0.8,
+              driveTime: "3 min",
+              rating: 4.2,
+              reviews: 124,
+              status: "Open 24/7",
+              statusType: "open",
+            },
+            {
+              id: "2",
+              name: "McDonald's FC Road",
+              category: "food",
+              icon: "restaurant",
+              distance: 1.2,
+              driveTime: "5 min",
+              rating: 4.1,
+              reviews: 89,
+              status: "Open until 11 PM",
+              statusType: "open",
+            },
+            {
+              id: "3",
+              name: "Shell Petrol Pump",
+              category: "fuel",
+              icon: "local_gas_station",
+              distance: 1.5,
+              driveTime: "6 min",
+              rating: 4.0,
+              reviews: 45,
+              status: "Open until 10 PM",
+              statusType: "open",
+            },
+            {
+              id: "4",
+              name: "HDFC Bank ATM",
+              category: "atm",
+              icon: "atm",
+              distance: 0.5,
+              driveTime: "2 min walk",
+              rating: 3.8,
+              reviews: 12,
+              status: "Open 24/7",
+              statusType: "open",
+            },
+            {
+              id: "5",
+              name: "Apollo Pharmacy",
+              category: "health",
+              icon: "local_pharmacy",
+              distance: 0.7,
+              driveTime: "3 min",
+              rating: 4.3,
+              reviews: 67,
+              status: "Closing at 9 PM",
+              statusType: "closing",
+            },
+            {
+              id: "6",
+              name: "Big Bazaar",
+              category: "shopping",
+              icon: "shopping_cart",
+              distance: 2.1,
+              driveTime: "8 min",
+              rating: 3.9,
+              reviews: 156,
+              status: "Open until 10 PM",
+              statusType: "open",
+            },
+          ];
+        }
+
+        renderPlaces(placesToRender = this.places) {
+          const placesList = document.getElementById("placesList");
+
+          if (placesToRender.length === 0) {
+            placesList.innerHTML = `
+              <div class="empty-state">
+                <div class="material-icons empty-icon">location_off</div>
+                <h3 class="empty-title">No places found</h3>
+                <p class="empty-subtitle">Try adjusting your filters or increasing the search range</p>
+              </div>
+            `;
+            return;
+          }
+
+          placesList.innerHTML = placesToRender
+            .map(
+              (place) => `
+            <div class="place-card" tabindex="0" data-place-id="${place.id}">
+              <div class="place-header">
+                <div class="place-info">
+                  <h3 class="place-name">${place.name}</h3>
+                  <div class="place-category">
+                    <span class="material-icons">${place.icon}</span>
+                    <span>${this.getCategoryLabel(place.category)}</span>
+                  </div>
+                </div>
+                <div class="place-distance">
+                  <div class="distance-value">${place.distance} km</div>
+                  <div class="distance-time">${place.driveTime} drive</div>
+                </div>
+              </div>
+              
+              <div class="place-details">
+                <div class="place-rating">
+                  <span class="material-icons rating-stars">star</span>
+                  <span>${place.rating}</span>
+                  <span class="rating-count">(${place.reviews} reviews)</span>
+                </div>
+                <div class="place-status status-${place.statusType}">${
+                place.status
+              }</div>
+              </div>
+              
+              <div class="place-actions">
+                <button class="action-btn primary">
+                  <span class="material-icons">directions</span>
+                  <span>Directions</span>
+                </button>
+                <button class="action-btn">
+                  <span class="material-icons">phone</span>
+                  <span>Call</span>
+                </button>
+                <button class="action-btn">
+                  <span class="material-icons">info</span>
+                  <span>Details</span>
+                </button>
+              </div>
+            </div>
+          `
+            )
+            .join("");
+        }
+
+        getCategoryLabel(category) {
+          const labels = {
+            health: "Hospital",
+            food: "Restaurant",
+            fuel: "Fuel Station",
+            atm: "ATM",
+            shopping: "Shopping",
+            emergency: "Emergency",
+          };
+          return labels[category] || "Place";
+        }
+
+        handlePlaceAction(action, placeId) {
+          const place = this.places.find((p) => p.id === placeId);
+          if (!place) return;
+
+          switch (action) {
+            case "Directions":
+              window.location.href = `directions-navigation.html?destination=${encodeURIComponent(
+                place.name
+              )}`;
+              break;
+            case "Call":
+              this.showNotification(`Calling ${place.name}...`, "info");
+              break;
+            case "Details":
+              this.showNotification(
+                `Loading details for ${place.name}...`,
+                "info"
+              );
+              break;
+          }
+        }
+
+        showNotification(message, type = "info") {
+          const notification = document.createElement("div");
+          notification.className = `notification ${type}`;
+          notification.style.cssText = `
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--surface);
+            color: var(--on-surface);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--elevation-3);
+            z-index: 20;
+            font-size: var(--body-medium-size);
+            border: 1px solid var(--outline);
+          `;
+          notification.textContent = message;
+
+          document.body.appendChild(notification);
+
+          setTimeout(() => {
+            notification.remove();
+          }, 3000);
+        }
+      }
+
+      // Initialize nearby places when page loads
+      document.addEventListener("DOMContentLoaded", () => {
+        new NearbyPlaces();
+      });
+    </script>
+  </body>
+</html>

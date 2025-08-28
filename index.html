@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CityNav - Design System Prototype</title>
+    <link rel="stylesheet" href="styles/design-tokens.css" />
+    <link rel="stylesheet" href="styles/components.css" />
+    <link rel="stylesheet" href="styles/screens.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div class="design-system-nav">
+      <h1>CityNav Design System</h1>
+      <nav class="nav-sections">
+        <div class="nav-group">
+          <h3>Design Tokens</h3>
+          <a href="#colors" data-section="colors">Colors</a>
+          <a href="#typography" data-section="typography">Typography</a>
+          <a href="#spacing" data-section="spacing">Spacing</a>
+          <a href="#elevation" data-section="elevation">Elevation</a>
+        </div>
+        <div class="nav-group">
+          <h3>Components</h3>
+          <a href="#buttons" data-section="buttons">Buttons</a>
+          <a href="#inputs" data-section="inputs">Inputs</a>
+          <a href="#cards" data-section="cards">Cards</a>
+          <a href="#navigation" data-section="navigation">Navigation</a>
+        </div>
+        <div class="nav-group">
+          <h3>Screens</h3>
+          <a href="#welcome" data-section="welcome">Welcome</a>
+          <a href="#onboarding" data-section="onboarding">Onboarding</a>
+          <a href="#authentication" data-section="authentication">Authentication</a>
+          <a href="#dashboard" data-section="dashboard">Dashboard</a>
+          <a href="#map" data-section="map">Interactive Map</a>
+          <a href="#search" data-section="search">Search & Discovery</a>
+          <a href="#navigation-screen" data-section="navigation-screen">Directions</a>
+          <a href="#nearby" data-section="nearby">Nearby Places</a>
+          <a href="#profile" data-section="profile">Profile & Settings</a>
+          <a href="#safety" data-section="safety">Safety Features</a>
+          <a href="#offline" data-section="offline">Offline Downloads</a>
+        </div>
+          <a href="#profile" data-section="profile">Profile</a>
+        </div>
+      </nav>
+    </div>
+
+    <main class="design-system-content">
+      <!-- Design Tokens Section -->
+      <section id="colors" class="ds-section">
+        <h2>Color Palette</h2>
+        <div class="color-grid">
+          <div class="color-card">
+            <div class="color-swatch" style="background: var(--primary)"></div>
+            <h4>Primary</h4>
+            <p>#2E7D5E</p>
+            <span>Main brand color</span>
+          </div>
+          <div class="color-card">
+            <div
+              class="color-swatch"
+              style="background: var(--primary-container)"
+            ></div>
+            <h4>Primary Container</h4>
+            <p>#B8F2D9</p>
+            <span>Active states</span>
+          </div>
+          <div class="color-card">
+            <div
+              class="color-swatch"
+              style="background: var(--secondary)"
+            ></div>
+            <h4>Secondary</h4>
+            <p>#5D7C6B</p>
+            <span>Supporting text</span>
+          </div>
+          <div class="color-card">
+            <div class="color-swatch" style="background: var(--surface)"></div>
+            <h4>Surface</h4>
+            <p>#FDFDF7</p>
+            <span>Background</span>
+          </div>
+          <div class="color-card">
+            <div
+              class="color-swatch"
+              style="background: var(--surface-variant)"
+            ></div>
+            <h4>Surface Variant</h4>
+            <p>#E6E3DA</p>
+            <span>Cards & containers</span>
+          </div>
+          <div class="color-card">
+            <div
+              class="color-swatch"
+              style="background: var(--on-surface)"
+            ></div>
+            <h4>On Surface</h4>
+            <p>#1A1C19</p>
+            <span>Primary text</span>
+          </div>
+          <div class="color-card">
+            <div class="color-swatch" style="background: var(--error)"></div>
+            <h4>Error</h4>
+            <p>#BA1A1A</p>
+            <span>Error states</span>
+          </div>
+          <div class="color-card">
+            <div class="color-swatch" style="background: var(--success)"></div>
+            <h4>Success</h4>
+            <p>#388E3C</p>
+            <span>Success states</span>
+          </div>
+          <div class="color-card">
+            <div class="color-swatch" style="background: var(--warning)"></div>
+            <h4>Warning</h4>
+            <p>#F9A825</p>
+            <span>Warning states</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="typography" class="ds-section">
+        <h2>Typography Scale</h2>
+        <div class="typography-examples">
+          <div class="type-example">
+            <h1 class="display-large">Display Large - 40px</h1>
+            <p>Used for main headlines like "Welcome to CityNav"</p>
+          </div>
+          <div class="type-example">
+            <h2 class="display-medium">Display Medium - 32px</h2>
+            <p>Used for screen titles and major sections</p>
+          </div>
+          <div class="type-example">
+            <h3 class="headline-small">Headline Small - 24px</h3>
+            <p>Used for card titles and subsections</p>
+          </div>
+          <div class="type-example">
+            <p class="body-large">Body Large - 18px</p>
+            <p>Used for important descriptions and subtitles</p>
+          </div>
+          <div class="type-example">
+            <p class="body-medium">Body Medium - 16px</p>
+            <p>Used for general body text and descriptions</p>
+          </div>
+          <div class="type-example">
+            <p class="body-small">Body Small - 14px</p>
+            <p>Used for captions and secondary information</p>
+          </div>
+          <div class="type-example">
+            <span class="label-large">Label Large - 14px</span>
+            <p>Used for button text and form labels</p>
+          </div>
+          <div class="type-example">
+            <span class="label-medium">Label Medium - 12px</span>
+            <p>Used for smaller labels and navigation</p>
+          </div>
+        </div>
+      </section>
+
+      <section id="spacing" class="ds-section">
+        <h2>Spacing System</h2>
+        <div class="spacing-examples">
+          <div class="spacing-item">
+            <div class="spacing-demo" style="width: 8px"></div>
+            <span>xs - 8px</span>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-demo" style="width: 12px"></div>
+            <span>sm - 12px</span>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-demo" style="width: 16px"></div>
+            <span>md - 16px</span>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-demo" style="width: 24px"></div>
+            <span>lg - 24px</span>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-demo" style="width: 32px"></div>
+            <span>xl - 32px</span>
+          </div>
+          <div class="spacing-item">
+            <div class="spacing-demo" style="width: 48px"></div>
+            <span>2xl - 48px</span>
+          </div>
+        </div>
+      </section>
+
+      <section id="elevation" class="ds-section">
+        <h2>Elevation Scale</h2>
+        <div class="elevation-examples">
+          <div class="elevation-card elevation-1">
+            <h4>Level 1 - 2dp</h4>
+            <p>Rest state for cards</p>
+          </div>
+          <div class="elevation-card elevation-2">
+            <h4>Level 2 - 4dp</h4>
+            <p>Hover state, main cards</p>
+          </div>
+          <div class="elevation-card elevation-3">
+            <h4>Level 3 - 8dp</h4>
+            <p>Pressed state, active elements</p>
+          </div>
+          <div class="elevation-card elevation-4">
+            <h4>Level 4 - 16dp</h4>
+            <p>Modals and overlays</p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Components Section -->
+      <section id="buttons" class="ds-section">
+        <h2>Button Components</h2>
+        <div class="component-examples">
+          <div class="button-group">
+            <h3>Primary Buttons</h3>
+            <button class="btn btn-primary">Get Started</button>
+            <button class="btn btn-primary" disabled>Disabled</button>
+          </div>
+          <div class="button-group">
+            <h3>Secondary Buttons</h3>
+            <button class="btn btn-secondary">Learn More</button>
+            <button class="btn btn-secondary" disabled>Disabled</button>
+          </div>
+          <div class="button-group">
+            <h3>Outline Buttons</h3>
+            <button class="btn btn-outline">Cancel</button>
+            <button class="btn btn-outline" disabled>Disabled</button>
+          </div>
+          <div class="button-group">
+            <h3>Icon Buttons</h3>
+            <button class="btn btn-icon">
+              <span class="material-icons">location_on</span>
+            </button>
+            <button class="btn btn-icon btn-primary">
+              <span class="material-icons">navigation</span>
+            </button>
+          </div>
+          <div class="button-group">
+            <h3>Emergency SOS Button</h3>
+            <button class="btn btn-emergency">
+              <span class="material-icons">emergency</span>
+              SOS
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <section id="inputs" class="ds-section">
+        <h2>Input Components</h2>
+        <div class="component-examples">
+          <div class="input-group">
+            <label for="email-demo">Email Address</label>
+            <input
+              type="email"
+              id="email-demo"
+              class="input-field"
+              placeholder="Enter your email"
+            />
+          </div>
+          <div class="input-group">
+            <label for="password-demo">Password</label>
+            <div class="input-wrapper">
+              <input
+                type="password"
+                id="password-demo"
+                class="input-field"
+                placeholder="Enter password"
+              />
+              <button type="button" class="input-icon">
+                <span class="material-icons">visibility</span>
+              </button>
+            </div>
+          </div>
+          <div class="input-group">
+            <label for="search-demo">Search Location</label>
+            <div class="input-wrapper">
+              <span class="material-icons input-icon-left">search</span>
+              <input
+                type="text"
+                id="search-demo"
+                class="input-field input-with-icon"
+                placeholder="Search places"
+              />
+            </div>
+          </div>
+          <div class="input-group">
+            <label for="select-demo">City Selection</label>
+            <select id="select-demo" class="input-field">
+              <option>Select your city</option>
+              <option>Mumbai</option>
+              <option>Pune</option>
+              <option>Delhi</option>
+            </select>
+          </div>
+        </div>
+      </section>
+
+      <section id="cards" class="ds-section">
+        <h2>Card Components</h2>
+        <div class="component-examples">
+          <div class="card-examples">
+            <div class="citynav-card">
+              <h3>Basic Card</h3>
+              <p>This is a standard card with elevation and rounded corners.</p>
+              <button class="btn btn-primary">Action</button>
+            </div>
+
+            <div class="poi-card">
+              <div class="poi-header">
+                <span class="material-icons poi-icon">restaurant</span>
+                <div class="poi-info">
+                  <h4>Restaurant Name</h4>
+                  <div class="rating">
+                    <span class="stars">★★★★☆</span>
+                    <span class="rating-text">4.2</span>
+                  </div>
+                </div>
+              </div>
+              <p class="poi-description">
+                Great local restaurant with authentic cuisine
+              </p>
+              <div class="poi-actions">
+                <button class="btn btn-primary btn-small">Directions</button>
+                <button class="btn btn-outline btn-small">Bookmark</button>
+              </div>
+            </div>
+
+            <div class="route-card">
+              <div class="route-header">
+                <span class="material-icons">directions_walk</span>
+                <div class="route-info">
+                  <h4>Walking Route</h4>
+                  <span class="route-duration">12 min • 0.8 km</span>
+                </div>
+                <span class="safety-badge safety-safe">Safe</span>
+              </div>
+              <p class="route-description">Via Main Street and Park Road</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="navigation" class="ds-section">
+        <h2>Navigation Components</h2>
+        <div class="component-examples">
+          <div class="nav-examples">
+            <h3>Language Selector</h3>
+            <div class="language-selector">
+              <div class="lang-card active">English</div>
+              <div class="lang-card">हिन्दी</div>
+              <div class="lang-card">मराठी</div>
+            </div>
+
+            <h3>Bottom Navigation</h3>
+            <div class="bottom-nav">
+              <div class="nav-item active">
+                <span class="material-icons">home</span>
+                <span class="nav-label">Home</span>
+              </div>
+              <div class="nav-item">
+                <span class="material-icons">map</span>
+                <span class="nav-label">Map</span>
+              </div>
+              <div class="nav-item">
+                <span class="material-icons">person</span>
+                <span class="nav-label">Profile</span>
+              </div>
+            </div>
+
+            <h3>Mode Selector</h3>
+            <div class="mode-selector">
+              <div class="mode-chip active">
+                <span class="material-icons">directions_walk</span>
+                <span>Walk</span>
+              </div>
+              <div class="mode-chip">
+                <span class="material-icons">directions_bus</span>
+                <span>Bus</span>
+              </div>
+              <div class="mode-chip">
+                <span class="material-icons">train</span>
+                <span>Train</span>
+              </div>
+              <div class="mode-chip">
+                <span class="material-icons">local_taxi</span>
+                <span>Auto</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Screen Prototypes -->
+      <section id="welcome" class="ds-section">
+        <h2>Welcome Screen</h2>
+        <div class="screen-prototype">
+          <div class="phone-frame">
+            <div class="citynav-bg">
+              <div class="citynav-card">
+                <a class="skip-setup" href="#dashboard">Skip Setup</a>
+                <div class="welcome-illustration">
+                  <span class="material-icons illustration-icon"
+                    >location_city</span
+                  >
+                </div>
+                <h1 class="display-large">Welcome to CityNav</h1>
+                <p class="body-large subtitle">
+                  Your offline city companion for safe exploration
+                </p>
+                <div class="language-selector">
+                  <div class="lang-card active">English</div>
+                  <div class="lang-card">हिन्दी</div>
+                  <div class="lang-card">मराठी</div>
+                </div>
+                <button
+                  class="btn btn-primary btn-large"
+                  onclick="navigateToScreen('city-selection')"
+                >
+                  Get Started
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="authentication" class="ds-section">
+        <h2>Authentication Screens</h2>
+        <div class="screen-prototypes-grid">
+          <div class="screen-prototype">
+            <h3>Login Screen</h3>
+            <div class="phone-frame">
+              <div class="citynav-bg">
+                <div class="citynav-card">
+                  <h2 class="display-medium">Welcome Back</h2>
+                  <div class="form-container">
+                    <div class="input-group">
+                      <label for="login-email">Email Address</label>
+                      <input
+                        type="email"
+                        id="login-email"
+                        class="input-field"
+                        placeholder="Enter your email"
+                      />
+                    </div>
+                    <div class="input-group">
+                      <label for="login-password">Password</label>
+                      <div class="input-wrapper">
+                        <input
+                          type="password"
+                          id="login-password"
+                          class="input-field"
+                          placeholder="Enter password"
+                        />
+                        <button type="button" class="input-icon">
+                          <span class="material-icons">visibility</span>
+                        </button>
+                      </div>
+                      <a href="#forgot-password" class="forgot-link"
+                        >Forgot Password?</a
+                      >
+                    </div>
+                    <button class="btn btn-primary btn-full">Continue</button>
+                    <div class="divider">
+                      <span>or</span>
+                    </div>
+                    <button class="btn btn-secondary btn-full">
+                      <span class="material-icons">account_circle</span>
+                      Continue with Google
+                    </button>
+                    <button class="btn btn-outline btn-full">
+                      Continue as Guest
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="screen-prototype">
+            <h3>City Selection</h3>
+            <div class="phone-frame">
+              <div class="citynav-bg">
+                <div class="citynav-card">
+                  <h2 class="display-medium">Select Your City</h2>
+                  <div class="detected-city">
+                    <div class="city-chip detected">
+                      <span class="material-icons">my_location</span>
+                      <span>Detected: Pune</span>
+                      <span class="material-icons check">check_circle</span>
+                    </div>
+                    <a href="#" class="change-city-link">Change city?</a>
+                  </div>
+                  <div class="manual-selection">
+                    <div class="input-group">
+                      <label for="city-search">Or select manually</label>
+                      <div class="input-wrapper">
+                        <span class="material-icons input-icon-left"
+                          >search</span
+                        >
+                        <input
+                          type="text"
+                          id="city-search"
+                          class="input-field input-with-icon"
+                          placeholder="Search for your city"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    class="btn btn-primary btn-large"
+                    onclick="navigateToScreen('setup-complete')"
+                  >
+                    Continue
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="dashboard" class="ds-section">
+        <h2>Home Dashboard</h2>
+        <div class="screen-prototype">
+          <div class="phone-frame">
+            <div class="citynav-bg">
+              <div class="citynav-card">
+                <div class="dashboard-header">
+                  <div class="city-info">
+                    <h3 class="headline-small">Pune</h3>
+                    <span class="body-small">Today, 24°C</span>
+                  </div>
+                  <div class="weather-info">
+                    <span class="material-icons">wb_sunny</span>
+                  </div>
+                </div>
+
+                <div class="quick-actions">
+                  <div class="action-button">
+                    <button
+                      class="btn btn-icon btn-large"
+                      onclick="navigateToScreen('search')"
+                    >
+                      <span class="material-icons">search</span>
+                    </button>
+                    <span class="label-medium">Find Place</span>
+                  </div>
+                  <div class="action-button">
+                    <button
+                      class="btn btn-icon btn-large"
+                      onclick="navigateToScreen('route-planner')"
+                    >
+                      <span class="material-icons">directions</span>
+                    </button>
+                    <span class="label-medium">Plan Route</span>
+                  </div>
+                  <div class="action-button">
+                    <button
+                      class="btn btn-icon btn-large"
+                      onclick="navigateToScreen('map')"
+                    >
+                      <span class="material-icons">map</span>
+                    </button>
+                    <span class="label-medium">Essentials</span>
+                  </div>
+                </div>
+
+                <div class="daily-tip">
+                  <div class="tip-card">
+                    <span class="material-icons">info</span>
+                    <span class="body-medium"
+                      >Tip: Peak hours for local buses are 8-10 AM and 6-8
+                      PM</span
+                    >
+                    <button class="btn btn-icon btn-small">
+                      <span class="material-icons">close</span>
+                    </button>
+                  </div>
+                </div>
+
+                <button class="btn btn-emergency sos-button">
+                  <span class="material-icons">emergency</span>
+                </button>
+              </div>
+
+              <div class="bottom-nav">
+                <div class="nav-item active">
+                  <span class="material-icons">home</span>
+                  <span class="nav-label">Home</span>
+                </div>
+                <div class="nav-item" onclick="navigateToScreen('map')">
+                  <span class="material-icons">map</span>
+                  <span class="nav-label">Map</span>
+                </div>
+                <div class="nav-item" onclick="navigateToScreen('profile')">
+                  <span class="material-icons">person</span>
+                  <span class="nav-label">Profile</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="map" class="ds-section">
+        <h2>Interactive Map</h2>
+        <div class="screen-prototype">
+          <div class="phone-frame">
+            <div class="map-container">
+              <div class="map-placeholder">
+                <span class="material-icons map-icon">map</span>
+                <p>Interactive Map View</p>
+                <small>OSM-based map with POI markers</small>
+              </div>
+
+              <div class="map-overlay top">
+                <div class="search-bar">
+                  <span class="material-icons">search</span>
+                  <input
+                    type="text"
+                    placeholder="Search places..."
+                    class="search-input"
+                  />
+                  <button class="btn btn-icon">
+                    <span class="material-icons">tune</span>
+                  </button>
+                </div>
+              </div>
+
+              <div class="map-overlay bottom">
+                <div class="category-chips">
+                  <div class="category-chip active">
+                    <span class="material-icons">local_hospital</span>
+                    <span>Medical</span>
+                  </div>
+                  <div class="category-chip">
+                    <span class="material-icons">restaurant</span>
+                    <span>Food</span>
+                  </div>
+                  <div class="category-chip">
+                    <span class="material-icons">local_gas_station</span>
+                    <span>Fuel</span>
+                  </div>
+                  <div class="category-chip">
+                    <span class="material-icons">atm</span>
+                    <span>ATM</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="offline-banner">
+                <span class="material-icons">wifi_off</span>
+                <span>You're offline; using saved map data</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="route-planner" class="ds-section">
+        <h2>Route Planner</h2>
+        <div class="screen-prototypes-grid">
+          <div class="screen-prototype">
+            <h3>Route Input</h3>
+            <div class="phone-frame">
+              <div class="citynav-bg">
+                <div class="citynav-card">
+                  <h2 class="display-medium">Plan Your Route</h2>
+
+                  <div class="route-inputs">
+                    <div class="input-group">
+                      <label for="route-from">From</label>
+                      <div class="input-wrapper">
+                        <span class="material-icons input-icon-left"
+                          >my_location</span
+                        >
+                        <input
+                          type="text"
+                          id="route-from"
+                          class="input-field input-with-icon"
+                          placeholder="Your location"
+                          value="Current Location"
+                        />
+                      </div>
+                    </div>
+
+                    <button class="btn btn-icon swap-button">
+                      <span class="material-icons">swap_vert</span>
+                    </button>
+
+                    <div class="input-group">
+                      <label for="route-to">To</label>
+                      <div class="input-wrapper">
+                        <span class="material-icons input-icon-left"
+                          >location_on</span
+                        >
+                        <input
+                          type="text"
+                          id="route-to"
+                          class="input-field input-with-icon"
+                          placeholder="Enter destination"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="mode-selector">
+                    <div class="mode-chip active">
+                      <span class="material-icons">directions_walk</span>
+                      <span>Walk</span>
+                    </div>
+                    <div class="mode-chip">
+                      <span class="material-icons">directions_bus</span>
+                      <span>Bus</span>
+                    </div>
+                    <div class="mode-chip">
+                      <span class="material-icons">train</span>
+                      <span>Train</span>
+                    </div>
+                    <div class="mode-chip">
+                      <span class="material-icons">local_taxi</span>
+                      <span>Auto</span>
+                    </div>
+                  </div>
+
+                  <button class="btn btn-primary btn-large">Plan Route</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="screen-prototype">
+            <h3>Route Options</h3>
+            <div class="phone-frame">
+              <div class="citynav-bg">
+                <div class="citynav-card">
+                  <h2 class="display-medium">Route Options</h2>
+
+                  <div class="route-options">
+                    <div class="route-card active">
+                      <div class="route-header">
+                        <span class="material-icons">directions_walk</span>
+                        <div class="route-info">
+                          <h4>Walking Route</h4>
+                          <span class="route-duration">12 min • 0.8 km</span>
+                        </div>
+                        <span class="safety-badge safety-safe">Safe</span>
+                      </div>
+                      <p class="route-description">
+                        Via Main Street and Park Road
+                      </p>
+                      <span class="material-icons chevron">chevron_right</span>
+                    </div>
+
+                    <div class="route-card">
+                      <div class="route-header">
+                        <span class="material-icons">directions_bus</span>
+                        <div class="route-info">
+                          <h4>Bus Route</h4>
+                          <span class="route-duration">18 min • ₹15</span>
+                        </div>
+                        <span class="safety-badge safety-warning">Caution</span>
+                      </div>
+                      <p class="route-description">Bus 101 → Walk 3 min</p>
+                      <span class="material-icons chevron">chevron_right</span>
+                    </div>
+
+                    <div class="route-card">
+                      <div class="route-header">
+                        <span class="material-icons">local_taxi</span>
+                        <div class="route-info">
+                          <h4>Auto Route</h4>
+                          <span class="route-duration">8 min • ₹45</span>
+                        </div>
+                        <span class="safety-badge safety-safe">Safe</span>
+                      </div>
+                      <p class="route-description">Direct route via FC Road</p>
+                      <span class="material-icons chevron">chevron_right</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="safety" class="ds-section">
+        <h2>Safety Center</h2>
+        <div class="screen-prototype">
+          <div class="phone-frame">
+            <div class="citynav-bg">
+              <div class="citynav-card">
+                <h2 class="display-medium">Safety Center</h2>
+
+                <div class="sos-section">
+                  <button class="btn btn-emergency btn-large sos-main">
+                    <span class="material-icons">emergency</span>
+                    <span>Emergency SOS</span>
+                  </button>
+                  <p class="body-small safety-disclaimer">
+                    Press and hold for 3 seconds to activate
+                  </p>
+                </div>
+
+                <div class="emergency-contacts">
+                  <h3 class="headline-small">Emergency Contacts</h3>
+                  <div class="contact-list">
+                    <div class="contact-item">
+                      <span class="material-icons">local_police</span>
+                      <div class="contact-info">
+                        <span class="contact-name">Police</span>
+                        <span class="contact-number">100</span>
+                      </div>
+                      <button class="btn btn-icon">
+                        <span class="material-icons">call</span>
+                      </button>
+                    </div>
+                    <div class="contact-item">
+                      <span class="material-icons">local_hospital</span>
+                      <div class="contact-info">
+                        <span class="contact-name">Medical Emergency</span>
+                        <span class="contact-number">108</span>
+                      </div>
+                      <button class="btn btn-icon">
+                        <span class="material-icons">call</span>
+                      </button>
+                    </div>
+                    <div class="contact-item">
+                      <span class="material-icons">local_fire_department</span>
+                      <div class="contact-info">
+                        <span class="contact-name">Fire Department</span>
+                        <span class="contact-number">101</span>
+                      </div>
+                      <button class="btn btn-icon">
+                        <span class="material-icons">call</span>
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="safety-actions">
+                  <button class="btn btn-secondary btn-full">
+                    <span class="material-icons">share_location</span>
+                    Share My Location
+                  </button>
+                </div>
+
+                <div class="safety-tips">
+                  <h3 class="headline-small">Local Safety Tips</h3>
+                  <div class="tips-card">
+                    <ul class="tips-list">
+                      <li>Stay in well-lit areas during night hours</li>
+                      <li>Keep emergency contacts easily accessible</li>
+                      <li>Trust your instincts about unsafe situations</li>
+                      <li>Use main roads when possible</li>
+                    </ul>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="profile" class="ds-section">
+        <h2>Profile & Settings</h2>
+        <div class="screen-prototypes-grid">
+          <div class="screen-prototype">
+            <h3>Profile Screen</h3>
+            <div class="phone-frame">
+              <div class="citynav-bg">
+                <div class="citynav-card">
+                  <div class="profile-header">
+                    <div class="profile-avatar">
+                      <span class="material-icons">account_circle</span>
+                    </div>
+                    <div class="profile-info">
+                      <h3 class="headline-small">John Doe</h3>
+                      <span class="body-medium">john.doe@email.com</span>
+                      <button class="btn btn-secondary btn-small">
+                        Edit Profile
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="profile-settings">
+                    <h3 class="headline-small">Preferences</h3>
+
+                    <div class="language-section">
+                      <h4 class="body-medium">Language</h4>
+                      <div class="language-selector compact">
+                        <div class="lang-card active">English</div>
+                        <div class="lang-card">हिन्दी</div>
+                        <div class="lang-card">मराठी</div>
+                      </div>
+                    </div>
+
+                    <div class="privacy-settings">
+                      <h4 class="body-medium">Privacy</h4>
+                      <div class="setting-item">
+                        <div class="setting-info">
+                          <span class="setting-name">Share Analytics</span>
+                          <span class="setting-desc body-small"
+                            >Help improve the app</span
+                          >
+                        </div>
+                        <div class="toggle-switch active">
+                          <div class="toggle-thumb"></div>
+                        </div>
+                      </div>
+                      <div class="setting-item">
+                        <div class="setting-info">
+                          <span class="setting-name">Location History</span>
+                          <span class="setting-desc body-small"
+                            >Save places you visit</span
+                          >
+                        </div>
+                        <div class="toggle-switch">
+                          <div class="toggle-thumb"></div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="profile-actions">
+                    <button class="btn btn-outline btn-full">Sign Out</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="screen-prototype">
+            <h3>Settings Screen</h3>
+            <div class="phone-frame">
+              <div class="citynav-bg">
+                <div class="citynav-card">
+                  <h2 class="display-medium">Settings</h2>
+
+                  <div class="settings-sections">
+                    <div class="settings-section">
+                      <h3 class="headline-small">Notifications</h3>
+                      <div class="setting-item">
+                        <div class="setting-info">
+                          <span class="setting-name">Safety Alerts</span>
+                          <span class="setting-desc body-small"
+                            >Get notified about safety issues</span
+                          >
+                        </div>
+                        <div class="toggle-switch active">
+                          <div class="toggle-thumb"></div>
+                        </div>
+                      </div>
+                      <div class="setting-item">
+                        <div class="setting-info">
+                          <span class="setting-name">Route Updates</span>
+                          <span class="setting-desc body-small"
+                            >Real-time route changes</span
+                          >
+                        </div>
+                        <div class="toggle-switch active">
+                          <div class="toggle-thumb"></div>
+                        </div>
+                      </div>
+                      <div class="setting-item">
+                        <div class="setting-info">
+                          <span class="setting-name">Tips & Suggestions</span>
+                          <span class="setting-desc body-small"
+                            >Helpful daily tips</span
+                          >
+                        </div>
+                        <div class="toggle-switch">
+                          <div class="toggle-thumb"></div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="settings-section">
+                      <h3 class="headline-small">Offline & Storage</h3>
+                      <div class="storage-info">
+                        <div class="storage-item">
+                          <span class="storage-label">Cached Maps</span>
+                          <span class="storage-size">125 MB</span>
+                        </div>
+                        <div class="storage-item">
+                          <span class="storage-label">Saved Routes</span>
+                          <span class="storage-size">8.5 MB</span>
+                        </div>
+                      </div>
+                      <button class="btn btn-outline btn-warning">
+                        Clear Saved Data
+                      </button>
+                    </div>
+
+                    <div class="settings-section">
+                      <h3 class="headline-small">About</h3>
+                      <div class="setting-item">
+                        <span class="setting-name">Version</span>
+                        <span class="setting-value">1.0.0</span>
+                      </div>
+                      <div class="setting-links">
+                        <a href="#privacy" class="setting-link"
+                          >Privacy Policy</a
+                        >
+                        <a href="#terms" class="setting-link"
+                          >Terms of Service</a
+                        >
+                        <a href="#help" class="setting-link">Help & Support</a>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+    </main>
+
+    <script src="scripts/design-system.js"></script>
+  </body>
+</html>

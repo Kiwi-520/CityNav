@@ -1,0 +1,732 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Page Not Found - CityNav</title>
+    <link rel="stylesheet" href="../styles/design-tokens.css" />`n    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      body {
+        background: linear-gradient(
+          135deg,
+          var(--error-container) 0%,
+          var(--surface-variant) 100%
+        );
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: var(--spacing-lg);
+      }
+
+      .error-container {
+        text-align: center;
+        max-width: 500px;
+        width: 100%;
+        background-color: var(--surface);
+        border-radius: var(--radius-xl);
+        padding: var(--spacing-xl);
+        box-shadow: var(--elevation-4);
+        animation: slideUp 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+      }
+
+      .error-illustration {
+        position: relative;
+        width: 200px;
+        height: 200px;
+        margin: 0 auto var(--spacing-xl);
+        animation: float 3s ease-in-out infinite;
+      }
+
+      .error-circle {
+        width: 180px;
+        height: 180px;
+        background: linear-gradient(
+          135deg,
+          var(--error) 0%,
+          var(--error-dark, #d32f2f) 100%
+        );
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto;
+        box-shadow: 0 8px 32px rgba(211, 47, 47, 0.3);
+        animation: pulse 2s ease-in-out infinite;
+      }
+
+      .error-number {
+        font-size: 72px;
+        font-weight: 800;
+        color: white;
+        text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        animation: glitch 4s ease-in-out infinite;
+      }
+
+      .error-icons {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        pointer-events: none;
+      }
+
+      .floating-icon {
+        position: absolute;
+        color: var(--error);
+        opacity: 0.6;
+        animation: orbit 8s linear infinite;
+      }
+
+      .floating-icon:nth-child(1) {
+        top: 20px;
+        left: 20px;
+        font-size: 24px;
+        animation-delay: 0s;
+      }
+
+      .floating-icon:nth-child(2) {
+        top: 20px;
+        right: 20px;
+        font-size: 20px;
+        animation-delay: 2s;
+      }
+
+      .floating-icon:nth-child(3) {
+        bottom: 20px;
+        left: 30px;
+        font-size: 28px;
+        animation-delay: 4s;
+      }
+
+      .floating-icon:nth-child(4) {
+        bottom: 20px;
+        right: 30px;
+        font-size: 22px;
+        animation-delay: 6s;
+      }
+
+      .error-title {
+        font-size: var(--headline-large-size);
+        font-weight: var(--headline-large-weight);
+        color: var(--on-surface);
+        margin-bottom: var(--spacing-sm);
+        animation: fadeInUp 0.8s ease-out 0.3s both;
+      }
+
+      .error-subtitle {
+        font-size: var(--headline-small-size);
+        color: var(--error);
+        margin-bottom: var(--spacing-md);
+        animation: fadeInUp 0.8s ease-out 0.5s both;
+      }
+
+      .error-message {
+        font-size: var(--body-large-size);
+        color: var(--on-surface-variant);
+        line-height: 1.6;
+        margin-bottom: var(--spacing-xl);
+        animation: fadeInUp 0.8s ease-out 0.7s both;
+      }
+
+      /* Suggestions */
+      .error-suggestions {
+        background-color: var(--surface-variant);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-lg);
+        margin-bottom: var(--spacing-xl);
+        text-align: left;
+        animation: fadeInUp 0.8s ease-out 0.9s both;
+      }
+
+      .suggestions-title {
+        font-size: var(--body-large-size);
+        font-weight: var(--body-large-weight);
+        color: var(--on-surface);
+        margin-bottom: var(--spacing-md);
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+      }
+
+      .suggestion-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+      }
+
+      .suggestion-item {
+        display: flex;
+        align-items: flex-start;
+        gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-sm);
+        font-size: var(--body-medium-size);
+        color: var(--on-surface-variant);
+      }
+
+      .suggestion-item:last-child {
+        margin-bottom: 0;
+      }
+
+      .suggestion-icon {
+        color: var(--primary);
+        font-size: 20px;
+        margin-top: 2px;
+      }
+
+      /* Action Buttons */
+      .error-actions {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+        animation: fadeInUp 0.8s ease-out 1.1s both;
+      }
+
+      .primary-actions {
+        display: flex;
+        gap: var(--spacing-sm);
+      }
+
+      .secondary-actions {
+        display: flex;
+        justify-content: center;
+        gap: var(--spacing-lg);
+      }
+
+      .action-link {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-xs);
+        color: var(--primary);
+        text-decoration: none;
+        font-size: var(--body-medium-size);
+        padding: var(--spacing-sm);
+        border-radius: var(--radius-sm);
+        transition: all var(--duration-quick) ease;
+      }
+
+      .action-link:hover {
+        background-color: var(--primary-container);
+        color: var(--on-primary-container);
+        transform: translateY(-1px);
+      }
+
+      /* Specific Error Types */
+      .error-type-403 .error-circle {
+        background: linear-gradient(
+          135deg,
+          var(--warning) 0%,
+          var(--warning-dark, #f57c00) 100%
+        );
+        box-shadow: 0 8px 32px rgba(245, 124, 0, 0.3);
+      }
+
+      .error-type-500 .error-circle {
+        background: linear-gradient(135deg, #9c27b0 0%, #7b1fa2 100%);
+        box-shadow: 0 8px 32px rgba(156, 39, 176, 0.3);
+      }
+
+      .error-type-network .error-circle {
+        background: linear-gradient(
+          135deg,
+          var(--outline) 0%,
+          var(--outline-variant) 100%
+        );
+        box-shadow: 0 8px 32px rgba(121, 121, 121, 0.3);
+      }
+
+      /* Search Box */
+      .error-search {
+        background-color: var(--surface-variant);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+        animation: fadeInUp 0.8s ease-out 1.3s both;
+      }
+
+      .search-input {
+        width: 100%;
+        background-color: var(--surface);
+        border: 1px solid var(--outline-variant);
+        border-radius: var(--radius-sm);
+        padding: var(--spacing-sm) var(--spacing-md);
+        font-size: var(--body-medium-size);
+        color: var(--on-surface);
+        transition: all var(--duration-quick) ease;
+      }
+
+      .search-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 2px var(--primary-container);
+      }
+
+      .search-input::placeholder {
+        color: var(--on-surface-variant);
+      }
+
+      /* Animations */
+      @keyframes slideUp {
+        from {
+          transform: translateY(50px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+
+      @keyframes fadeInUp {
+        from {
+          opacity: 0;
+          transform: translateY(20px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px);
+        }
+        50% {
+          transform: translateY(-10px);
+        }
+      }
+
+      @keyframes pulse {
+        0%,
+        100% {
+          transform: scale(1);
+          box-shadow: 0 8px 32px rgba(211, 47, 47, 0.3);
+        }
+        50% {
+          transform: scale(1.05);
+          box-shadow: 0 12px 40px rgba(211, 47, 47, 0.4);
+        }
+      }
+
+      @keyframes glitch {
+        0%,
+        100% {
+          transform: translate(0);
+        }
+        20% {
+          transform: translate(-1px, 1px);
+        }
+        40% {
+          transform: translate(-1px, -1px);
+        }
+        60% {
+          transform: translate(1px, 1px);
+        }
+        80% {
+          transform: translate(1px, -1px);
+        }
+      }
+
+      @keyframes orbit {
+        from {
+          transform: rotate(0deg) translateX(80px) rotate(0deg);
+        }
+        to {
+          transform: rotate(360deg) translateX(80px) rotate(-360deg);
+        }
+      }
+
+      /* Responsive Design */
+      @media (max-width: 480px) {
+        .error-container {
+          margin: var(--spacing-md);
+          padding: var(--spacing-lg);
+        }
+
+        .error-illustration {
+          width: 150px;
+          height: 150px;
+        }
+
+        .error-circle {
+          width: 130px;
+          height: 130px;
+        }
+
+        .error-number {
+          font-size: 56px;
+        }
+
+        .primary-actions {
+          flex-direction: column;
+        }
+
+        .secondary-actions {
+          flex-direction: column;
+          gap: var(--spacing-sm);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="error-container" id="errorContainer">
+      <div class="error-illustration">
+        <div class="error-circle">
+          <span class="error-number" id="errorNumber">404</span>
+        </div>
+        <div class="error-icons">
+          <span class="material-icons floating-icon">error_outline</span>
+          <span class="material-icons floating-icon">warning</span>
+          <span class="material-icons floating-icon">help_outline</span>
+          <span class="material-icons floating-icon">search_off</span>
+        </div>
+      </div>
+
+      <h1 class="error-title" id="errorTitle">Oops! Page Not Found</h1>
+      <h2 class="error-subtitle" id="errorSubtitle">
+        Lost on the digital map?
+      </h2>
+
+      <p class="error-message" id="errorMessage">
+        The page you're looking for seems to have taken a wrong turn. Don't
+        worry, even the best navigators sometimes need to recalculate their
+        route!
+      </p>
+
+      <div class="error-search">
+        <input
+          type="text"
+          class="search-input"
+          placeholder="🔍 Search for a place or feature..."
+          onkeypress="handleSearch(event)"
+        />
+      </div>
+
+      <div class="error-suggestions">
+        <div class="suggestions-title">
+          <span class="material-icons">lightbulb</span>
+          Here's what you can try:
+        </div>
+        <ul class="suggestion-list" id="suggestionList">
+          <li class="suggestion-item">
+            <span class="material-icons suggestion-icon">refresh</span>
+            <span>Refresh the page or check your internet connection</span>
+          </li>
+          <li class="suggestion-item">
+            <span class="material-icons suggestion-icon">home</span>
+            <span>Go back to the home screen to start fresh</span>
+          </li>
+          <li class="suggestion-item">
+            <span class="material-icons suggestion-icon">search</span>
+            <span>Use the search above to find what you're looking for</span>
+          </li>
+          <li class="suggestion-item">
+            <span class="material-icons suggestion-icon">history</span>
+            <span>Check your browser's back button</span>
+          </li>
+        </ul>
+      </div>
+
+      <div class="error-actions">
+        <div class="primary-actions">
+          <button class="btn btn-primary" onclick="goHome()">
+            <span class="material-icons">home</span>
+            Take Me Home
+          </button>
+          <button class="btn btn-outlined" onclick="goBack()">
+            <span class="material-icons">arrow_back</span>
+            Go Back
+          </button>
+        </div>
+
+        <div class="secondary-actions">
+          <a href="#" class="action-link" onclick="refreshPage()">
+            <span class="material-icons">refresh</span>
+            Refresh Page
+          </a>
+          <a href="#" class="action-link" onclick="reportProblem()">
+            <span class="material-icons">bug_report</span>
+            Report Problem
+          </a>
+          <a href="#" class="action-link" onclick="getHelp()">
+            <span class="material-icons">help</span>
+            Get Help
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <script src="../scripts/design-system.js"></script>
+    <script>
+      // Detect error type from URL parameters or context
+      function detectErrorType() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const errorType = urlParams.get("type") || "404";
+        const customMessage = urlParams.get("message");
+
+        updateErrorContent(errorType, customMessage);
+      }
+
+      function updateErrorContent(errorType, customMessage) {
+        const container = document.getElementById("errorContainer");
+        const numberElement = document.getElementById("errorNumber");
+        const titleElement = document.getElementById("errorTitle");
+        const subtitleElement = document.getElementById("errorSubtitle");
+        const messageElement = document.getElementById("errorMessage");
+        const suggestionsList = document.getElementById("suggestionList");
+
+        // Reset classes
+        container.className = "error-container";
+
+        switch (errorType) {
+          case "403":
+            container.classList.add("error-type-403");
+            numberElement.textContent = "403";
+            titleElement.textContent = "Access Denied";
+            subtitleElement.textContent = "This route is restricted";
+            messageElement.textContent =
+              customMessage ||
+              "Sorry, you don't have permission to access this area. You might need to log in or upgrade your account to continue.";
+            updateSuggestions403();
+            break;
+
+          case "500":
+            container.classList.add("error-type-500");
+            numberElement.textContent = "500";
+            titleElement.textContent = "Server Error";
+            subtitleElement.textContent =
+              "Our navigation system is temporarily down";
+            messageElement.textContent =
+              customMessage ||
+              "Something went wrong on our end. Our team has been notified and is working to fix the issue. Please try again in a few moments.";
+            updateSuggestions500();
+            break;
+
+          case "network":
+            container.classList.add("error-type-network");
+            numberElement.textContent = "📶";
+            titleElement.textContent = "Connection Lost";
+            subtitleElement.textContent = "Unable to reach navigation servers";
+            messageElement.textContent =
+              customMessage ||
+              "It looks like you're offline or having connection issues. Check your internet connection and try again.";
+            updateSuggestionsNetwork();
+            break;
+
+          default: // 404
+            numberElement.textContent = "404";
+            titleElement.textContent = "Oops! Page Not Found";
+            subtitleElement.textContent = "Lost on the digital map?";
+            messageElement.textContent =
+              customMessage ||
+              "The page you're looking for seems to have taken a wrong turn. Don't worry, even the best navigators sometimes need to recalculate their route!";
+            // Keep default suggestions
+            break;
+        }
+      }
+
+      function updateSuggestions403() {
+        const suggestions = [
+          { icon: "login", text: "Sign in to your CityNav account" },
+          {
+            icon: "upgrade",
+            text: "Upgrade to CityNav Premium for full access",
+          },
+          { icon: "home", text: "Return to the main dashboard" },
+          { icon: "help", text: "Contact support for assistance" },
+        ];
+        renderSuggestions(suggestions);
+      }
+
+      function updateSuggestions500() {
+        const suggestions = [
+          { icon: "schedule", text: "Wait a few minutes and try again" },
+          { icon: "refresh", text: "Refresh the page periodically" },
+          { icon: "offline_bolt", text: "Use offline mode if available" },
+          {
+            icon: "feedback",
+            text: "Report this issue to help us fix it faster",
+          },
+        ];
+        renderSuggestions(suggestions);
+      }
+
+      function updateSuggestionsNetwork() {
+        const suggestions = [
+          { icon: "wifi", text: "Check your Wi-Fi or mobile data connection" },
+          {
+            icon: "signal_cellular_alt",
+            text: "Move to an area with better signal",
+          },
+          { icon: "offline_bolt", text: "Switch to offline mode to continue" },
+          { icon: "refresh", text: "Retry once your connection is restored" },
+        ];
+        renderSuggestions(suggestions);
+      }
+
+      function renderSuggestions(suggestions) {
+        const suggestionsList = document.getElementById("suggestionList");
+        suggestionsList.innerHTML = suggestions
+          .map(
+            (suggestion) => `
+          <li class="suggestion-item">
+            <span class="material-icons suggestion-icon">${suggestion.icon}</span>
+            <span>${suggestion.text}</span>
+          </li>
+        `
+          )
+          .join("");
+      }
+
+      function handleSearch(event) {
+        if (event.key === "Enter") {
+          const query = event.target.value.trim();
+          if (query) {
+            showToast('Searching for "' + query + '"...');
+            // Simulate search redirect
+            setTimeout(() => {
+              window.location.href = `search-discovery.html?q=${encodeURIComponent(
+                query
+              )}`;
+            }, 1000);
+          }
+        }
+      }
+
+      function goHome() {
+        showToast("Taking you home...");
+        setTimeout(() => {
+          window.location.href = "home-dashboard.html";
+        }, 500);
+      }
+
+      function goBack() {
+        if (window.history.length > 1) {
+          showToast("Going back...");
+          setTimeout(() => {
+            window.history.back();
+          }, 500);
+        } else {
+          goHome();
+        }
+      }
+
+      function refreshPage() {
+        showToast("Refreshing page...");
+        setTimeout(() => {
+          window.location.reload();
+        }, 500);
+      }
+
+      function reportProblem() {
+        showToast("Opening problem report form...");
+        setTimeout(() => {
+          // Create a simple problem report
+          const errorDetails = {
+            url: window.location.href,
+            timestamp: new Date().toISOString(),
+            userAgent: navigator.userAgent,
+            referrer: document.referrer,
+          };
+
+          // Simulate sending report
+          console.log("Error reported:", errorDetails);
+          showToast("Problem reported successfully. Thank you!");
+        }, 1000);
+      }
+
+      function getHelp() {
+        showToast("Opening help center...");
+        setTimeout(() => {
+          window.location.href = "help-support.html";
+        }, 500);
+      }
+
+      function showToast(message) {
+        const toast = document.createElement("div");
+        toast.style.cssText = `
+          position: fixed;
+          top: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background-color: var(--inverse-surface);
+          color: var(--inverse-on-surface);
+          padding: var(--spacing-sm) var(--spacing-lg);
+          border-radius: var(--radius-full);
+          font-size: var(--body-medium-size);
+          z-index: 1000;
+          animation: slideDown 0.3s ease-out;
+          box-shadow: var(--elevation-3);
+        `;
+        toast.textContent = message;
+        document.body.appendChild(toast);
+
+        setTimeout(() => {
+          toast.remove();
+        }, 3000);
+      }
+
+      // Initialize error page
+      document.addEventListener("DOMContentLoaded", () => {
+        detectErrorType();
+
+        // Add some interactive animations
+        const errorNumber = document.getElementById("errorNumber");
+        let clickCount = 0;
+
+        errorNumber.addEventListener("click", () => {
+          clickCount++;
+          if (clickCount >= 5) {
+            showToast(
+              "🎉 You found the Easter egg! Here's a virtual cookie 🍪"
+            );
+            errorNumber.style.animation = "none";
+            setTimeout(() => {
+              errorNumber.style.animation = "glitch 0.5s ease-in-out";
+            }, 10);
+            clickCount = 0;
+          }
+        });
+      });
+
+      // Handle online/offline events
+      window.addEventListener("online", () => {
+        showToast("Connection restored! You can try again now.");
+      });
+
+      window.addEventListener("offline", () => {
+        showToast("You're now offline. Some features may be limited.");
+      });
+
+      // Add slideDown animation
+      const style = document.createElement("style");
+      style.textContent = `
+        @keyframes slideDown {
+          from {
+            transform: translateX(-50%) translateY(-20px);
+            opacity: 0;
+          }
+          to {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+          }
+        }
+      `;
+      document.head.appendChild(style);
+    </script>
+  </body>
+</html>

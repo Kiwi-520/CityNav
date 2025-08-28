@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - CityNav</title>
+    <link rel="stylesheet" href="../styles/design-tokens.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      .auth-container {
+        padding-bottom: 0;
+        height: 100vh;
+        overflow-y: auto;
+      }
+
+      .auth-header {
+        text-align: center;
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .auth-form {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-lg);
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .form-group {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-sm);
+      }
+
+      .form-input {
+        width: 100%;
+        padding: var(--spacing-md);
+        border: 2px solid var(--outline-variant);
+        border-radius: var(--radius-md);
+        font-size: var(--body-large-size);
+        background-color: var(--surface);
+        transition: border-color var(--duration-quick) ease;
+      }
+
+      .form-input:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--primary-container);
+      }
+
+      .form-label {
+        font-weight: var(--label-large-weight);
+        font-size: var(--label-large-size);
+        color: var(--on-surface);
+      }
+
+      .forgot-password {
+        text-align: right;
+        font-size: var(--body-small-size);
+        color: var(--primary);
+        text-decoration: none;
+        cursor: pointer;
+      }
+
+      .forgot-password:hover {
+        text-decoration: underline;
+      }
+
+      .divider {
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-md);
+        margin: var(--spacing-lg) 0;
+      }
+
+      .divider-line {
+        flex: 1;
+        height: 1px;
+        background-color: var(--outline-variant);
+      }
+
+      .divider-text {
+        color: var(--on-surface-variant);
+        font-size: var(--body-small-size);
+      }
+
+      .social-auth {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-lg);
+      }
+
+      .social-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: var(--spacing-md);
+        padding: var(--spacing-md);
+        border: 2px solid var(--outline-variant);
+        border-radius: var(--radius-md);
+        background-color: var(--surface);
+        color: var(--on-surface);
+        text-decoration: none;
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+      }
+
+      .social-btn:hover {
+        background-color: var(--surface-variant);
+        border-color: var(--primary);
+      }
+
+      .auth-switch {
+        text-align: center;
+        color: var(--on-surface-variant);
+        font-size: var(--body-medium-size);
+      }
+
+      .auth-switch a {
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: var(--label-large-weight);
+      }
+
+      .auth-switch a:hover {
+        text-decoration: underline;
+      }
+
+      .guest-mode {
+        text-align: center;
+        margin-top: var(--spacing-lg);
+        padding-top: var(--spacing-lg);
+        border-top: 1px solid var(--outline-variant);
+      }
+
+      .guest-mode-text {
+        color: var(--on-surface-variant);
+        font-size: var(--body-small-size);
+        margin-bottom: var(--spacing-md);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="citynav-bg">
+      <div class="citynav-card">
+        <div class="auth-container">
+          <div class="auth-header">
+            <div
+              style="
+                width: 80px;
+                height: 80px;
+                margin: 0 auto var(--spacing-lg);
+                background: linear-gradient(
+                  135deg,
+                  var(--primary),
+                  var(--primary-dark)
+                );
+                border-radius: var(--radius-lg);
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              "
+            >
+              <span
+                class="material-icons"
+                style="font-size: 40px; color: var(--on-primary)"
+                >navigation</span
+              >
+            </div>
+            <h1 class="headline-large">Welcome Back</h1>
+            <p
+              class="body-large"
+              style="
+                color: var(--on-surface-variant);
+                margin-top: var(--spacing-sm);
+              "
+            >
+              Sign in to continue your navigation journey
+            </p>
+          </div>
+
+          <form class="auth-form" onsubmit="handleLogin(event)">
+            <div class="form-group">
+              <label class="form-label" for="email">Email Address</label>
+              <input
+                type="email"
+                id="email"
+                class="form-input"
+                placeholder="Enter your email"
+                required
+              />
+            </div>
+
+            <div class="form-group">
+              <label class="form-label" for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                class="form-input"
+                placeholder="Enter your password"
+                required
+              />
+              <a href="#" class="forgot-password">Forgot Password?</a>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-large">
+              Sign In
+              <span class="material-icons">arrow_forward</span>
+            </button>
+          </form>
+
+          <div class="divider">
+            <div class="divider-line"></div>
+            <span class="divider-text">or continue with</span>
+            <div class="divider-line"></div>
+          </div>
+
+          <div class="social-auth">
+            <button class="social-btn" onclick="handleSocialLogin('google')">
+              <img
+                src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjQiIGhlaWdodD0iMjQiIHZpZXdCb3g9IjAgMCAyNCAyNCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPHBhdGggZD0iTTIyLjU2IDEyLjI1YzAtLjc4LS4wNy0xLjUzLS4yLTIuMjVIMTJ2NC4yNmg1LjkyYy0uMjYgMS4zNy0xLjA0IDIuNTMtMi4yMSAzLjMxdjIuNzdoMy41N2MyLjA4LTEuOTIgMy4yOC00Ljc0IDMuMjgtOC4wOXoiIGZpbGw9IiM0Mjg1RjQiLz4KPHBhdGggZD0iTTEyIDIzYzIuOTcgMCA1LjQ2LS45OCA3LjI4LTIuNjZsLTMuNTctMi43N2MtLjk4LjY2LTIuMjMgMS4wNi0zLjcxIDEuMDYtMi44NiAwLTUuMjktMS45My02LjE2LTQuNTNIMi4xOHYyLjg0QzMuOTkgMjAuNTMgNy43IDIzIDEyIDIzeiIgZmlsbD0iIzM0QTg1MyIvPgo8cGF0aCBkPSJNNS44NCAxNC4wOWMtLjIyLS42Ni0uMzUtMS4zNi0uMzUtMi4wOXMuMTMtMS40My4zNS0yLjA5VjcuMDdIMi4xOEMxLjQzIDguNTUgMSAxMC4yMiAxIDEyczMuNDMgMi40NSAzLjE4IDMuOTNsMS42Ni0xLjg0eiIgZmlsbD0iI0ZCQkMwNSIvPgo8cGF0aCBkPSJNMTIgNS4zOGMxLjYyIDAgMy4wNi41NiA0LjIxIDEuNjRsMy4xNS0zLjE1QzE3LjQ1IDIuMDkgMTQuOTcgMSAxMiAxIDcuNyAxIDMuOTkgMy40NyAyLjE4IDcuMDdsMS42NiAxLjg0Qy0zMDMgNy4zMSA5LjE0IDUuMzggMTIgNS4zOHoiIGZpbGw9IiNFQTQzMzUiLz4KPC9zdmc+"
+                alt="Google"
+                width="20"
+                height="20"
+              />
+              Continue with Google
+            </button>
+
+            <button class="social-btn" onclick="handleSocialLogin('apple')">
+              <span class="material-icons">apple</span>
+              Continue with Apple
+            </button>
+          </div>
+
+          <div class="auth-switch">
+            Don't have an account? <a href="signup.html">Sign Up</a>
+          </div>
+
+          <div class="guest-mode">
+            <p class="guest-mode-text">Want to explore first?</p>
+            <button class="btn btn-text" onclick="continueAsGuest()">
+              <span class="material-icons">person_off</span>
+              Continue as Guest
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script src="../scripts/design-system.js"></script>
+    <script>
+      function handleLogin(event) {
+        event.preventDefault();
+
+        const email = document.getElementById("email").value;
+        const password = document.getElementById("password").value;
+
+        // Simulate login process
+        const submitBtn = event.target.querySelector('button[type="submit"]');
+        submitBtn.classList.add("loading");
+        submitBtn.disabled = true;
+
+        setTimeout(() => {
+          // Store login state
+          localStorage.setItem("userLoggedIn", "true");
+          localStorage.setItem("userEmail", email);
+
+          // Redirect to home
+          window.location.href = "home-dashboard.html";
+        }, 2000);
+      }
+
+      function handleSocialLogin(provider) {
+        console.log(`Logging in with ${provider}`);
+
+        // Simulate social login
+        setTimeout(() => {
+          localStorage.setItem("userLoggedIn", "true");
+          localStorage.setItem("loginMethod", provider);
+          window.location.href = "home-dashboard.html";
+        }, 1500);
+      }
+
+      function continueAsGuest() {
+        localStorage.setItem("guestMode", "true");
+        window.location.href = "home-dashboard.html";
+      }
+
+      // Add loading animation styles
+      const style = document.createElement("style");
+      style.textContent = `
+        .btn.loading {
+          position: relative;
+          color: transparent;
+        }
+        
+        .btn.loading::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 20px;
+          height: 20px;
+          border: 2px solid transparent;
+          border-top: 2px solid currentColor;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          color: var(--on-primary);
+        }
+        
+        @keyframes spin {
+          0% { transform: translate(-50%, -50%) rotate(0deg); }
+          100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+      `;
+      document.head.appendChild(style);
+    </script>
+  </body>
+</html>

@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CityNav - Profile & Settings</title>
+    <link rel="stylesheet" href="../styles/design-tokens.css" />
+    <link rel="stylesheet" href="../styles/base.css" />
+    <link rel="stylesheet" href="../styles/components.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      .profile-container {
+        padding: var(--spacing-lg) var(--spacing-lg) 100px;
+      }
+
+      /* Profile Header */
+      .profile-header {
+        text-align: center;
+        padding: var(--spacing-xl) 0;
+        margin-bottom: var(--spacing-xl);
+        border-bottom: 1px solid var(--outline-variant);
+      }
+
+      .profile-avatar {
+        width: 80px;
+        height: 80px;
+        background-color: var(--primary-container);
+        color: var(--primary);
+        border-radius: var(--radius-full);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto var(--spacing-md);
+        font-size: 32px;
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+      }
+
+      .profile-avatar:hover {
+        background-color: var(--primary);
+        color: var(--on-primary);
+        transform: scale(1.05);
+      }
+
+      .profile-name {
+        font-size: var(--headline-large-size);
+        font-weight: var(--headline-large-weight);
+        color: var(--on-surface);
+        margin: 0 0 var(--spacing-xs) 0;
+      }
+
+      .profile-email {
+        font-size: var(--body-medium-size);
+        color: var(--on-surface-variant);
+      }
+
+      /* Settings Sections */
+      .settings-section {
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .section-title {
+        font-size: var(--headline-small-size);
+        font-weight: var(--headline-small-weight);
+        color: var(--on-surface);
+        margin: 0 0 var(--spacing-lg) 0;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+      }
+
+      .section-title .material-icons {
+        color: var(--primary);
+        font-size: 24px;
+      }
+
+      .settings-list {
+        display: flex;
+        flex-direction: column;
+        gap: var(--spacing-xs);
+      }
+
+      .setting-item {
+        display: flex;
+        align-items: center;
+        padding: var(--spacing-lg);
+        background-color: var(--surface);
+        border: 1px solid var(--outline);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+        text-decoration: none;
+        color: var(--on-surface);
+      }
+
+      .setting-item:hover {
+        background-color: var(--surface-variant);
+        border-color: var(--primary);
+      }
+
+      .setting-item:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .setting-icon {
+        width: 40px;
+        height: 40px;
+        background-color: var(--surface-variant);
+        color: var(--on-surface-variant);
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: var(--spacing-md);
+        flex-shrink: 0;
+      }
+
+      .setting-content {
+        flex: 1;
+      }
+
+      .setting-title {
+        font-size: var(--body-large-size);
+        font-weight: var(--body-large-weight);
+        color: var(--on-surface);
+        margin: 0 0 var(--spacing-xs) 0;
+      }
+
+      .setting-description {
+        font-size: var(--body-small-size);
+        color: var(--on-surface-variant);
+        margin: 0;
+      }
+
+      .setting-action {
+        color: var(--on-surface-variant);
+        margin-left: var(--spacing-sm);
+      }
+
+      /* Toggle Settings */
+      .setting-item.toggle {
+        cursor: default;
+      }
+
+      .setting-item.toggle:hover {
+        background-color: var(--surface);
+        border-color: var(--outline);
+      }
+
+      .setting-toggle {
+        position: relative;
+        width: 52px;
+        height: 28px;
+        background-color: var(--outline-variant);
+        border-radius: var(--radius-full);
+        cursor: pointer;
+        transition: all var(--duration-quick) ease;
+        margin-left: var(--spacing-sm);
+      }
+
+      .setting-toggle.active {
+        background-color: var(--primary);
+      }
+
+      .setting-toggle::after {
+        content: "";
+        position: absolute;
+        top: 2px;
+        left: 2px;
+        width: 24px;
+        height: 24px;
+        background-color: var(--surface);
+        border-radius: var(--radius-full);
+        transition: transform var(--duration-quick) ease;
+      }
+
+      .setting-toggle.active::after {
+        transform: translateX(24px);
+      }
+
+      /* Stats Cards */
+      .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(2, 1fr);
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .stat-card {
+        background-color: var(--surface);
+        border: 1px solid var(--outline);
+        border-radius: var(--radius-lg);
+        padding: var(--spacing-lg);
+        text-align: center;
+      }
+
+      .stat-value {
+        font-size: var(--display-small-size);
+        font-weight: var(--display-small-weight);
+        color: var(--primary);
+        margin: 0;
+      }
+
+      .stat-label {
+        font-size: var(--label-medium-size);
+        color: var(--on-surface-variant);
+        margin-top: var(--spacing-xs);
+      }
+
+      /* Quick Actions */
+      .quick-actions {
+        display: flex;
+        gap: var(--spacing-md);
+        margin-bottom: var(--spacing-xl);
+      }
+
+      .quick-action {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: var(--spacing-lg);
+        background-color: var(--surface);
+        border: 1px solid var(--outline);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        transition: all var(--duration-medium) ease;
+        text-decoration: none;
+        color: var(--on-surface);
+      }
+
+      .quick-action:hover {
+        background-color: var(--primary-container);
+        border-color: var(--primary);
+        transform: translateY(-2px);
+        box-shadow: var(--elevation-2);
+      }
+
+      .quick-action:focus {
+        outline: 3px solid var(--primary);
+        outline-offset: 2px;
+      }
+
+      .quick-action .material-icons {
+        font-size: 32px;
+        color: var(--primary);
+        margin-bottom: var(--spacing-sm);
+      }
+
+      .quick-action-label {
+        font-size: var(--label-large-size);
+        font-weight: var(--label-large-weight);
+        text-align: center;
+      }
+
+      /* Danger Zone */
+      .danger-zone {
+        background-color: var(--error-container);
+        border-radius: var(--radius-md);
+        padding: var(--spacing-lg);
+      }
+
+      .danger-title {
+        font-size: var(--headline-small-size);
+        font-weight: var(--headline-small-weight);
+        color: var(--on-error-container);
+        margin: 0 0 var(--spacing-md) 0;
+        display: flex;
+        align-items: center;
+        gap: var(--spacing-sm);
+      }
+
+      .danger-title .material-icons {
+        color: var(--error);
+      }
+
+      .danger-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: var(--spacing-md) 0;
+        border-top: 1px solid color-mix(in srgb, var(--error) 20%, transparent);
+      }
+
+      .danger-item:first-child {
+        border-top: none;
+      }
+
+      .danger-content {
+        flex: 1;
+      }
+
+      .danger-item-title {
+        font-size: var(--body-medium-size);
+        font-weight: var(--body-medium-weight);
+        color: var(--on-error-container);
+        margin: 0 0 var(--spacing-xs) 0;
+      }
+
+      .danger-item-description {
+        font-size: var(--body-small-size);
+        color: var(--on-error-container);
+        opacity: 0.8;
+      }
+
+      .danger-btn {
+        background-color: var(--error);
+        color: var(--on-error);
+        border: none;
+        padding: var(--spacing-sm) var(--spacing-md);
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        font-size: var(--label-medium-size);
+        font-weight: var(--label-medium-weight);
+        transition: all var(--duration-quick) ease;
+      }
+
+      .danger-btn:hover {
+        background-color: var(--error-dark);
+      }
+
+      .danger-btn:focus {
+        outline: 3px solid var(--error);
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="citynav-bg">
+      <div class="citynav-card">
+        <div class="profile-container">
+          <!-- Profile Header -->
+          <div class="profile-header">
+            <div class="profile-avatar" tabindex="0">
+              <span class="material-icons">person</span>
+            </div>
+            <h2 class="profile-name">Rajesh Kumar</h2>
+            <p class="profile-email">rajesh.kumar@email.com</p>
+          </div>
+
+          <!-- Usage Stats -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-value">247</div>
+              <div class="stat-label">Places Visited</div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-value">1.2k km</div>
+              <div class="stat-label">Distance Traveled</div>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="quick-actions">
+            <a href="#" class="quick-action">
+              <span class="material-icons">edit</span>
+              <span class="quick-action-label">Edit Profile</span>
+            </a>
+            <a href="#" class="quick-action">
+              <span class="material-icons">history</span>
+              <span class="quick-action-label">Trip History</span>
+            </a>
+            <a href="#" class="quick-action">
+              <span class="material-icons">favorite</span>
+              <span class="quick-action-label">Favorites</span>
+            </a>
+          </div>
+
+          <!-- Navigation Settings -->
+          <div class="settings-section">
+            <h3 class="section-title">
+              <span class="material-icons">navigation</span>
+              Navigation
+            </h3>
+            <div class="settings-list">
+              <div class="setting-item toggle">
+                <div class="setting-icon">
+                  <span class="material-icons">volume_up</span>
+                </div>
+                <div class="setting-content">
+                  <div class="setting-title">Voice Navigation</div>
+                  <div class="setting-description">
+                    Get turn-by-turn voice directions
+                  </div>
+                </div>
+                <div
+                  class="setting-toggle active"
+                  data-setting="voice-navigation"
+                ></div>
+              </div>
+
+              <div class="setting-item toggle">
+                <div class="setting-icon">
+                  <span class="material-icons">traffic</span>
+                </div>
+                <div class="setting-content">
+                  <div class="setting-title">Avoid Traffic</div>
+                  <div class="setting-description">
+                    Automatically find routes with less traffic
+                  </div>
+                </div>
+                <div
+                  class="setting-toggle active"
+                  data-setting="avoid-traffic"
+                ></div>
+              </div>
+
+              <div class="setting-item toggle">
+                <div class="setting-icon">
+                  <span class="material-icons">toll</span>
+                </div>
+                <div class="setting-content">
+                  <div class="setting-title">Avoid Tolls</div>
+                  <div class="setting-description">
+                    Find routes without toll roads
+                  </div>
+                </div>
+                <div class="setting-toggle" data-setting="avoid-tolls"></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Privacy & Safety -->
+          <div class="settings-section">
+            <h3 class="section-title">
+              <span class="material-icons">security</span>
+              Privacy & Safety
+            </h3>
+            <div class="settings-list">
+              <div class="setting-item toggle">
+                <div class="setting-icon">
+                  <span class="material-icons">location_on</span>
+                </div>
+                <div class="setting-content">
+                  <div class="setting-title">Location Services</div>
+                  <div class="setting-description">
+                    Allow CityNav to access your location
+                  </div>
+                </div>
+                <div
+                  class="setting-toggle active"
+                  data-setting="location-services"
+                ></div>
+              </div>
+
+              <div class="setting-item toggle">
+                <div class="setting-icon">
+                  <span class="material-icons">share_location</span>
+                </div>
+                <div class="setting-content">
+                  <div class="setting-title">Share Location</div>
+                  <div class="setting-description">
+                    Share your location with emergency contacts
+                  </div>
+                </div>
+                <div class="setting-toggle" data-setting="share-location"></div>
+              </div>
+
+              <div class="setting-item toggle">
+                <div class="setting-icon">
+                  <span class="material-icons">analytics</span>
+                </div>
+                <div class="setting-content">
+                  <div class="setting-title">Usage Analytics</div>
+                  <div class="setting-description">
+                    Help improve CityNav with anonymous usage data
+                  </div>
+                </div>
+                <div
+                  class="setting-toggle active"
+                  data-setting="analytics"
+                ></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- App Settings -->
+          <div class="settings-section">
+            <h3 class="section-title">
+              <span class="material-icons">settings</span>
+              App Settings
+            </h3>
+            <div class="settings-list">
+              <a href="#" class="setting-item">
+                <div class="setting-icon">
+                  <span class="material-icons">language</span>
+                </div>
+                <div class="setting-content">
+                  <div class="setting-title">Language</div>
+                  <div class="setting-description">English (US)</div>
+                </div>
+                <span class="material-icons setting-action">chevron_right</span>
+              </a>
+
+              <a href="#" class="setting-item">
+                <div class="setting-icon">
+                  <span class="material-icons">palette</span>
+                </div>
+                <div class="setting-content">
+                  <div class="setting-title">Theme</div>
+                  <div class="setting-description">System default</div>
+                </div>
+                <span class="material-icons setting-action">chevron_right</span>
+              </a>
+
+              <a href="#" class="setting-item">
+                <div class="setting-icon">
+                  <span class="material-icons">download</span>
+                </div>
+                <div class="setting-content">
+                  <div class="setting-title">Offline Maps</div>
+                  <div class="setting-description">Manage downloaded maps</div>
+                </div>
+                <span class="material-icons setting-action">chevron_right</span>
+              </a>
+
+              <a href="#" class="setting-item">
+                <div class="setting-icon">
+                  <span class="material-icons">notifications</span>
+                </div>
+                <div class="setting-content">
+                  <div class="setting-title">Notifications</div>
+                  <div class="setting-description">
+                    Manage app notifications
+                  </div>
+                </div>
+                <span class="material-icons setting-action">chevron_right</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Support -->
+          <div class="settings-section">
+            <h3 class="section-title">
+              <span class="material-icons">help</span>
+              Support
+            </h3>
+            <div class="settings-list">
+              <a href="#" class="setting-item">
+                <div class="setting-icon">
+                  <span class="material-icons">help_center</span>
+                </div>
+                <div class="setting-content">
+                  <div class="setting-title">Help Center</div>
+                  <div class="setting-description">
+                    Find answers to common questions
+                  </div>
+                </div>
+                <span class="material-icons setting-action">chevron_right</span>
+              </a>
+
+              <a href="#" class="setting-item">
+                <div class="setting-icon">
+                  <span class="material-icons">feedback</span>
+                </div>
+                <div class="setting-content">
+                  <div class="setting-title">Send Feedback</div>
+                  <div class="setting-description">Help us improve CityNav</div>
+                </div>
+                <span class="material-icons setting-action">chevron_right</span>
+              </a>
+
+              <a href="#" class="setting-item">
+                <div class="setting-icon">
+                  <span class="material-icons">info</span>
+                </div>
+                <div class="setting-content">
+                  <div class="setting-title">About</div>
+                  <div class="setting-description">Version 2.1.0</div>
+                </div>
+                <span class="material-icons setting-action">chevron_right</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Danger Zone -->
+          <div class="settings-section">
+            <div class="danger-zone">
+              <h3 class="danger-title">
+                <span class="material-icons">warning</span>
+                Danger Zone
+              </h3>
+
+              <div class="danger-item">
+                <div class="danger-content">
+                  <div class="danger-item-title">Clear All Data</div>
+                  <div class="danger-item-description">
+                    Remove all saved places, history, and preferences
+                  </div>
+                </div>
+                <button class="danger-btn" id="clearDataBtn">Clear</button>
+              </div>
+
+              <div class="danger-item">
+                <div class="danger-content">
+                  <div class="danger-item-title">Delete Account</div>
+                  <div class="danger-item-description">
+                    Permanently delete your account and all data
+                  </div>
+                </div>
+                <button class="danger-btn" id="deleteAccountBtn">Delete</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <div class="nav-bar">
+          <a href="home-dashboard.html" class="nav-item">
+            <span class="material-icons">home</span>
+            <span class="nav-label">Home</span>
+          </a>
+          <a href="search-discovery.html" class="nav-item">
+            <span class="material-icons">search</span>
+            <span class="nav-label">Search</span>
+          </a>
+          <a href="interactive-map.html" class="nav-item">
+            <span class="material-icons">map</span>
+            <span class="nav-label">Map</span>
+          </a>
+          <a href="nearby-places.html" class="nav-item">
+            <span class="material-icons">place</span>
+            <span class="nav-label">Nearby</span>
+          </a>
+          <a href="profile-settings.html" class="nav-item active">
+            <span class="material-icons">person</span>
+            <span class="nav-label">Profile</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <script src="../scripts/design-system.js"></script>
+    <script>
+      class ProfileSettings {
+        constructor() {
+          this.settings = {
+            "voice-navigation": true,
+            "avoid-traffic": true,
+            "avoid-tolls": false,
+            "location-services": true,
+            "share-location": false,
+            analytics: true,
+          };
+
+          this.init();
+        }
+
+        init() {
+          this.setupEventListeners();
+          this.loadSettings();
+        }
+
+        setupEventListeners() {
+          // Toggle switches
+          document.querySelectorAll(".setting-toggle").forEach((toggle) => {
+            toggle.addEventListener("click", () => this.toggleSetting(toggle));
+          });
+
+          // Danger zone buttons
+          document
+            .getElementById("clearDataBtn")
+            .addEventListener("click", () => {
+              this.confirmAction(
+                "Clear all data?",
+                "This action cannot be undone.",
+                () => {
+                  this.clearAllData();
+                }
+              );
+            });
+
+          document
+            .getElementById("deleteAccountBtn")
+            .addEventListener("click", () => {
+              this.confirmAction(
+                "Delete account?",
+                "This will permanently delete your account and all data.",
+                () => {
+                  this.deleteAccount();
+                }
+              );
+            });
+
+          // Profile avatar
+          document
+            .querySelector(".profile-avatar")
+            .addEventListener("click", () => {
+              this.changeProfilePicture();
+            });
+        }
+
+        loadSettings() {
+          Object.keys(this.settings).forEach((settingKey) => {
+            const toggle = document.querySelector(
+              `[data-setting="${settingKey}"]`
+            );
+            if (toggle) {
+              toggle.classList.toggle("active", this.settings[settingKey]);
+            }
+          });
+        }
+
+        toggleSetting(toggle) {
+          const settingKey = toggle.dataset.setting;
+          const isActive = toggle.classList.contains("active");
+
+          // Toggle visual state
+          toggle.classList.toggle("active", !isActive);
+
+          // Update setting
+          this.settings[settingKey] = !isActive;
+
+          // Save to localStorage (in real app, would sync to server)
+          localStorage.setItem(
+            "cityNavSettings",
+            JSON.stringify(this.settings)
+          );
+
+          this.showNotification(
+            `${this.getSettingLabel(settingKey)} ${
+              !isActive ? "enabled" : "disabled"
+            }`,
+            "info"
+          );
+        }
+
+        getSettingLabel(settingKey) {
+          const labels = {
+            "voice-navigation": "Voice Navigation",
+            "avoid-traffic": "Avoid Traffic",
+            "avoid-tolls": "Avoid Tolls",
+            "location-services": "Location Services",
+            "share-location": "Share Location",
+            analytics: "Usage Analytics",
+          };
+          return labels[settingKey] || settingKey;
+        }
+
+        changeProfilePicture() {
+          this.showNotification("Profile picture update coming soon", "info");
+        }
+
+        clearAllData() {
+          // Simulate clearing data
+          localStorage.removeItem("cityNavSettings");
+          localStorage.removeItem("cityNavHistory");
+          localStorage.removeItem("cityNavFavorites");
+
+          this.showNotification("All data cleared successfully", "success");
+        }
+
+        deleteAccount() {
+          // Simulate account deletion
+          this.showNotification(
+            "Account deletion initiated. Please check your email.",
+            "warning"
+          );
+        }
+
+        confirmAction(title, message, onConfirm) {
+          const modal = document.createElement("div");
+          modal.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 50;
+          `;
+
+          const dialog = document.createElement("div");
+          dialog.style.cssText = `
+            background-color: var(--surface);
+            border-radius: var(--radius-lg);
+            padding: var(--spacing-xl);
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+            border: 1px solid var(--outline);
+          `;
+
+          dialog.innerHTML = `
+            <h3 style="margin: 0 0 var(--spacing-md) 0; color: var(--on-surface);">${title}</h3>
+            <p style="margin: 0 0 var(--spacing-lg) 0; color: var(--on-surface-variant);">${message}</p>
+            <div style="display: flex; gap: var(--spacing-md); justify-content: center;">
+              <button id="cancelBtn" class="btn btn-outline">Cancel</button>
+              <button id="confirmBtn" class="btn btn-primary" style="background-color: var(--error); border-color: var(--error);">Confirm</button>
+            </div>
+          `;
+
+          modal.appendChild(dialog);
+          document.body.appendChild(modal);
+
+          // Event listeners
+          dialog.querySelector("#cancelBtn").addEventListener("click", () => {
+            document.body.removeChild(modal);
+          });
+
+          dialog.querySelector("#confirmBtn").addEventListener("click", () => {
+            onConfirm();
+            document.body.removeChild(modal);
+          });
+
+          // Close on backdrop click
+          modal.addEventListener("click", (e) => {
+            if (e.target === modal) {
+              document.body.removeChild(modal);
+            }
+          });
+        }
+
+        showNotification(message, type = "info") {
+          const notification = document.createElement("div");
+          notification.className = `notification ${type}`;
+          notification.style.cssText = `
+            position: fixed;
+            top: 80px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: var(--surface);
+            color: var(--on-surface);
+            padding: var(--spacing-md) var(--spacing-lg);
+            border-radius: var(--radius-md);
+            box-shadow: var(--elevation-3);
+            z-index: 20;
+            font-size: var(--body-medium-size);
+            border: 1px solid var(--outline);
+          `;
+
+          if (type === "success") {
+            notification.style.backgroundColor = "var(--success-container)";
+            notification.style.color = "var(--on-success-container)";
+            notification.style.borderColor = "var(--success)";
+          } else if (type === "warning") {
+            notification.style.backgroundColor = "var(--warning-container)";
+            notification.style.color = "var(--on-warning-container)";
+            notification.style.borderColor = "var(--warning)";
+          }
+
+          notification.textContent = message;
+          document.body.appendChild(notification);
+
+          setTimeout(() => {
+            notification.remove();
+          }, 3000);
+        }
+      }
+
+      // Initialize profile settings when page loads
+      document.addEventListener("DOMContentLoaded", () => {
+        new ProfileSettings();
+      });
+    </script>
+  </body>
+</html>
