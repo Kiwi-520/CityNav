@@ -103,6 +103,21 @@ git commit -m "What ever changes you made"
 git push
 ```
 
+## If you are the app is already set up follow this steps to run it locally on your device
+- Install all the necessary dependencies
+```bash
+cd citynav-nextjs-app
+npm i
+```
+
+- To run the app locally , use the following command 
+
+```bash
+npm run dev
+```
+
+Go to `http://localhost:3000` and test all your migrated pages.
+
 ## Problem I faced while pushing my work you can tackle it as follow if you have the same - 
 
 - While pushing on the branch I created 
