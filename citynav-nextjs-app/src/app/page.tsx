@@ -1,11 +1,10 @@
 // This is a Server Component by default
-import Header from "../components/Header";
 
 export default function HomePage() {
   return (
     <main>
-      <h1>Welcome to the Next.js App!</h1>
-      <p>This is your home page.</p>
+      <h1>Welcome to CityNav!</h1>
+      <p>Your urban navigation assistant.</p>
     </main>
   );
 }
