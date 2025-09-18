@@ -1,35 +1,19 @@
-import type { Metadata, Viewport } from "next";
-import "./globals.css";
-import Header from "../components/Header";
+import './globals.css'
 
-export const metadata: Metadata = {
-  title: "CityNav - Urban Navigation Assistant",
-  description: "Smart city navigation app for urban travelers",
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "CityNav"
-  }
+export const metadata = {
+  title: "CityNav",
+  description: "Your urban navigation assistant.",
 };
 
-export const viewport: Viewport = {
-  width: "device-width",
-  initialScale: 1,
-  themeColor: "#0070f3"
-};
-
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body>
-        <Header />
-        {children}
-      </body>
+      <head>
+        <link rel="manifest" href="/manifest.json" />
+        <meta name="theme-color" content="#2563eb" />
+        <link rel="icon" href="/icon-192x192.svg" sizes="192x192" type="image/svg+xml" />
+      </head>
+      <body>{children}</body>
     </html>
   );
 }

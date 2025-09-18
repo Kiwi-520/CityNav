@@ -1,5 +1,3 @@
-// This is a Server Component by default
-
 export default function HomePage() {
   return (
     <main>
