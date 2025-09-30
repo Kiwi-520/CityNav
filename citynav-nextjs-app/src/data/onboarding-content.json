@@ -1,0 +1,28 @@
+{
+    "pune": {
+        "en": {
+            "welcome": "Welcome to Pune!",
+            "tipsTitle": "Quick Local Tips",
+            "tips": "Local buses and auto-rickshaws are the primary modes of transport. Always agree on the fare before starting your auto journey.",
+            "emergencyTitle": "Emergency Contacts",
+            "emergencyNumbers": "Police: 100\nAmbulance: 102\nFire: 101",
+            "dismissButton": "Start Navigating"
+        },
+        "hi": {
+            "welcome": "पुणे में आपका स्वागत है!",
+            "tipsTitle": "कुछ स्थानीय सुझाव",
+            "tips": "स्थानीय बसें और ऑटो-रिक्शा परिवहन के मुख्य साधन हैं। ऑटो की यात्रा शुरू करने से पहले हमेशा किराया तय कर लें।",
+            "emergencyTitle": "आपातकालीन संपर्क",
+            "emergencyNumbers": "पुलिस: 100\nएम्बुलेंस: 102\nअग्नि: 101",
+            "dismissButton": "नेविगेट करना शुरू करें"
+        },
+        "mr": {
+            "welcome": "पुण्यात आपले स्वागत आहे!",
+            "tipsTitle": "काही स्थानिक सूचना",
+            "tips": "स्थानिक बस आणि ऑटो-रिक्षा हे प्रवासाचे मुख्य साधन आहेत. प्रवासाला सुरुवात करण्यापूर्वी भाडे निश्चित करा.",
+            "emergencyTitle": "आणीबाणी संपर्क",
+            "emergencyNumbers": "पोलीस: 100\nरुग्णवाहिका: 102\nअग्निशमन: 101",
+            "dismissButton": "नेव्हिगेट करणे सुरू करा"
+        }
+    }
+}
