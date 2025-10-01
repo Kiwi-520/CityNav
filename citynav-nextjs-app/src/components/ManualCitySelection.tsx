@@ -2,9 +2,13 @@
 
 import { useState } from 'react';
 
+// Define the type for LanguageKey to ensure type consistency (assuming you export it from Onboarding)
+type LanguageKey = 'en' | 'hi' | 'mr';
+
 interface ManualCitySelectionProps {
     onCitySelected: (city: string) => void;
-    onRetry: () => void;
+    // The onRetry function executes the refetch logic
+    onRetry: () => void; 
     onLanguageChange: (lang: string) => void;
 }
 
@@ -87,7 +91,7 @@ const ManualCitySelection: React.FC<ManualCitySelectionProps> = ({ onCitySelecte
                     ))}
                 </select>
                 
-                {/* FIX: The onClick calls the onRetry prop */}
+                {/* This button calls the onRetry prop, which is linked to refetch() in page.tsx */}
                 <button style={styles.retryButton} onClick={onRetry}>
                     Retry Location Access
                 </button>
