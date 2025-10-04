@@ -13,6 +13,9 @@ export default function Header() {
             <Link href="/about">About</Link>
           </li>
           <li>
+            <Link href="/essential-maps">Essential Maps</Link>
+          </li>
+          <li>
             <Link href="/contact">Contact</Link>
           </li>
         </ul>
