@@ -1,0 +1,28 @@
+.dashboardContainer {
+  position: relative;
+  padding-bottom: 80px;
+}
+
+.dashboardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xl);
+  padding-bottom: var(--spacing-md);
+  border-bottom: 1px solid var(--outline-variant);
+}
+
+.cityInfo h3 {
+  margin-bottom: 4px;
+}
+
+.weatherInfo {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
+}
+
+.weatherInfo .material-icons {
+  font-size: var(--icon-size-large);
+  color: var(--warning);
+}

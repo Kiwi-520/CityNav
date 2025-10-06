@@ -1,0 +1,279 @@
+.filterToggle {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: white;
+  color: #666;
+  font-size: 0.9rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+}
+
+.filterToggle:hover {
+  border-color: #2e7d5e;
+  color: #2e7d5e;
+}
+
+.filterToggle.active {
+  background: #2e7d5e;
+  border-color: #2e7d5e;
+  color: white;
+}
+
+.filterBadge {
+  background: #FF6B6B;
+  color: white;
+  font-size: 0.75rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 12px;
+  min-width: 18px;
+  text-align: center;
+  line-height: 1;
+}
+
+.filterToggle.active .filterBadge {
+  background: white;
+  color: #2e7d5e;
+}
+
+.backdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 9998;
+}
+
+.filterPanel {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: white;
+  border-radius: 16px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  z-index: 9999;
+  width: 90%;
+  max-width: 400px;
+  max-height: 80vh;
+  overflow: hidden;
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+}
+
+.filterHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.filterHeader h3 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.closeBtn {
+  padding: 0.5rem;
+  border: none;
+  background: none;
+  color: #999;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: all 0.2s ease;
+}
+
+.closeBtn:hover {
+  color: #666;
+  background: #f5f5f5;
+}
+
+.filterContent {
+  padding: 1.5rem;
+  max-height: calc(80vh - 80px);
+  overflow-y: auto;
+}
+
+.filterActions {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.resultText {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.clearBtn {
+  padding: 0.4rem 0.8rem;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  background: white;
+  color: #666;
+  font-size: 0.85rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.clearBtn:hover {
+  border-color: #FF6B6B;
+  color: #FF6B6B;
+}
+
+.filterOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.filterOption {
+  display: block;
+  cursor: pointer;
+  border: 1px solid #e0e0e0;
+  border-radius: 12px;
+  padding: 1rem;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.filterOption:hover {
+  border-color: #2e7d5e;
+  background: #f8fffe;
+}
+
+.filterOption.active {
+  border-color: #2e7d5e;
+  background: #f0f9f0;
+}
+
+.filterCheckbox {
+  display: none;
+}
+
+.optionContent {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.optionLeft {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.optionIcon {
+  font-size: 1.5rem;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 10px;
+}
+
+.filterOption.active .optionIcon {
+  background: #2e7d5e;
+  color: white;
+}
+
+.optionLabel {
+  font-size: 1rem;
+  font-weight: 500;
+  color: #333;
+}
+
+.optionCount {
+  font-size: 0.85rem;
+  color: #666;
+  background: #f0f0f0;
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+  min-width: 24px;
+  text-align: center;
+}
+
+.filterOption.active .optionCount {
+  background: #2e7d5e;
+  color: white;
+}
+
+.filterFooter {
+  margin-top: 2rem;
+  padding-top: 1rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.applyBtn {
+  width: 100%;
+  padding: 0.875rem;
+  background: #2e7d5e;
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.applyBtn:hover {
+  background: #245d47;
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  .filterPanel {
+    width: 95%;
+    max-height: 85vh;
+  }
+  
+  .filterHeader {
+    padding: 1rem 1.25rem 0.75rem;
+  }
+  
+  .filterHeader h3 {
+    font-size: 1.125rem;
+  }
+  
+  .filterContent {
+    padding: 1.25rem;
+  }
+  
+  .filterOption {
+    padding: 0.875rem;
+  }
+  
+  .optionIcon {
+    font-size: 1.25rem;
+    width: 36px;
+    height: 36px;
+  }
+  
+  .optionLabel {
+    font-size: 0.9rem;
+  }
+}

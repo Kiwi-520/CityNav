@@ -1,0 +1,27 @@
+.quickActions {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.actionButton {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--spacing-xs);
+  text-decoration: none;
+  color: inherit;
+  transition: transform var(--duration-quick) ease;
+}
+
+.actionButton:hover {
+  transform: translateY(-2px);
+}
+
+.actionLabel {
+  font-size: var(--label-medium-size);
+  font-weight: var(--label-medium-weight);
+  color: var(--on-surface-variant);
+  text-align: center;
+}
