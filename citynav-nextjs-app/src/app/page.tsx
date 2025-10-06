@@ -1,3 +1,15 @@
+// src/app/page.tsx
+
+import MapClientWrapper from "@/components/MapClientWrapper";
+
+export default function Page() {
+  return (
+    <main>
+      <h1>Welcome to CityNav!</h1>
+      <MapClientWrapper />
+    </main>
+  );
+}
 // This is a Server Component by default
 // export default function HomePage() {
 //   return (
