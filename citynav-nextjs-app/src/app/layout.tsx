@@ -1,19 +1,18 @@
-import './globals.css'
+import type { ReactNode } from 'react';
+import PwaRegister from "@/app/pwa-register";
 
-export const metadata = {
-  title: "CityNav",
-  description: "Your urban navigation assistant.",
-};
-
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en">
       <head>
         <link rel="manifest" href="/manifest.json" />
-        <meta name="theme-color" content="#2563eb" />
-        <link rel="icon" href="/icon-192x192.svg" sizes="192x192" type="image/svg+xml" />
+        <meta name="theme-color" content="#4a90e2" />
       </head>
-      <body>{children}</body>
+      <body>
+        <PwaRegister />
+        {children}
+      </body>
     </html>
   );
 }
+

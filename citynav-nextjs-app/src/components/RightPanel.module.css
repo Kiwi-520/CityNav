@@ -1,0 +1,65 @@
+.rightColumn {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding: 12px;
+}
+.statusCard {
+  background: linear-gradient(180deg, #ffffff, #fbfdff);
+  border: 1px solid #e6eefc;
+  border-radius: 10px;
+  padding: 10px;
+  box-shadow: 0 6px 18px rgba(15,23,42,0.06);
+}
+.legendCard {
+  background: white;
+  border: 1px solid #edf2f7;
+  border-radius: 10px;
+  padding: 10px;
+}
+.poiPanel {
+  background: white;
+  border: 1px solid #edf2f7;
+  border-radius: 10px;
+  padding: 12px;
+  box-shadow: 0 6px 20px rgba(2,6,23,0.04);
+  overflow: auto;
+}
+.packCard {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: white;
+  border-radius: 10px;
+  padding: 10px;
+  border: 1px solid #f1f5f9;
+}
+.packTitle {
+  font-weight: 700;
+  color: #0f172a;
+  font-size: 13px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.packMeta {
+  color: #475569;
+  font-size: 12px;
+  margin-top: 6px;
+}
+.btn {
+  padding: 8px 10px;
+  border-radius: 10px;
+  cursor: pointer;
+  border: none;
+}
+.btnPrimary { background:#6366f1; color:white; box-shadow: 0 4px 10px rgba(99,102,241,0.18); }
+.btnSuccess { background:#059669; color:white; }
+.btnDanger { background:#ef4444; color:white; }
+.categoryBadge { background:#eef2ff; color:#3730a3; padding: 4px 8px; border-radius: 999px; font-size:11px }
+.activePackBadge { background:#eef2ff; color:#3730a3; padding: 4px 8px; border-radius: 8px; font-size:12px }
+.panelHeader { display:flex; justify-content:space-between; align-items:center }
+.previewModalOverlay { position: fixed; inset:0; display:flex; align-items:center; justify-content:center; background: rgba(2,6,23,0.6); z-index:10000 }
+.previewModal { width:min(900px,96%); max-height:86vh; background:white; border-radius:12px; padding:14px; overflow:auto }
+.smallMuted { color:#64748b; font-size:12px }
+.rightButtons { display:flex; gap:8px }
