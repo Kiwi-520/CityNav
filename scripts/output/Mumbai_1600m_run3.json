@@ -1,0 +1,1490 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.8 e802775f",
+  "osm3s": {
+    "timestamp_osm_base": "2025-10-05T19:00:30Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 3532124717,
+  "lat": 19.0627584,
+  "lon": 72.8731765,
+  "tags": {
+    "amenity": "hospital",
+    "name": "fauziya hospital"
+  }
+},
+{
+  "type": "node",
+  "id": 10172914421,
+  "lat": 19.0627787,
+  "lon": 72.8731767,
+  "tags": {
+    "amenity": "hospital",
+    "healthcare": "hospital",
+    "name": "Fauziya hospital"
+  }
+},
+{
+  "type": "node",
+  "id": 11449431524,
+  "lat": 19.0653031,
+  "lon": 72.8744544,
+  "tags": {
+    "amenity": "bank",
+    "brand": "State Bank of India",
+    "brand:wikidata": "Q1340361",
+    "name": "State Bank of India",
+    "short_name": "SBI"
+  }
+},
+{
+  "type": "node",
+  "id": 2966429908,
+  "lat": 19.0685222,
+  "lon": 72.8677446,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "description": "Route Nos. - 62, 87, 181, 303, 39; BKC 1, 2, 10, 11, 12, 13, 22, 25",
+    "highway": "bus_stop",
+    "name": "Citi Bank BKC",
+    "public_transport": "platform",
+    "ref": "3861,"
+  }
+},
+{
+  "type": "node",
+  "id": 2966429909,
+  "lat": 19.0689170,
+  "lon": 72.8677425,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Citi Bank BKC",
+    "public_transport": "platform",
+    "ref": "3861,",
+    "route_ref": "126,"
+  }
+},
+{
+  "type": "node",
+  "id": 3524664707,
+  "lat": 19.0678286,
+  "lon": 72.8689535,
+  "tags": {
+    "addr:city": "Mumbai",
+    "addr:housenumber": "C 57",
+    "addr:postcode": "400051",
+    "addr:street": "Bandra Kurla Complex Road",
+    "amenity": "cafe",
+    "cuisine": "regional",
+    "internet_access": "yes",
+    "name": "Pondichery Cafe, Sofitel Hotel"
+  }
+},
+{
+  "type": "node",
+  "id": 5470234225,
+  "lat": 19.0718209,
+  "lon": 72.8652369,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 5506320550,
+  "lat": 19.0684880,
+  "lon": 72.8687061,
+  "tags": {
+    "amenity": "atm",
+    "brand": "State Bank of India",
+    "brand:wikidata": "Q1340361",
+    "name": "State Bank of India",
+    "operator": "State Bank of India",
+    "operator:wikidata": "Q1340361",
+    "short_name": "SBI"
+  }
+},
+{
+  "type": "node",
+  "id": 5506320971,
+  "lat": 19.0686940,
+  "lon": 72.8682768,
+  "tags": {
+    "amenity": "bank",
+    "name": "FAB (First Abu Dhabi Bank)"
+  }
+},
+{
+  "type": "node",
+  "id": 5506321249,
+  "lat": 19.0687576,
+  "lon": 72.8683636,
+  "tags": {
+    "amenity": "bank",
+    "brand": "Bandhan Bank",
+    "brand:wikidata": "Q19882235",
+    "name": "Bandhan Bank"
+  }
+},
+{
+  "type": "node",
+  "id": 5674545821,
+  "lat": 19.0688867,
+  "lon": 72.8690268,
+  "tags": {
+    "amenity": "bank",
+    "name:en": "FirstRand Bank, India branch"
+  }
+},
+{
+  "type": "node",
+  "id": 11452002809,
+  "lat": 19.0692375,
+  "lon": 72.8694557,
+  "tags": {
+    "amenity": "restaurant",
+    "brand": "PizzaExpress",
+    "brand:wikidata": "Q662845",
+    "cuisine": "pizza",
+    "name": "PizzaExpress",
+    "shop": "bakery"
+  }
+},
+{
+  "type": "node",
+  "id": 2966429910,
+  "lat": 19.0707050,
+  "lon": 72.8714701,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "MTNL Telephone Exchange BKC",
+    "public_transport": "platform",
+    "ref": "3941,",
+    "route_ref": "126,"
+  }
+},
+{
+  "type": "node",
+  "id": 2966429911,
+  "lat": 19.0711079,
+  "lon": 72.8715467,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "MTNL Telephone Exchange BKC",
+    "public_transport": "platform",
+    "ref": "3941,",
+    "route_ref": "126,"
+  }
+},
+{
+  "type": "node",
+  "id": 6580341105,
+  "lat": 19.0722688,
+  "lon": 72.8703023,
+  "tags": {
+    "addr:city": "Mumabi",
+    "addr:housenumber": "Pinnacle Corporate Park",
+    "addr:postcode": "400051",
+    "addr:street": "Kanzul Iman Road",
+    "air_conditioning": "yes",
+    "amenity": "restaurant",
+    "bar": "yes",
+    "cuisine": "mexican;italian;chinese;indian",
+    "name": "Burn Bar and Kitchen",
+    "opening_hours": "Mo-Su 11:30-02:30",
+    "outdoor_seating": "no",
+    "phone": "+919152042515 +918454880008"
+  }
+},
+{
+  "type": "node",
+  "id": 7067373861,
+  "lat": 19.0704407,
+  "lon": 72.8751061,
+  "tags": {
+    "addr:full": "Town Hall",
+    "amenity": "hospital",
+    "healthcare": "hospital",
+    "name": "Despande Nursing Home",
+    "source": "OpenGovernmentData",
+    "wheelchair": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 7663961454,
+  "lat": 19.0726120,
+  "lon": 72.8710650,
+  "tags": {
+    "addr:district": "Mumbai Suburban",
+    "addr:full": "Office No. 701, Trade Center, Bandra Kurla Complex, Opp. MTNL, Bandra (East), Mumbai",
+    "addr:postcode": "400051",
+    "addr:state": "Maharastra",
+    "amenity": "hospital",
+    "name": "Alphine Life Solutions General Hospital",
+    "source": "Local Knowledge"
+  }
+},
+{
+  "type": "node",
+  "id": 10172914425,
+  "lat": 19.0726490,
+  "lon": 72.8710522,
+  "tags": {
+    "amenity": "hospital",
+    "healthcare": "hospital",
+    "name": "Alphine life solutions general hospital"
+  }
+},
+{
+  "type": "node",
+  "id": 10247412250,
+  "lat": 19.0738154,
+  "lon": 72.8709304,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Mohammad Estate",
+    "public_transport": "platform",
+    "ref": "3863,",
+    "route_ref": "126,"
+  }
+},
+{
+  "type": "node",
+  "id": 10251478050,
+  "lat": 19.0736576,
+  "lon": 72.8712083,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Mohammad Estate",
+    "public_transport": "platform",
+    "ref": "3940,",
+    "route_ref": "126,"
+  }
+},
+{
+  "type": "node",
+  "id": 10779234885,
+  "lat": 19.0695355,
+  "lon": 72.8698280,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Hitchki"
+  }
+},
+{
+  "type": "node",
+  "id": 7051950929,
+  "lat": 19.0779668,
+  "lon": 72.8648485,
+  "tags": {
+    "addr:district": "Mumbai",
+    "addr:full": "Christina Apartments., Near Kalina Police Chowky,Kalina Villgae Road, Kalina",
+    "addr:postcode": "400029",
+    "addr:state": "Maharashtra",
+    "amenity": "clinic",
+    "name": "Sai Deep Nursing Home",
+    "source": "OpenGovernmentData"
+  }
+},
+{
+  "type": "node",
+  "id": 7225067112,
+  "lat": 19.0780040,
+  "lon": 72.8630200,
+  "tags": {
+    "addr:district": "Mumbai",
+    "addr:full": "Kalina Health Post, Near Geeta Vihar Market, Santacruz East",
+    "addr:postcode": "400029",
+    "addr:state": "Maharashtra",
+    "amenity": "hospital",
+    "name": "Kalina Hospital",
+    "source": "OpenGovernmentData"
+  }
+},
+{
+  "type": "node",
+  "id": 8727348894,
+  "lat": 19.0770035,
+  "lon": 72.8659697,
+  "tags": {
+    "amenity": "restaurant",
+    "cuisine": "arab",
+    "name": "Shawarma's & More"
+  }
+},
+{
+  "type": "node",
+  "id": 11432696946,
+  "lat": 19.0794928,
+  "lon": 72.8668387,
+  "tags": {
+    "amenity": "cafe",
+    "name": "My Little Tea Pot"
+  }
+},
+{
+  "type": "node",
+  "id": 11587668954,
+  "lat": 19.0781157,
+  "lon": 72.8671645,
+  "tags": {
+    "amenity": "cafe",
+    "cuisine": "coffee_shop",
+    "internet_access": "yes",
+    "internet_access:fee": "customers",
+    "name": "My Little Tea Pot",
+    "opening_hours": "Mo-Su 09:00-21:00"
+  }
+},
+{
+  "type": "node",
+  "id": 3289565941,
+  "lat": 19.0750810,
+  "lon": 72.8726577,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Kapadia Nagar",
+    "public_transport": "platform",
+    "ref": "3939,",
+    "route_ref": "126,",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 3289573073,
+  "lat": 19.0747496,
+  "lon": 72.8709793,
+  "tags": {
+    "amenity": "restaurant",
+    "capacity": "50",
+    "cuisine": "South_Indian",
+    "name": "Hotel Ravi Pure Veg",
+    "smoking": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 10247412251,
+  "lat": 19.0752596,
+  "lon": 72.8724512,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Kapadia Nagar",
+    "public_transport": "platform",
+    "ref": "3864,",
+    "route_ref": "126,"
+  }
+},
+{
+  "type": "node",
+  "id": 3529566936,
+  "lat": 19.0621078,
+  "lon": 72.8769645,
+  "tags": {
+    "addr:city": "MUMBAI",
+    "addr:postcode": "400070",
+    "addr:street": "A H Wadia Marg",
+    "amenity": "restaurant",
+    "building": "residential",
+    "name": "GULAM MOHHAMED SHUBRATI BUILDING;suleman usman mithiwala"
+  }
+},
+{
+  "type": "node",
+  "id": 3532111661,
+  "lat": 19.0627501,
+  "lon": 72.8804604,
+  "tags": {
+    "amenity": "bank",
+    "atm": "yes",
+    "brand": "State Bank of India",
+    "brand:wikidata": "Q1340361",
+    "brand:wikipedia": "en:State Bank of India",
+    "name": "State Bank of India",
+    "short_name": "SBI"
+  }
+},
+{
+  "type": "node",
+  "id": 3532119179,
+  "lat": 19.0647322,
+  "lon": 72.8823854,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Sheetal Restaurant",
+    "name:en": "Sheetal Restaurant"
+  }
+},
+{
+  "type": "node",
+  "id": 3532119818,
+  "lat": 19.0634778,
+  "lon": 72.8817876,
+  "tags": {
+    "amenity": "hospital",
+    "name": "v care hospital intensive& unit care"
+  }
+},
+{
+  "type": "node",
+  "id": 3532120654,
+  "lat": 19.0644230,
+  "lon": 72.8818866,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "cafe nar restarunt"
+  }
+},
+{
+  "type": "node",
+  "id": 3532126359,
+  "lat": 19.0636096,
+  "lon": 72.8819271,
+  "tags": {
+    "amenity": "hospital",
+    "name": "arayan hospital"
+  }
+},
+{
+  "type": "node",
+  "id": 7045020590,
+  "lat": 19.0627060,
+  "lon": 72.8815868,
+  "tags": {
+    "addr:district": "Mumbai",
+    "addr:full": "Opposite Bldg No.101, Nehru Nagar, Kurla (E)",
+    "addr:postcode": "400070",
+    "addr:state": "Maharashtra",
+    "amenity": "hospital",
+    "name": "V Care Hospital and Icu",
+    "source": "OpenGovernmentData"
+  }
+},
+{
+  "type": "node",
+  "id": 7045324038,
+  "lat": 19.0630077,
+  "lon": 72.8823915,
+  "tags": {
+    "addr:district": "Mumbai",
+    "addr:full": "D-28 & 29, Nehru Nagar, Station Road, Kurla (East)",
+    "addr:postcode": "400024",
+    "addr:state": "Maharashtra",
+    "amenity": "hospital",
+    "name": "Aryan Hospital and Iccu - Kurla-Mumbai",
+    "source": "OpenGovernmentData"
+  }
+},
+{
+  "type": "node",
+  "id": 7064825234,
+  "lat": 19.0668794,
+  "lon": 72.8778599,
+  "tags": {
+    "addr:district": "Mumbai",
+    "addr:full": "1 Khot Chawl Opp Sainath Chowk Near Afuwala Lane Takiya Ward Sarveshwar Mandir Road Kurla W",
+    "addr:postcode": "400070",
+    "addr:state": "Maharashtra",
+    "amenity": "clinic",
+    "name": "Well Care Nursing Home",
+    "source": "OpenGovernmentData"
+  }
+},
+{
+  "type": "node",
+  "id": 7087131468,
+  "lat": 19.0626503,
+  "lon": 72.8816150,
+  "tags": {
+    "addr:district": "Mumbai",
+    "addr:full": "Opp-Building No-101 Nehru Nagar, Kurla (E)",
+    "addr:postcode": "400024",
+    "addr:state": "Maharashtra",
+    "amenity": "hospital",
+    "name": "Prarushi Healthcare Pvt Ltd / Kusumesh Chandra Maternity Hospital",
+    "source": "OpenGovernmentData"
+  }
+},
+{
+  "type": "node",
+  "id": 12635328075,
+  "lat": 19.0667221,
+  "lon": 72.8792666,
+  "tags": {
+    "name": "Sagar Restaurant",
+    "tourism": "hotel"
+  }
+},
+{
+  "type": "node",
+  "id": 3532122516,
+  "lat": 19.0637716,
+  "lon": 72.8842194,
+  "tags": {
+    "amenity": "bank",
+    "atm": "yes",
+    "brand": "Allahabad Bank",
+    "brand:wikidata": "Q2018840",
+    "brand:wikipedia": "en:Allahabad Bank",
+    "name": "Allahabad Bank",
+    "name:en": "Allahabad Bank",
+    "website": "https://www.allahabadbank.in"
+  }
+},
+{
+  "type": "node",
+  "id": 3532210535,
+  "lat": 19.0630215,
+  "lon": 72.8828264,
+  "tags": {
+    "amenity": "restaurant",
+    "delivery": "yes",
+    "diet:vegetarian": "only",
+    "name": "sawali hotel"
+  }
+},
+{
+  "type": "node",
+  "id": 3532124714,
+  "lat": 19.0693933,
+  "lon": 72.8781202,
+  "tags": {
+    "amenity": "hospital",
+    "name": "arpan nursing home"
+  }
+},
+{
+  "type": "node",
+  "id": 3532124715,
+  "lat": 19.0692808,
+  "lon": 72.8781281,
+  "tags": {
+    "amenity": "bank",
+    "name": "noor communication"
+  }
+},
+{
+  "type": "node",
+  "id": 9215480148,
+  "lat": 19.0708455,
+  "lon": 72.8781120,
+  "tags": {
+    "addr:district": "Mumbai",
+    "addr:full": "Ambedkar Nagar, Kurla West",
+    "addr:postcode": "400070",
+    "addr:state": "Maharashtra",
+    "amenity": "hospital",
+    "description": "Private Hospital",
+    "name": "Bhabha Hospital",
+    "source": "Local Knowledge"
+  }
+},
+{
+  "type": "node",
+  "id": 10172914423,
+  "lat": 19.0708724,
+  "lon": 72.8781127,
+  "tags": {
+    "amenity": "hospital",
+    "healthcare": "hospital",
+    "name": "bhabha hospital"
+  }
+},
+{
+  "type": "node",
+  "id": 245666563,
+  "lat": 19.0693839,
+  "lon": 72.8836606,
+  "tags": {
+    "name": "Anita Mahal",
+    "source": "AND",
+    "tourism": "hotel"
+  }
+},
+{
+  "type": "node",
+  "id": 2933190830,
+  "lat": 19.0714573,
+  "lon": 72.8850933,
+  "tags": {
+    "addr:city": "Kurla West, Mumbai",
+    "addr:postcode": "400070",
+    "addr:street": "171 Lal Bahadur Shastri Marg",
+    "amenity": "atm",
+    "name": "State Bank ATM",
+    "operator": "State Bank"
+  }
+},
+{
+  "type": "node",
+  "id": 3289533443,
+  "lat": 19.0796355,
+  "lon": 72.8799871,
+  "tags": {
+    "amenity": "restaurant",
+    "capacity": "50",
+    "cuisine": "regional",
+    "name": "Sahara",
+    "smoking": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 3289533448,
+  "lat": 19.0805957,
+  "lon": 72.8812014,
+  "tags": {
+    "amenity": "restaurant",
+    "capacity": "50",
+    "cuisine": "regional",
+    "name": "Skyway",
+    "smoking": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 3289545269,
+  "lat": 19.0775346,
+  "lon": 72.8789658,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 3289549971,
+  "lat": 19.0776977,
+  "lon": 72.8790334,
+  "tags": {
+    "internet_access": "wlan",
+    "name": "Hotel Kamaran residency",
+    "opening_hours": "24/7",
+    "tourism": "hotel"
+  }
+},
+{
+  "type": "node",
+  "id": 5471970528,
+  "lat": 19.0790676,
+  "lon": 72.8795642,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 7663961436,
+  "lat": 19.0783670,
+  "lon": 72.8804080,
+  "tags": {
+    "addr:district": "Mumbai Suburban",
+    "addr:full": "Opposite Quality Bakery, Near Shalimar Hotel, Swadeshi Mills Road, Kurla West, Kurla, Mumbai",
+    "addr:postcode": "400070",
+    "addr:state": "Maharastra",
+    "amenity": "hospital",
+    "name": "Muskaan Hospital",
+    "source": "Local Knowledge"
+  }
+},
+{
+  "type": "node",
+  "id": 7663961443,
+  "lat": 19.0782470,
+  "lon": 72.8801010,
+  "tags": {
+    "addr:district": "Mumbai Suburban",
+    "addr:full": "AH Wadia Marg, Old Agra Road, Off, LBS Road, Opp. Shalimar Hotel, Kurla West, Mumbai",
+    "addr:postcode": "400070",
+    "addr:state": "Maharastra",
+    "amenity": "hospital",
+    "healthcare": "hospital",
+    "name": "Habib Hospital",
+    "source": "Local Knowledge"
+  }
+},
+{
+  "type": "node",
+  "id": 11449378649,
+  "lat": 19.0752931,
+  "lon": 72.8767607,
+  "tags": {
+    "amenity": "fast_food",
+    "brand": "Domino's",
+    "brand:wikidata": "Q839466",
+    "cuisine": "pizza",
+    "name": "Domino's",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 11449433247,
+  "lat": 19.0758249,
+  "lon": 72.8767950,
+  "tags": {
+    "amenity": "bank",
+    "brand": "AU Small Finance Bank",
+    "brand:wikidata": "Q48729722",
+    "name": "AU Small Finance Bank"
+  }
+},
+{
+  "type": "node",
+  "id": 11451948925,
+  "lat": 19.0790685,
+  "lon": 72.8799913,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Istanbul Darbar"
+  }
+},
+{
+  "type": "node",
+  "id": 11452006995,
+  "lat": 19.0751249,
+  "lon": 72.8764071,
+  "tags": {
+    "amenity": "bank",
+    "brand": "Canara Bank",
+    "brand:en": "Canara Bank",
+    "brand:hi": "केनरा बैंक",
+    "brand:kn": "ಕೆನರಾ ಬ್ಯಾಂಕ್",
+    "brand:pa": "ਕੇਨਰਾ ਬੈਂਕ",
+    "brand:pnb": "کینرا بینک",
+    "brand:ur": "کینرا بینک",
+    "brand:wikidata": "Q2003777",
+    "name": "Canara Bank",
+    "name:en": "Canara Bank",
+    "name:hi": "केनरा बैंक",
+    "name:kn": "ಕೆನರಾ ಬ್ಯಾಂಕ್",
+    "name:pa": "ਕੇਨਰਾ ਬੈਂਕ",
+    "name:pnb": "کینرا بینک",
+    "name:ur": "کینرا بینک"
+  }
+},
+{
+  "type": "node",
+  "id": 11452009155,
+  "lat": 19.0758774,
+  "lon": 72.8768148,
+  "tags": {
+    "amenity": "bank",
+    "brand": "AU Small Finance Bank",
+    "brand:wikidata": "Q48729722",
+    "name": "AU Small Finance Bank"
+  }
+},
+{
+  "type": "node",
+  "id": 11452011988,
+  "lat": 19.0751866,
+  "lon": 72.8764304,
+  "tags": {
+    "amenity": "atm",
+    "name": "Canara ATM"
+  }
+},
+{
+  "type": "node",
+  "id": 11452014432,
+  "lat": 19.0770406,
+  "lon": 72.8780007,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Karizma Dhaba"
+  }
+},
+{
+  "type": "node",
+  "id": 12632124454,
+  "lat": 19.0772101,
+  "lon": 72.8788131,
+  "tags": {
+    "name": "Hotel Kalpana Elite",
+    "tourism": "hotel"
+  }
+},
+{
+  "type": "node",
+  "id": 7663961417,
+  "lat": 19.0797861,
+  "lon": 72.8827185,
+  "tags": {
+    "addr:district": "Mumbai Suburban",
+    "addr:full": "88, New Hall Road, Jai Ambika Nagar, Christian Gaon, Kurla West, Mumbai",
+    "addr:postcode": "400070",
+    "addr:state": "Maharastra",
+    "amenity": "hospital",
+    "name": "Buddh Colony BMC Hospital",
+    "source": "Local Knowledge"
+  }
+},
+{
+  "type": "node",
+  "id": 11445805534,
+  "lat": 19.0806140,
+  "lon": 72.8888784,
+  "tags": {
+    "amenity": "bank",
+    "name": "Unity Small Finance Bank"
+  }
+},
+{
+  "type": "node",
+  "id": 11458866392,
+  "lat": 19.0806664,
+  "lon": 72.8887589,
+  "tags": {
+    "amenity": "bank",
+    "brand": "Kotak Mahindra Bank",
+    "brand:wikidata": "Q2040404",
+    "check_date": "2023-12-27",
+    "name": "Kotak Mahindra Bank"
+  }
+},
+{
+  "type": "node",
+  "id": 3289526262,
+  "lat": 19.0822198,
+  "lon": 72.8820808,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Sheetal Bus stop",
+    "operator": "BEST",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 7044829632,
+  "lat": 19.0829325,
+  "lon": 72.8819436,
+  "tags": {
+    "addr:district": "Mumbai",
+    "addr:full": "Pratap Nagar, Housing Society, A-Wing, 1st Floor, L.B.S. Marg, Kurla West",
+    "addr:postcode": "400070",
+    "addr:state": "Maharashtra",
+    "amenity": "hospital",
+    "healthcare": "hospital",
+    "name": "Sushila Hospital-Icu and Maternity",
+    "source": "OpenGovernmentData"
+  }
+},
+{
+  "type": "node",
+  "id": 7051070836,
+  "lat": 19.0812912,
+  "lon": 72.8802846,
+  "tags": {
+    "addr:district": "Mumbai",
+    "addr:full": "110, Magan Nathuram Road, Opposite Sonapurlane Police, Chowky, Sonapurlane, Kurla",
+    "addr:postcode": "400070",
+    "addr:state": "Maharashtra",
+    "amenity": "clinic",
+    "name": "Sharada Nursing Home.",
+    "source": "OpenGovernmentData"
+  }
+},
+{
+  "type": "node",
+  "id": 7663961415,
+  "lat": 19.0826988,
+  "lon": 72.8816976,
+  "tags": {
+    "addr:district": "Mumbai Suburban",
+    "addr:full": "LBS Road, Bail Bajar, Saki Naka, Mumbai",
+    "addr:postcode": "400070",
+    "addr:state": "Maharastra",
+    "amenity": "hospital",
+    "name": "Subhash Hospital",
+    "source": "Local Knowledge"
+  }
+},
+{
+  "type": "node",
+  "id": 7663961467,
+  "lat": 19.0818439,
+  "lon": 72.8821058,
+  "tags": {
+    "addr:district": "Mumbai Suburban",
+    "addr:full": "New Dwarkapuri Building, LBS Road, Next To Subiksha, Christian Gaon, Kurla, Mumbai",
+    "addr:postcode": "400070",
+    "addr:state": "Maharastra",
+    "amenity": "hospital",
+    "name": "Masoom Child Hospital",
+    "source": "Local Knowledge"
+  }
+},
+{
+  "type": "node",
+  "id": 11452008048,
+  "lat": 19.0824643,
+  "lon": 72.8822461,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "SHAHI Dessert and Fast Food Juice"
+  }
+},
+{
+  "type": "node",
+  "id": 11452017570,
+  "lat": 19.0816717,
+  "lon": 72.8817638,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Sunlight Restaurant"
+  }
+},
+{
+  "type": "node",
+  "id": 4996322798,
+  "lat": 19.0815079,
+  "lon": 72.8831157,
+  "tags": {
+    "addr:city": "Mumbai",
+    "addr:postcode": "400070",
+    "addr:street": "father peter periera road",
+    "amenity": "hospital",
+    "name": "Kurla Municipal Hospital",
+    "operator": "MCGM",
+    "website": "https://www.mcgm.gov.in"
+  }
+},
+{
+  "type": "node",
+  "id": 5471970029,
+  "lat": 19.0847176,
+  "lon": 72.8888570,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 5471970030,
+  "lat": 19.0845915,
+  "lon": 72.8854776,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 5471970525,
+  "lat": 19.0851403,
+  "lon": 72.8873620,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Kamani",
+    "name:en": "Kamani",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5471970526,
+  "lat": 19.0851529,
+  "lon": 72.8864318,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 5471970527,
+  "lat": 19.0841410,
+  "lon": 72.8841295,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 5471975622,
+  "lat": 19.0842127,
+  "lon": 72.8837782,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 7055228102,
+  "lat": 19.0825092,
+  "lon": 72.8846566,
+  "tags": {
+    "addr:district": "Mumbai",
+    "addr:full": "Kurla West",
+    "addr:postcode": "400070",
+    "addr:state": "Maharashtra",
+    "amenity": "clinic",
+    "healthcare": "clinic",
+    "name": "Dr Shehnaz Shaikh Clinic",
+    "operator": "Dr. Shenaz shaikh",
+    "operator:type": "private",
+    "source": "OpenGovernmentData"
+  }
+},
+{
+  "type": "node",
+  "id": 7086762794,
+  "lat": 19.0844262,
+  "lon": 72.8836260,
+  "tags": {
+    "addr:district": "Mumbai",
+    "addr:full": "Nitingale Co-Op Hsg Society, 1st Floor, L.B.S. Marg , Near State Bank Of India, Kamani , Kurla (W)",
+    "addr:postcode": "400070",
+    "addr:state": "Maharashtra",
+    "amenity": "clinic",
+    "name": "Suraj Clinic, Mumbai",
+    "source": "OpenGovernmentData"
+  }
+},
+{
+  "type": "node",
+  "id": 8797139771,
+  "lat": 19.0846423,
+  "lon": 72.8836535,
+  "tags": {
+    "addr:district": "Mumbai",
+    "addr:full": "A Wing, Ghatkopar, Mumbai",
+    "addr:postcode": "400086",
+    "addr:state": "Maharashtra",
+    "amenity": "hospital",
+    "name": "Sapna Health Care Centre Pvt Ltd",
+    "source": "Local Knowledge"
+  }
+},
+{
+  "type": "node",
+  "id": 10694582246,
+  "lat": 19.0842814,
+  "lon": 72.8845683,
+  "tags": {
+    "amenity": "atm",
+    "brand": "IndusInd Bank",
+    "brand:wikidata": "Q2040323",
+    "check_date": "2023-02-26",
+    "name": "IndusInd Bank",
+    "operator": "IndusInd Bank",
+    "operator:wikidata": "Q2040323"
+  }
+},
+{
+  "type": "node",
+  "id": 11071531770,
+  "lat": 19.0851644,
+  "lon": 72.8871162,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Kamani",
+    "name:en": "Kamani",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 11071531771,
+  "lat": 19.0851555,
+  "lon": 72.8872249,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Kamani",
+    "name:en": "Kamani",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 11278792816,
+  "lat": 19.0821332,
+  "lon": 72.8856732,
+  "tags": {
+    "amenity": "bank",
+    "branch": "RACPC",
+    "brand": "State Bank of India",
+    "brand:wikidata": "Q1340361",
+    "name": "State Bank of India",
+    "short_name": "SBI"
+  }
+},
+{
+  "type": "node",
+  "id": 11445777740,
+  "lat": 19.0849255,
+  "lon": 72.8872426,
+  "tags": {
+    "name": "Hotel Dwarka",
+    "tourism": "hotel"
+  }
+},
+{
+  "type": "node",
+  "id": 11451543495,
+  "lat": 19.0831187,
+  "lon": 72.8851007,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Hotel Sitaram"
+  }
+},
+{
+  "type": "node",
+  "id": 11452009154,
+  "lat": 19.0853217,
+  "lon": 72.8876582,
+  "tags": {
+    "amenity": "cafe",
+    "brand": "Costa",
+    "brand:wikidata": "Q608845",
+    "cuisine": "coffee_shop",
+    "name": "Costa",
+    "shop": "coffee",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 11452014929,
+  "lat": 19.0845282,
+  "lon": 72.8855689,
+  "tags": {
+    "amenity": "bank",
+    "brand": "ICICI Bank",
+    "brand:wikidata": "Q1653258",
+    "name": "ICICI Bank",
+    "short_name": "ICICI"
+  }
+},
+{
+  "type": "node",
+  "id": 11432071328,
+  "lat": 19.0805224,
+  "lon": 72.8897014,
+  "tags": {
+    "amenity": "restaurant",
+    "check_date": "2023-12-27",
+    "internet_access": "no",
+    "name": "Nityanand Family Restaurant",
+    "wheelchair": "limited"
+  }
+},
+{
+  "type": "node",
+  "id": 11432077437,
+  "lat": 19.0804748,
+  "lon": 72.8894691,
+  "tags": {
+    "amenity": "fast_food",
+    "name": "Tiffins"
+  }
+},
+{
+  "type": "node",
+  "id": 5471970028,
+  "lat": 19.0846375,
+  "lon": 72.8897808,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "way",
+  "id": 430412677,
+  "center": {
+    "lat": 19.0666901,
+    "lon": 72.8679188
+  },
+  "nodes": [
+    4296941589,
+    4296941283,
+    4296941278,
+    4296941269,
+    4296941271,
+    4296941610,
+    4296941615,
+    4296941620,
+    4296941639,
+    4296941642,
+    4296941638,
+    4296941622,
+    4296941618,
+    4296941602,
+    4296941597,
+    4296941589
+  ],
+  "tags": {
+    "addr:city": "Mumbai",
+    "addr:housenumber": "C 56 , G Block",
+    "addr:postcode": "400051",
+    "addr:street": "Bandra Kurla Complex Road",
+    "landuse": "commercial",
+    "name": "Trident Hotel",
+    "tourism": "hotel"
+  }
+},
+{
+  "type": "way",
+  "id": 359780137,
+  "center": {
+    "lat": 19.0726519,
+    "lon": 72.8761432
+  },
+  "nodes": [
+    3644260075,
+    3644260074,
+    3644260072,
+    3644260073,
+    3644260075
+  ],
+  "tags": {
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Deluxe Restaurant"
+  }
+},
+{
+  "type": "way",
+  "id": 430412674,
+  "center": {
+    "lat": 19.0676525,
+    "lon": 72.8688314
+  },
+  "nodes": [
+    4296941626,
+    4296941624,
+    4296941627,
+    10709861328,
+    4296941641,
+    4296941517,
+    4296941521,
+    10709861326,
+    10709861327,
+    4296941626
+  ],
+  "tags": {
+    "addr:city": "Bandra East, Mumbai",
+    "addr:housenumber": "C57",
+    "addr:postcode": "400051",
+    "addr:street": "Bandra Kurla Complex",
+    "brand": "Sofitel",
+    "brand:wikidata": "Q749431",
+    "building": "yes,_hotel,_commercial",
+    "email": "H6451@sofitel.com",
+    "internet_access": "yes",
+    "internet_access:fee": "customers",
+    "landuse": "commercial",
+    "name": "Sofitel",
+    "phone": "+91 (22) 6117 5000",
+    "rooms": "302",
+    "tourism": "hotel",
+    "website": "https://www.sofitel-mumbai-bkc.com/"
+  }
+},
+{
+  "type": "way",
+  "id": 427199220,
+  "center": {
+    "lat": 19.0652757,
+    "lon": 72.8792179
+  },
+  "nodes": [
+    4264430279,
+    4264430276,
+    4264430398,
+    4264430440,
+    4264430444,
+    4264430399,
+    4264430279
+  ],
+  "tags": {
+    "bench": "yes",
+    "lit": "yes",
+    "name": "Kurla",
+    "public_transport": "station",
+    "railway": "station",
+    "ref": "3;4",
+    "shelter": "yes",
+    "train": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 353424954,
+  "center": {
+    "lat": 19.0705335,
+    "lon": 72.8795848
+  },
+  "nodes": [
+    3592040175,
+    3592040178,
+    3592040191,
+    3592040189,
+    3592040175
+  ],
+  "tags": {
+    "amenity": "bank",
+    "building": "yes",
+    "name": "The Kurla Nagarik Sahakarl bank Limited"
+  }
+},
+{
+  "type": "way",
+  "id": 1075183332,
+  "center": {
+    "lat": 19.0761643,
+    "lon": 72.8778380
+  },
+  "nodes": [
+    9861056407,
+    12635535600,
+    9861056408,
+    9861056409,
+    9861056410,
+    9861056407
+  ],
+  "tags": {
+    "building": "yes",
+    "building:levels": "1",
+    "name": "Janata Tawa Grill",
+    "tourism": "hotel"
+  }
+},
+{
+  "type": "way",
+  "id": 260786332,
+  "center": {
+    "lat": 19.0760113,
+    "lon": 72.8861368
+  },
+  "nodes": [
+    2663447659,
+    11045755917,
+    12625091014,
+    12637821285,
+    2663447657,
+    2663447659
+  ],
+  "tags": {
+    "addr:city": "Mumbai",
+    "addr:district": "Mumbai",
+    "addr:full": "Kirol Road, Off LBS Road, Kurla (West)",
+    "addr:housename": "Kohinoor Hospital",
+    "addr:postcode": "400070",
+    "addr:state": "Maharashtra",
+    "addr:street": "Kirol Road, Off LBS Marg, Patelwadi",
+    "amenity": "hospital",
+    "contact:phone": "2267556766",
+    "email": "info@kohinoorhospitals.in",
+    "healthcare": "hospital",
+    "name": "Crtiti Care Asia Hospital",
+    "operator:type": "private",
+    "source": "OpenGovernmentData",
+    "website": "https://www.kohinoorhospitals.in/"
+  }
+},
+{
+  "type": "way",
+  "id": 353174274,
+  "center": {
+    "lat": 19.0810411,
+    "lon": 72.8819647
+  },
+  "nodes": [
+    3589399326,
+    3589399327,
+    3589399303,
+    12632644744,
+    12632644743,
+    3589399323,
+    12632644753,
+    3589399326
+  ],
+  "tags": {
+    "addr:city": "mumbai",
+    "addr:district": "Mumbai",
+    "addr:full": "Sagar Palace B Wing, Sonapur Lane, F.P.P. Marg, Off L B S Marg, Kurla (W)",
+    "addr:postcode": "400070",
+    "addr:state": "Maharashtra",
+    "addr:street": "father peter periera road",
+    "amenity": "hospital",
+    "building": "yes",
+    "building:levels": "4",
+    "healthcare": "hospital",
+    "name": "City Hospital and Reserch Centre",
+    "source": "OpenGovernmentData"
+  }
+},
+{
+  "type": "way",
+  "id": 353378215,
+  "center": {
+    "lat": 19.0855585,
+    "lon": 72.8843164
+  },
+  "nodes": [
+    3591604048,
+    3591604049,
+    3591604042,
+    3591604039,
+    3591604043,
+    3591604040,
+    3591604041,
+    3591604038,
+    3591604046,
+    3591604047,
+    3591604048
+  ],
+  "tags": {
+    "building": "yes",
+    "name": "FabHotel RK International",
+    "tourism": "hotel"
+  }
+}
+
+  ]
+}

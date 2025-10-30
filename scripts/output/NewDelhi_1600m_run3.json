@@ -1,0 +1,1929 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.8 e802775f",
+  "osm3s": {
+    "timestamp_osm_base": "2025-10-05T19:00:30Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 5483330993,
+  "lat": 28.6061096,
+  "lon": 77.1988825,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Teen Murti",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5545512462,
+  "lat": 28.6056148,
+  "lon": 77.1990695,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Teen Murti",
+    "name:hi": "तीन मूर्ति",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6470184617,
+  "lat": 28.6040114,
+  "lon": 77.1976751,
+  "tags": {
+    "amenity": "atm",
+    "brand": "State Bank of India",
+    "brand:en": "State Bank of India",
+    "brand:wikidata": "Q1340361",
+    "currency:INR": "yes",
+    "drive_through": "no",
+    "indoor": "yes",
+    "name": "State Bank of India",
+    "note": "Contributors are requested to not edit the \"brand\", \"brand:en\", \"brand:wikidata\", \"operator\", \"operator:en\" and \"operator:wikidata\" tags. (2025/02/19)",
+    "opening_hours": "24/7",
+    "operator": "State Bank of India",
+    "operator:en": "State Bank of India",
+    "operator:wikidata": "Q1340361",
+    "short_name": "SBI"
+  }
+},
+{
+  "type": "node",
+  "id": 7138493182,
+  "lat": 28.6092512,
+  "lon": 77.1998329,
+  "tags": {
+    "addr:district": "New Delhi",
+    "addr:full": "153, Infront Mother Dairy, South Avenue",
+    "addr:postcode": "110011",
+    "addr:state": "Delhi",
+    "amenity": "clinic",
+    "contact:phone": "011-23013490",
+    "description": "Dispensaries",
+    "health_facility:type": "dispensary",
+    "healthcare": "centre",
+    "name": "CGHS Dispensary South Avenue",
+    "source": "OpenGovernmentData"
+  }
+},
+{
+  "type": "node",
+  "id": 5483331671,
+  "lat": 28.6099984,
+  "lon": 77.1991210,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "South Avenue",
+    "name:ur": "ساؤتھ ایونیو",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5637100892,
+  "lat": 28.6099802,
+  "lon": 77.1993513,
+  "tags": {
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "South Avenue",
+    "name:ur": "ساؤتھ ایونیو",
+    "public_transport": "platform",
+    "shelter": "no",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 7265860000,
+  "lat": 28.6103297,
+  "lon": 77.2010609,
+  "tags": {
+    "amenity": "atm",
+    "brand": "State Bank of India",
+    "brand:en": "State Bank of India",
+    "brand:wikidata": "Q1340361",
+    "currency:INR": "yes",
+    "drive_through": "no",
+    "indoor": "yes",
+    "note": "Contributors are requested to not edit the \"brand\", \"brand:en\", \"brand:wikidata\", \"operator\", \"operator:en\" and \"operator:wikidata\" tags. (2025/02/19)",
+    "opening_hours": "24/7",
+    "operator": "State Bank of India",
+    "operator:en": "State Bank of India",
+    "operator:wikidata": "Q1340361",
+    "short_name": "SBI",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5483331961,
+  "lat": 28.5999311,
+  "lon": 77.2113517,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Police Station Tughlaq Road",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5634523681,
+  "lat": 28.6020197,
+  "lon": 77.2176582,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "check_date:shelter": "2023-01-19",
+    "highway": "bus_stop",
+    "name": "Claridges Hotel",
+    "name:en": "Claridges Hotel",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5758573713,
+  "lat": 28.6027708,
+  "lon": 77.2178592,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "check_date:shelter": "2022-11-14",
+    "highway": "bus_stop",
+    "name": "Claridges Hotel",
+    "name:en": "Claridges Hotel",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5483332047,
+  "lat": 28.6082750,
+  "lon": 77.2066389,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Sena Bhawan",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5545510715,
+  "lat": 28.6080817,
+  "lon": 77.2066703,
+  "tags": {
+    "bench": "yes",
+    "bin": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Sena Bhawan",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5637102539,
+  "lat": 28.6089101,
+  "lon": 77.2030314,
+  "tags": {
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Tyagraj Marg",
+    "public_transport": "platform",
+    "shelter": "no",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 5792049362,
+  "lat": 28.6090937,
+  "lon": 77.2030378,
+  "tags": {
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Tyagraj Marg",
+    "public_transport": "platform",
+    "shelter": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 5483954489,
+  "lat": 28.6094443,
+  "lon": 77.2098605,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "G Block",
+    "name:ur": "جی بلاک",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5483954490,
+  "lat": 28.6096447,
+  "lon": 77.2096689,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "G Block",
+    "name:ur": "جی بلاک",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 7018886727,
+  "lat": 28.6095136,
+  "lon": 77.2117960,
+  "tags": {
+    "name": "Udyog Bhavan",
+    "name:hi": "उद्योग भवन",
+    "name:ur": "اُدیوگ بھون",
+    "network": "Delhi Metro",
+    "network:wikidata": "Q271195",
+    "note": "Contributors are requested to not edit the \"network\" and the \"operator\" tags. (2023/06/22)",
+    "operator": "Delhi Metro Rail Corporation Limited",
+    "operator:wikidata": "Q1029339",
+    "public_transport": "station",
+    "railway": "station",
+    "ref": "UDB",
+    "station": "subway",
+    "subway": "yes",
+    "wikidata": "Q7877392",
+    "wikipedia": "en:Udyog Bhawan metro station"
+  }
+},
+{
+  "type": "node",
+  "id": 5453646586,
+  "lat": 28.6158794,
+  "lon": 77.2122822,
+  "tags": {
+    "name": "Central Secretariat",
+    "name:hi": "सेंट्रल सेक्रेटेरिएट",
+    "name:kn": "ಸೆಂಟ್ರಲ್ ಸೆಕ್ರೆಟರಿಸ್ಟ್",
+    "network": "Delhi Metro",
+    "network:wikidata": "Q271195",
+    "note": "Contributors are requested to not edit the \"network\" and the \"operator\" tags. (2023/06/22)",
+    "operator": "Delhi Metro Rail Corporation Limited",
+    "operator:wikidata": "Q1029339",
+    "public_transport": "station",
+    "railway": "station",
+    "ref": "CTST",
+    "station": "subway",
+    "subway": "yes",
+    "train": "yes",
+    "wikidata": "Q5061812",
+    "wikipedia": "en:Central Secretariat metro station"
+  }
+},
+{
+  "type": "node",
+  "id": 5483954443,
+  "lat": 28.6148710,
+  "lon": 77.2124760,
+  "tags": {
+    "alt_name": "Central Secretariat",
+    "alt_name:hi": "केन्द्रिय सचिवालय",
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Krishi Bhawan",
+    "name:hi": "कृषि भवन",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5483954473,
+  "lat": 28.6149393,
+  "lon": 77.2119885,
+  "tags": {
+    "alt_name": "Central Secretariat",
+    "alt_name:hi": "केन्द्रिय सचिवालय",
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Rail Bhawan Metro Station",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5483954474,
+  "lat": 28.6126506,
+  "lon": 77.2118430,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Udyog Bhawan",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5484083823,
+  "lat": 28.6125270,
+  "lon": 77.2122895,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Udyog Bhawan",
+    "name:hi": "उद्योग भवन",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6371772374,
+  "lat": 28.6103927,
+  "lon": 77.2131070,
+  "tags": {
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Udyog Bhawan",
+    "public_transport": "platform",
+    "shelter": "no",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 6372277582,
+  "lat": 28.6105302,
+  "lon": 77.2131076,
+  "tags": {
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Udyog Bhawan",
+    "public_transport": "platform",
+    "shelter": "no",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 6385537596,
+  "lat": 28.6107735,
+  "lon": 77.2142744,
+  "tags": {
+    "amenity": "atm",
+    "brand": "State Bank of India",
+    "brand:en": "State Bank of India",
+    "brand:wikidata": "Q1340361",
+    "currency:INR": "yes",
+    "drive_through": "no",
+    "indoor": "yes",
+    "note": "Contributors are requested to not edit the \"brand\", \"brand:en\", \"brand:wikidata\", \"operator\", \"operator:en\" and \"operator:wikidata\" tags. (2025/02/19)",
+    "opening_hours": "24/7",
+    "operator": "State Bank of India",
+    "operator:en": "State Bank of India",
+    "operator:wikidata": "Q1340361",
+    "short_name": "SBI"
+  }
+},
+{
+  "type": "node",
+  "id": 10732829707,
+  "lat": 28.6081726,
+  "lon": 77.2175333,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 4385547591,
+  "lat": 28.6135345,
+  "lon": 77.2184328,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 5634523682,
+  "lat": 28.6114967,
+  "lon": 77.2182694,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "National Museum",
+    "name:ar": "متحف الوطنى",
+    "name:de": "Nationalmuseum",
+    "name:es": "Museo Nacional",
+    "name:hi": "राष्ट्रीय संग्रहालय",
+    "name:hy": "Նյու Դելիի ազգային թանգարան",
+    "name:pt": "Museu Nacional",
+    "name:ru": "Национальный музей Индии",
+    "name:ur": "قومی عجائب گھر",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5634523683,
+  "lat": 28.6145501,
+  "lon": 77.2184432,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "National Archives",
+    "name:hi": "राष्ट्रीय अभिलेखागार",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5758573268,
+  "lat": 28.6111328,
+  "lon": 77.2184143,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "National Museum",
+    "name:ar": "متحف الوطنى",
+    "name:de": "Nationalmuseum",
+    "name:es": "Museo Nacional",
+    "name:hy": "Նյու Դելիի ազգային թանգարան",
+    "name:pt": "Museu Nacional",
+    "name:ru": "Национальный музей Индии",
+    "name:ur": "قومی عجائب گھر",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6371772377,
+  "lat": 28.6101775,
+  "lon": 77.2171485,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Nirman Bhavan",
+    "name:hi": "निरमाण भवन",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6372277581,
+  "lat": 28.6103772,
+  "lon": 77.2171417,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Nirman Bhavan",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 11552129364,
+  "lat": 28.6109435,
+  "lon": 77.2194122,
+  "tags": {
+    "amenity": "cafe",
+    "name": "Cafe Museo"
+  }
+},
+{
+  "type": "node",
+  "id": 7138493129,
+  "lat": 28.6208562,
+  "lon": 77.2004083,
+  "tags": {
+    "addr:district": "New Delhi",
+    "addr:full": "No. 27, North Avenue Area, Near R M L Hospital",
+    "addr:postcode": "110001",
+    "addr:state": "Delhi",
+    "amenity": "clinic",
+    "contact:phone": "011-23092781",
+    "description": "Dispensaries",
+    "health_facility:type": "dispensary",
+    "healthcare": "centre",
+    "name": "President Estate Clinic",
+    "source": "OpenGovernmentData"
+  }
+},
+{
+  "type": "node",
+  "id": 7138493217,
+  "lat": 28.6225960,
+  "lon": 77.1994817,
+  "tags": {
+    "addr:district": "New Delhi",
+    "addr:full": "31, North Avenue",
+    "addr:postcode": "110004",
+    "addr:state": "Delhi",
+    "amenity": "clinic",
+    "contact:phone": "011-23094420",
+    "description": "Dispensaries",
+    "health_facility:type": "dispensary",
+    "healthcare": "centre",
+    "name": "CGHS Dispensary North Avenue",
+    "source": "OpenGovernmentData"
+  }
+},
+{
+  "type": "node",
+  "id": 11778257669,
+  "lat": 28.6226800,
+  "lon": 77.1965453,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "R.M.L. Hospital",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 11778257670,
+  "lat": 28.6224132,
+  "lon": 77.1967058,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "R.M.L. Hospital",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5338584664,
+  "lat": 28.6249115,
+  "lon": 77.2010875,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Bank of Baroda",
+    "brand:wikidata": "Q2003797",
+    "opening_hours": "24/7",
+    "operator": "Bank of Baroda",
+    "operator:wikidata": "Q2003797"
+  }
+},
+{
+  "type": "node",
+  "id": 5338584905,
+  "lat": 28.6245007,
+  "lon": 77.2013315,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "check_date:shelter": "2023-04-03",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Doctor Ram Manohar Lohia Hospital",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6225482786,
+  "lat": 28.6250194,
+  "lon": 77.1988472,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "check_date:shelter": "2023-11-07",
+    "highway": "bus_stop",
+    "name": "Doctor Ram Manohar Lohia Hospital",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5483332064,
+  "lat": 28.6174908,
+  "lon": 77.2037963,
+  "tags": {
+    "addr:city": "New Delhi",
+    "bench": "no",
+    "bus": "yes",
+    "departures_board": "no",
+    "highway": "bus_stop",
+    "name": "Kendriya Terminal Church Road",
+    "operator": "Delhi Transport Corporation, Delhi Transit",
+    "public_transport": "platform",
+    "route_ref": "185;210;213;270;280;281;320;340;349;378;390;391;480;540;580;581;740;680;LTD;270A;120B;120B SPL",
+    "shelter": "no",
+    "sign": "yes",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 6225479657,
+  "lat": 28.6211647,
+  "lon": 77.2053434,
+  "tags": {
+    "bench": "yes",
+    "bin": "no",
+    "bus": "yes",
+    "fixme": "Duplicate Bus Stop. Transfer data to the other node.",
+    "highway": "bus_stop",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6225479821,
+  "lat": 28.6209936,
+  "lon": 77.2052757,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "check_date:shelter": "2024-04-10",
+    "highway": "bus_stop",
+    "name": "Gurudwara Rakab Ganj",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6225482595,
+  "lat": 28.6211440,
+  "lon": 77.2053927,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Gurudwara Rakab Ganj",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6225764792,
+  "lat": 28.6214783,
+  "lon": 77.2061268,
+  "tags": {
+    "bench": "yes",
+    "bin": "no",
+    "bus": "yes",
+    "covered": "yes",
+    "departures_board": "no",
+    "highway": "bus_stop",
+    "name": "Kendriya Terminal",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "sign": "yes",
+    "tactile_paving": "yes",
+    "wheelchair": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 7116238187,
+  "lat": 28.6194990,
+  "lon": 77.2060548,
+  "tags": {
+    "addr:city": "New Delhi",
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Kendriya Terminal",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 9776564468,
+  "lat": 28.6209463,
+  "lon": 77.2073007,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Gurdwara Rakab Ganj",
+    "public_transport": "platform",
+    "route_ref": "47;260;270;310;320;391;408;410;430;480;540;581;610;680;725;740;770;970;270A;610B",
+    "shelter": "no",
+    "sign": "yes",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 12229130484,
+  "lat": 28.6213436,
+  "lon": 77.2064182,
+  "tags": {
+    "bench": "yes",
+    "bin": "no",
+    "bus": "yes",
+    "covered": "yes",
+    "departures_board": "no",
+    "highway": "bus_stop",
+    "name": "Kendriya Terminal",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "sign": "yes",
+    "tactile_paving": "yes",
+    "wheelchair": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 5483330994,
+  "lat": 28.6176833,
+  "lon": 77.2110578,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Red Cross Road",
+    "public_transport": "platform",
+    "shelter": "no",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 5483331960,
+  "lat": 28.6204581,
+  "lon": 77.2127271,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Akashwani Bhawan",
+    "name:hi": "आकाशवाणी भवन",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5637080733,
+  "lat": 28.6168315,
+  "lon": 77.2136914,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Krishi Bhawan",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5792048834,
+  "lat": 28.6207084,
+  "lon": 77.2105871,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Akashwani Bhawan",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6213742113,
+  "lat": 28.6227577,
+  "lon": 77.2142270,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Patel Chowk",
+    "name:hi": "पटेल चौक",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6385537606,
+  "lat": 28.6198985,
+  "lon": 77.2106056,
+  "tags": {
+    "addr:city": "New Delhi",
+    "amenity": "bank",
+    "atm": "yes",
+    "branch": "Raisina Road",
+    "brand": "Canara Bank",
+    "brand:en": "Canara Bank",
+    "brand:hi": "केनरा बैंक",
+    "brand:kn": "ಕೆನರಾ ಬ್ಯಾಂಕ್",
+    "brand:pa": "ਕੇਨਰਾ ਬੈਂਕ",
+    "brand:pnb": "کینرا بینک",
+    "brand:ur": "کینرا بینک",
+    "brand:wikidata": "Q2003777",
+    "brand:wikipedia": "en:Canara Bank",
+    "brand:wikipedia:pa": "ਕੇਨਰਾ ਬੈਂਕ",
+    "name": "Canara Bank",
+    "name:en": "Canara Bank",
+    "name:hi": "केनरा बैंक",
+    "name:kn": "ಕೆನರಾ ಬ್ಯಾಂಕ್",
+    "name:pa": "ਕੇਨਰਾ ਬੈਂਕ",
+    "name:pnb": "کینرا بینک",
+    "name:ur": "کینرا بینک"
+  }
+},
+{
+  "type": "node",
+  "id": 6470184614,
+  "lat": 28.6175605,
+  "lon": 77.2125512,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 6888422313,
+  "lat": 28.6185924,
+  "lon": 77.2107795,
+  "tags": {
+    "addr:city": "Delhi",
+    "addr:district": "CENTRAL DELHI",
+    "addr:full": "Red Cross Road, Near Parliament House",
+    "addr:postcode": "110001",
+    "addr:state": "Delhi",
+    "amenity": "blood_bank",
+    "contact:mobile": "9818228394",
+    "contact:phone": "011-23711551",
+    "email": "directorbloodbank@indianredcross.org",
+    "fax": "011 23717454",
+    "name": "Indian Red Cross Society (IRCS) Blood Bank, Central Delhi",
+    "opening_hours": "24/7",
+    "operator:type": "ngo",
+    "source": "OpenGovernmentData",
+    "website": "https://www.indianredcross.org/"
+  }
+},
+{
+  "type": "node",
+  "id": 7267338504,
+  "lat": 28.6206385,
+  "lon": 77.2097844,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Aakashwani Bhawan",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 7267338505,
+  "lat": 28.6175164,
+  "lon": 77.2132565,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Krishi Bhawan",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4713325589,
+  "lat": 28.6246459,
+  "lon": 77.2053756,
+  "tags": {
+    "amenity": "atm",
+    "brand": "State Bank of India",
+    "brand:en": "State Bank of India",
+    "brand:wikidata": "Q1340361",
+    "currency:INR": "yes",
+    "drive_through": "no",
+    "indoor": "yes",
+    "note": "Contributors are requested to not edit the \"brand\", \"brand:en\", \"brand:wikidata\", \"operator\", \"operator:en\" and \"operator:wikidata\" tags. (2025/02/19)",
+    "opening_hours": "24/7",
+    "operator": "State Bank of India",
+    "operator:en": "State Bank of India",
+    "operator:wikidata": "Q1340361",
+    "short_name": "SBI"
+  }
+},
+{
+  "type": "node",
+  "id": 5338583878,
+  "lat": 28.6248302,
+  "lon": 77.2029725,
+  "tags": {
+    "amenity": "atm",
+    "brand": "State Bank",
+    "opening_hours": "24/7"
+  }
+},
+{
+  "type": "node",
+  "id": 5338584906,
+  "lat": 28.6257958,
+  "lon": 77.2039082,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Doctor Ram Manohar Lohia Hospital",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5338584991,
+  "lat": 28.6261381,
+  "lon": 77.2049492,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "check_date:shelter": "2023-04-03",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "New Delhi Post Office",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5346174186,
+  "lat": 28.6255464,
+  "lon": 77.2063880,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "check_date:shelter": "2023-04-03",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "New Delhi Post Office",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "short_name": "NDPO",
+    "sign": "yes",
+    "tactile_paving": "yes",
+    "wheelchair": "designated"
+  }
+},
+{
+  "type": "node",
+  "id": 6225478959,
+  "lat": 28.6255360,
+  "lon": 77.2066437,
+  "tags": {
+    "bench": "yes",
+    "bin": "no",
+    "bus": "yes",
+    "check_date:shelter": "2023-04-03",
+    "covered": "no",
+    "departures_board": "no",
+    "highway": "bus_stop",
+    "name": "New Delhi Post Office",
+    "public_transport": "platform",
+    "shelter": "no",
+    "sign": "no",
+    "tactile_paving": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6225479426,
+  "lat": 28.6234372,
+  "lon": 77.2065070,
+  "tags": {
+    "bench": "yes",
+    "bin": "no",
+    "bus": "yes",
+    "check_date:shelter": "2024-04-12",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "NDPO",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6225479822,
+  "lat": 28.6231411,
+  "lon": 77.2015890,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "check_date:shelter": "2024-04-10",
+    "highway": "bus_stop",
+    "name": "Talkatora Road",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6225480474,
+  "lat": 28.6232960,
+  "lon": 77.2017242,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "check_date:shelter": "2024-04-10",
+    "highway": "bus_stop",
+    "name": "Talkatora Road",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5483331673,
+  "lat": 28.6254210,
+  "lon": 77.2095761,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Gurudwara Bangla Sahib",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5637100894,
+  "lat": 28.6244886,
+  "lon": 77.2107096,
+  "tags": {
+    "bench": "no",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Patel Chowk",
+    "public_transport": "platform",
+    "shelter": "no",
+    "sign": "yes",
+    "tactile_paving": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 5637101391,
+  "lat": 28.6252300,
+  "lon": 77.2094194,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "check_date:shelter": "2025-03-11",
+    "highway": "bus_stop",
+    "name": "Gurudwara Bangla Sahib",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6225479360,
+  "lat": 28.6280479,
+  "lon": 77.2093211,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "check_date:shelter": "2023-11-03",
+    "highway": "bus_stop",
+    "lit": "no",
+    "name": "Gurudwara Bangla Sahib",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6385537605,
+  "lat": 28.6245052,
+  "lon": 77.2112244,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Patel Chowk",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6404197725,
+  "lat": 28.6254207,
+  "lon": 77.2144132,
+  "tags": {
+    "bench": "yes",
+    "bin": "no",
+    "bus": "yes",
+    "covered": "yes",
+    "highway": "bus_stop",
+    "name": "Police Station Parliament Street",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "sign": "yes",
+    "tactile_paving": "yes",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6470072750,
+  "lat": 28.6229665,
+  "lon": 77.2119440,
+  "tags": {
+    "amenity": "bank",
+    "atm": "yes",
+    "branch": "Sansad Marg",
+    "brand": "UCO Bank",
+    "brand:wikidata": "Q2005310",
+    "level": "0",
+    "name": "UCO Bank"
+  }
+},
+{
+  "type": "node",
+  "id": 6470520703,
+  "lat": 28.6258453,
+  "lon": 77.2144015,
+  "tags": {
+    "bench": "no",
+    "bin": "no",
+    "bus": "yes",
+    "covered": "no",
+    "departures_board": "no",
+    "highway": "bus_stop",
+    "name": "Police Station Parliament Street",
+    "public_transport": "platform",
+    "shelter": "no",
+    "sign": "yes",
+    "tactile_paving": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 7018886726,
+  "lat": 28.6229664,
+  "lon": 77.2140310,
+  "tags": {
+    "name": "Patel Chowk",
+    "name:hi": "पटेल चौक",
+    "name:ur": "پٹیل چوک",
+    "network": "Delhi Metro",
+    "network:wikidata": "Q271195",
+    "note": "Contributors are requested to not edit the \"network\" and the \"operator\" tags. (2023/06/22)",
+    "operator": "Delhi Metro Rail Corporation Limited",
+    "operator:wikidata": "Q1029339",
+    "public_transport": "station",
+    "railway": "station",
+    "ref": "PTCK",
+    "station": "subway",
+    "subway": "yes",
+    "wikidata": "Q7144407",
+    "wikipedia": "en:Patel Chowk metro station"
+  }
+},
+{
+  "type": "node",
+  "id": 8151219537,
+  "lat": 28.6241327,
+  "lon": 77.2139025,
+  "tags": {
+    "addr:city": "New Delhi",
+    "addr:full": "10, Jeevan Deep Building, Sansad Marg, Janpath, Connaught Place, New Delhi, Delhi",
+    "amenity": "bank",
+    "brand": "Indian Overseas Bank",
+    "brand:wikidata": "Q2003611",
+    "name": "Indian Overseas Bank"
+  }
+},
+{
+  "type": "node",
+  "id": 9182102063,
+  "lat": 28.6265795,
+  "lon": 77.2134998,
+  "tags": {
+    "bench": "yes",
+    "bin": "no",
+    "bus": "yes",
+    "covered": "yes",
+    "departures_board": "no",
+    "highway": "bus_stop",
+    "lit": "yes",
+    "name": "Palika Kendra",
+    "public_transport": "platform",
+    "route_ref": "157;166",
+    "shelter": "yes",
+    "sign": "yes",
+    "tactile_paving": "yes",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 9182102064,
+  "lat": 28.6264244,
+  "lon": 77.2126265,
+  "tags": {
+    "bench": "yes",
+    "bin": "no",
+    "bus": "yes",
+    "covered": "yes",
+    "departures_board": "no",
+    "highway": "bus_stop",
+    "name": "YMCA",
+    "public_transport": "platform",
+    "route_ref": "073;016;077;100;100Ext;185;187;188;210;220;220Ext;280;300;340;342;349;370;378;390;704;729;858;Gr. Mudrika;RL-77;RL-77Ext;RL-79",
+    "shelter": "yes",
+    "sign": "yes",
+    "tactile_paving": "yes",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 9182111845,
+  "lat": 28.6258863,
+  "lon": 77.2138530,
+  "tags": {
+    "amenity": "atm",
+    "brand": "State Bank of India",
+    "brand:en": "State Bank of India",
+    "brand:wikidata": "Q1340361",
+    "currency:INR": "yes",
+    "drive_through": "no",
+    "indoor": "yes",
+    "level": "0",
+    "note": "Contributors are requested to not edit the \"brand\", \"brand:en\", \"brand:wikidata\", \"operator\", \"operator:en\" and \"operator:wikidata\" tags. (2025/02/19)",
+    "opening_hours": "24/7",
+    "operator": "State Bank of India",
+    "operator:en": "State Bank of India",
+    "operator:wikidata": "Q1340361",
+    "short_name": "SBI"
+  }
+},
+{
+  "type": "node",
+  "id": 10945664767,
+  "lat": 28.6267693,
+  "lon": 77.2092035,
+  "tags": {
+    "amenity": "hospital",
+    "name": "Guru Harkrishan Polyclinic Bangla Sahib",
+    "phone": "011 23340171"
+  }
+},
+{
+  "type": "node",
+  "id": 12185793075,
+  "lat": 28.6264316,
+  "lon": 77.2122984,
+  "tags": {
+    "air_conditioning": "no",
+    "amenity": "fast_food",
+    "level": "0",
+    "name": "V Canteen",
+    "outdoor_seating": "yes",
+    "smoking": "no",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 12586887172,
+  "lat": 28.6235066,
+  "lon": 77.2118710,
+  "tags": {
+    "amenity": "bank",
+    "atm": "yes",
+    "branch": "Sansad Marg",
+    "brand": "Punjab National Bank",
+    "level": "0",
+    "name": "Punjab National Bank"
+  }
+},
+{
+  "type": "node",
+  "id": 4303021583,
+  "lat": 28.6210244,
+  "lon": 77.2178611,
+  "tags": {
+    "addr:city": "New Delhi",
+    "addr:housenumber": "19",
+    "addr:postcode": "110001",
+    "addr:street": "Ashoka Road",
+    "name": "Shangri-La's Eros Hotel",
+    "phone": "+91 11 41191919",
+    "tourism": "hotel",
+    "website": "https://www.shangri-la.com/newdelhi/erosshangrila/"
+  }
+},
+{
+  "type": "node",
+  "id": 5345521629,
+  "lat": 28.6215414,
+  "lon": 77.2192588,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Union Bank of India",
+    "brand:wikidata": "Q2004078",
+    "operator": "Union Bank of India",
+    "operator:wikidata": "Q2004078"
+  }
+},
+{
+  "type": "node",
+  "id": 5345531488,
+  "lat": 28.6221373,
+  "lon": 77.2191737,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Eastern Court",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5345531686,
+  "lat": 28.6217589,
+  "lon": 77.2184932,
+  "tags": {
+    "name": "The Janpath Hotel",
+    "tourism": "hotel"
+  }
+},
+{
+  "type": "node",
+  "id": 5345535254,
+  "lat": 28.6207553,
+  "lon": 77.2205921,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Firoz Shah Road",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5587022726,
+  "lat": 28.6205984,
+  "lon": 77.2206956,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Firoz Shah Road",
+    "network": "Delhi Public Transport",
+    "operator": "Delhi Transport Corporation",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5634523002,
+  "lat": 28.6176172,
+  "lon": 77.2186520,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Windsor Place",
+    "public_transport": "platform",
+    "shelter": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5637101395,
+  "lat": 28.6180019,
+  "lon": 77.2188942,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Windsor Place",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5841373585,
+  "lat": 28.6216848,
+  "lon": 77.2170271,
+  "tags": {
+    "addr:housenumber": "19",
+    "addr:postcode": "110001",
+    "addr:street": "Ashoka Road",
+    "internet_access": "wlan",
+    "name": "The Royal Plaza",
+    "name:hi": "होटल रॉयल प्लाज़ा",
+    "tourism": "hotel",
+    "website": "https://www.hoteltheroyalplaza.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 6213742114,
+  "lat": 28.6221385,
+  "lon": 77.2147533,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Patel Chowk",
+    "name:hi": "पटेल चौक",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 6792923897,
+  "lat": 28.6209452,
+  "lon": 77.2180853,
+  "tags": {
+    "addr:city": "New Delhi",
+    "addr:housenumber": "19",
+    "addr:street": "Ashoka Road",
+    "amenity": "restaurant",
+    "cuisine": "italian",
+    "name": "Sorento",
+    "name:ru": "Соренто",
+    "opening_hours": "Mo-Su 12:30-14:45, 19:00-23:45"
+  }
+},
+{
+  "type": "node",
+  "id": 928565725,
+  "lat": 28.6241686,
+  "lon": 77.2190178,
+  "tags": {
+    "highway": "bus_stop",
+    "name": "Long Distance Bus Kullu Manali"
+  }
+},
+{
+  "type": "node",
+  "id": 1556466157,
+  "lat": 28.6252830,
+  "lon": 77.2183628,
+  "tags": {
+    "addr:city": "New Delhi",
+    "name": "Imperial Hotel",
+    "tourism": "hotel"
+  }
+},
+{
+  "type": "node",
+  "id": 1556466158,
+  "lat": 28.6253844,
+  "lon": 77.2181175,
+  "tags": {
+    "addr:city": "New Delhi",
+    "amenity": "restaurant",
+    "cuisine": "thai",
+    "name": "Spice Route"
+  }
+},
+{
+  "type": "node",
+  "id": 4541197689,
+  "lat": 28.6266262,
+  "lon": 77.2145324,
+  "tags": {
+    "amenity": "bank",
+    "atm": "yes",
+    "branch": "New Delhi",
+    "brand": "State Bank of India",
+    "brand:wikidata": "Q1340361",
+    "name": "State Bank of India",
+    "name:en": "State Bank of India",
+    "short_name": "SBI"
+  }
+},
+{
+  "type": "node",
+  "id": 5073788621,
+  "lat": 28.6249108,
+  "lon": 77.2194157,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "saravan bhavan",
+    "name:en": "saravan bhavan"
+  }
+},
+{
+  "type": "node",
+  "id": 5345530306,
+  "lat": 28.6238379,
+  "lon": 77.2190036,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Western Court",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5345531970,
+  "lat": 28.6236459,
+  "lon": 77.2193948,
+  "tags": {
+    "amenity": "atm",
+    "brand": "Axis Bank",
+    "brand:wikidata": "Q2003549",
+    "name": "Axis Bank",
+    "operator": "Axis Bank",
+    "operator:wikidata": "Q2003549"
+  }
+},
+{
+  "type": "node",
+  "id": 6539240961,
+  "lat": 28.6248081,
+  "lon": 77.2193721,
+  "tags": {
+    "amenity": "atm",
+    "brand": "State Bank of India",
+    "brand:en": "State Bank of India",
+    "brand:wikidata": "Q1340361",
+    "currency:INR": "yes",
+    "drive_through": "no",
+    "indoor": "yes",
+    "name": "State Bank of India",
+    "note": "Contributors are requested to not edit the \"brand\", \"brand:en\", \"brand:wikidata\", \"operator\", \"operator:en\" and \"operator:wikidata\" tags. (2025/02/19)",
+    "opening_hours": "24/7",
+    "operator": "State Bank of India",
+    "operator:en": "State Bank of India",
+    "operator:wikidata": "Q1340361",
+    "short_name": "SBI"
+  }
+},
+{
+  "type": "node",
+  "id": 8151219535,
+  "lat": 28.6244261,
+  "lon": 77.2197964,
+  "tags": {
+    "addr:city": "New Delhi",
+    "addr:full": "Chander Lok, 36, Janpath Rd, Peeraghari, HC Mathur Lane, New Delhi, Delhi",
+    "amenity": "bank",
+    "name": "Chanderlok Building Bank Of India Govt Business Department"
+  }
+},
+{
+  "type": "node",
+  "id": 9182101626,
+  "lat": 28.6248527,
+  "lon": 77.2156648,
+  "tags": {
+    "amenity": "fast_food",
+    "cuisine": "punjabi",
+    "diet:lacto_vegetarian": "yes",
+    "name": "Baba Ka Dhaba"
+  }
+},
+{
+  "type": "node",
+  "id": 9182101627,
+  "lat": 28.6249403,
+  "lon": 77.2156614,
+  "tags": {
+    "amenity": "fast_food",
+    "cuisine": "South Indian",
+    "diet:vegan": "yes",
+    "name": "Kutty's",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 9584236507,
+  "lat": 28.6240485,
+  "lon": 77.2192587,
+  "tags": {
+    "name": "Janpath",
+    "name:en": "Janpath",
+    "name:hi": "जनपथ",
+    "name:kn": "ಜನ್ಪತ್",
+    "name:ur": "جن پتھ",
+    "network": "Delhi Metro",
+    "network:wikidata": "Q271195",
+    "note": "Contributors are requested to not edit the \"network\" and the \"operator\" tags. (2023/06/22)",
+    "operator": "Delhi Metro Rail Corporation Limited",
+    "operator:wikidata": "Q1029339",
+    "public_transport": "station",
+    "railway": "station",
+    "ref": "JNPH",
+    "station": "subway",
+    "subway": "yes",
+    "wikidata": "Q16850982",
+    "wikipedia": "en:Janpath metro station"
+  }
+},
+{
+  "type": "node",
+  "id": 10570234009,
+  "lat": 28.6254773,
+  "lon": 77.2184377,
+  "tags": {
+    "amenity": "restaurant",
+    "cuisine": "italian",
+    "name": "San Gimignano"
+  }
+},
+{
+  "type": "way",
+  "id": 1393761657,
+  "center": {
+    "lat": 28.6006481,
+    "lon": 77.2163218
+  },
+  "nodes": [
+    943875719,
+    3642421026,
+    2697771089,
+    943875877,
+    943875607,
+    943875960,
+    2697771085,
+    943875719
+  ],
+  "tags": {
+    "addr:interpolation": "",
+    "air_conditioning": "yes",
+    "name": "The Claridges",
+    "operator": "Claridges Hotels Private Limited",
+    "phone": "+91 11 3955 5000",
+    "swimming_pool": "outdoor",
+    "tourism": "hotel",
+    "website": "https://www.claridges.com/index.asp"
+  }
+},
+{
+  "type": "way",
+  "id": 34404757,
+  "center": {
+    "lat": 28.6260617,
+    "lon": 77.2007463
+  },
+  "nodes": [
+    395135219,
+    5345583336,
+    5345583333,
+    5345583332,
+    5345583329,
+    395135221,
+    2829272927,
+    395135222,
+    395135224,
+    8676806045,
+    5345583346,
+    395135219
+  ],
+  "tags": {
+    "addr:district": "New Delhi",
+    "addr:full": "Baba Kharak Singh Marg, Near Bangla Sahib Gurudwara",
+    "addr:postcode": "110001",
+    "addr:state": "Delhi",
+    "alt_name": "Wellingdon Hospital",
+    "amenity": "hospital",
+    "barrier": "wall",
+    "contact:phone": "011-22344470; 23404040; 23365525;23404325",
+    "description": ">500 Bedded Hospital",
+    "healthcare": "hospital",
+    "name": "Ram Manohar Lohia Hospital",
+    "name:etymology:wikidata": "Q2759530",
+    "name:hi": "राम मनोहर लोहिया अस्पताल",
+    "source": "OpenGovernmentData"
+  }
+},
+{
+  "type": "way",
+  "id": 351418783,
+  "center": {
+    "lat": 28.6233674,
+    "lon": 77.2144911
+  },
+  "nodes": [
+    3571786995,
+    3571786984,
+    3571786971,
+    3571786974,
+    3571786995
+  ],
+  "tags": {
+    "building": "yes",
+    "name": "Patel Chowk",
+    "name:hi": "पटेल चौक",
+    "network": "Delhi Metro",
+    "network:wikidata": "Q271195",
+    "note": "Contributors are requested to not edit the \"network\" and the \"operator\" tags. (2023/06/22)",
+    "operator": "Delhi Metro Rail Corporation Limited",
+    "operator:wikidata": "Q1029339",
+    "public_transport": "station",
+    "railway": "station",
+    "station": "subway",
+    "subway": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 360259497,
+  "center": {
+    "lat": 28.6188050,
+    "lon": 77.2177001
+  },
+  "nodes": [
+    3648412281,
+    3648412280,
+    3648412274,
+    3648412273,
+    3648412272,
+    3648412275,
+    11917919955,
+    11917919954,
+    3648412269,
+    3648412268,
+    11917919953,
+    3648412270,
+    11917919921,
+    3648412284,
+    3648412288,
+    11917919930,
+    11917919929,
+    11917919928,
+    11917919927,
+    11917919926,
+    11917919925,
+    11917919923,
+    11917919924,
+    11917919922,
+    11917919931,
+    3648412283,
+    11917919952,
+    11917919950,
+    11917919951,
+    3648412282,
+    3648412281
+  ],
+  "tags": {
+    "addr:city": "New Delhi",
+    "addr:street": "Raisina Road",
+    "brand": "Le Méridien",
+    "brand:wikidata": "Q261077",
+    "building": "yes",
+    "building:levels": "14",
+    "name": "Le Méridien",
+    "stars": "5",
+    "tourism": "hotel"
+  }
+},
+{
+  "type": "relation",
+  "id": 5231661,
+  "center": {
+    "lat": 28.6018369,
+    "lon": 77.1998293
+  },
+  "members": [
+    {
+      "type": "way",
+      "ref": 348459430,
+      "role": "outer"
+    },
+    {
+      "type": "way",
+      "ref": 350761756,
+      "role": "inner"
+    }
+  ],
+  "tags": {
+    "amenity": "restaurant",
+    "building": "yes",
+    "type": "multipolygon"
+  }
+}
+
+  ]
+}

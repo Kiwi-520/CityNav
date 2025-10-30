@@ -1,0 +1,24 @@
+{
+  "name": "citynav",
+  "version": "1.0.0",
+  "description": "A comprehensive PWA navigation application prototype with 18+ screens built using Material Design 3 principles.",
+  "main": "index.js",
+  "scripts": {
+  "dev": "next dev",
+  "build": "next build",
+  "start": "next start",
+  "lint": "next lint"
+},
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/guru2112/CityNav.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/guru2112/CityNav/issues"
+  },
+  "homepage": "https://github.com/guru2112/CityNav#readme"
+}

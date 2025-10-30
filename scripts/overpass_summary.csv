@@ -1,0 +1,10 @@
+location,radius_m,runs,duration_median_ms,duration_p95_ms,payload_median_kb,payload_p95_kb,elements_median
+NewDelhi,500,3,1363,3000,3.09,3.09,7
+NewDelhi,1600,3,958,14727,41.14,41.14,112
+NewDelhi,3000,3,4323,4573,231.15,231.15,688
+Mumbai,500,3,7061,7232,4.49,4.49,16
+Mumbai,1600,3,852,920,29.28,29.28,103
+Mumbai,3000,3,4539,4802,127.94,127.94,418
+RuralMontana,500,3,559,1747,0.28,0.28,0
+RuralMontana,1600,3,1640,1909,0.28,0.28,0
+RuralMontana,3000,3,4927,5075,0.28,0.28,0

@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useEffect, useState, useRef } from "react";
-import { useOfflineLocation } from "@/hooks/useOfflineLocation";
+import { useOfflineLocation } from "@/features/offline-onboarding/hooks/useOfflineLocation";
+import logger from '@/features/offline-onboarding/lib/logger';
 
-// Types remain the same
 type Address = {
   country?: string;
   state?: string;
@@ -24,12 +24,11 @@ type Weather = {
   time?: string;
 };
 
-interface LocationDetailsProps {
+interface LocationDetailsHorizontalProps {
   lat?: number | null;
   lon?: number | null;
 }
 
-// Weather descriptions remain the same
 const weatherDescriptions: { [key: number]: string } = {
     0: "Clear sky", 1: "Mainly clear", 2: "Partly cloudy", 3: "Overcast", 45: "Fog", 48: "Depositing rime fog",
     51: "Drizzle: Light", 53: "Drizzle: Moderate", 55: "Drizzle: Dense intensity", 61: "Rain: Slight",
@@ -37,7 +36,7 @@ const weatherDescriptions: { [key: number]: string } = {
     82: "Rain showers: Violent",
 };
 
-const LocationDetails: React.FC<LocationDetailsProps> = ({ lat, lon }) => {
+const LocationDetailsHorizontal: React.FC<LocationDetailsHorizontalProps> = ({ lat, lon }) => {
   const [address, setAddress] = useState<Address | null>(null);
   const [weather, setWeather] = useState<Weather | null>(null);
   const [loading, setLoading] = useState(true);
@@ -48,17 +47,10 @@ const LocationDetails: React.FC<LocationDetailsProps> = ({ lat, lon }) => {
   const lastFetchedLocation = useRef<string | null>(null);
 
   useEffect(() => {
-    // Create a unique key for the current location
     const locationKey = lat != null && lon != null ? `${lat},${lon}` : null;
-    
-    // Skip if we're already fetching this location
-    if (locationKey === lastFetchedLocation.current) {
-      return;
-    }
-    
+    if (locationKey === lastFetchedLocation.current) return;
     lastFetchedLocation.current = locationKey;
     
-    // Reset state when props change
     setAddress(null);
     setWeather(null);
     setLoading(true);
@@ -72,27 +64,23 @@ const LocationDetails: React.FC<LocationDetailsProps> = ({ lat, lon }) => {
 
     const fetchData = async () => {
       try {
-        // Use navigator.onLine as a stronger guard in addition to isOnline
         const onlineNow = typeof navigator !== 'undefined' ? navigator.onLine && isOnline : false;
         if (!onlineNow) {
-          // When offline, try to use stored location data
           if (storedLocation) {
             setAddress(storedLocation.address || null);
             setWeather(storedLocation.weather || null);
             setIsUsingCachedData(true);
             setError(null);
           } else {
-            setError("No cached location data available. Please connect to the internet to load location details.");
+            setError("No cached location data available.");
           }
           setLoading(false);
           return;
         }
 
-        // When online, attempt network fetches but guard each fetch and fall back to cache on failure
         let fetchedAddress: Address | null = null;
         let fetchedWeather: Weather | null = null;
 
-        // Fetch address (guarded) with a timeout and provider fallbacks
         const tryAddressProviders = async () => {
           const providers = [
             { name: 'nominatim', url: `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=jsonv2&addressdetails=1` },
@@ -107,13 +95,11 @@ const LocationDetails: React.FC<LocationDetailsProps> = ({ lat, lon }) => {
               const res = await fetch(prov.url, { signal: ac.signal });
               clearTimeout(timeout);
               if (!res.ok) {
-                console.warn(`Address provider ${prov.name} returned ${res.status} ${res.statusText}`);
+                logger.warn(`Address provider ${prov.name} returned ${res.status}`);
                 continue;
               }
               const data = await res.json();
-              // Normalise common shape
               if (prov.name === 'bigdatacloud') {
-                // bigdatacloud returns fields directly
                 fetchedAddress = {
                   country: data.countryName,
                   state: data.principalSubdivision,
@@ -126,30 +112,26 @@ const LocationDetails: React.FC<LocationDetailsProps> = ({ lat, lon }) => {
                 };
                 return;
               }
-              // maps.co and nominatim have .address
               if (data && data.address) {
                 fetchedAddress = data.address;
                 return;
               }
-              // fallback: some providers return top-level fields
               if (data && (data.city || data.country || data.principalSubdivision)) {
                 fetchedAddress = data;
                 return;
               }
             } catch (err) {
               if ((err as any)?.name === 'AbortError') {
-                console.warn(`Address provider ${prov.name} timed out`);
+                logger.warn(`Address provider ${prov.name} timed out`);
               } else {
-                console.warn(`Address provider ${prov.name} failed:`, err);
+                logger.warn(`Address provider ${prov.name} failed:`, err);
               }
-              // try next provider
             }
           }
         };
 
         await tryAddressProviders();
 
-        // Fetch weather (guarded) with timeout and timezone for readable times
         try {
           const acw = new AbortController();
           const to = setTimeout(() => acw.abort(), 8000);
@@ -160,17 +142,16 @@ const LocationDetails: React.FC<LocationDetailsProps> = ({ lat, lon }) => {
             const weatherData = await weatherRes.json();
             fetchedWeather = weatherData.current_weather || null;
           } else {
-            console.warn(`Weather fetch returned ${weatherRes.status} ${weatherRes.statusText}`);
+            logger.warn(`Weather fetch returned ${weatherRes.status}`);
           }
         } catch (err) {
           if ((err as any)?.name === 'AbortError') {
-            console.warn('Weather fetch timed out');
+            logger.warn('Weather fetch timed out');
           } else {
-            console.warn('Weather fetch failed (network?):', err);
+            logger.warn('Weather fetch failed:', err);
           }
         }
 
-        // If we obtained at least one fresh piece of data, use it and cache
         if (fetchedAddress || fetchedWeather) {
           setAddress(fetchedAddress);
           setWeather(fetchedWeather);
@@ -184,27 +165,25 @@ const LocationDetails: React.FC<LocationDetailsProps> = ({ lat, lon }) => {
           setIsUsingCachedData(false);
           setError(null);
         } else {
-          // No fresh data (server error or intermittent network). Try cached data if present
           if (storedLocation) {
             setAddress(storedLocation.address || null);
             setWeather(storedLocation.weather || null);
             setIsUsingCachedData(true);
-            setError('Using cached location data. Current data may not be available.');
+            setError('Using cached data');
           } else {
-            setError('Unable to fetch location details. Please ensure you are online and try again.');
+            setError('Unable to fetch location details');
           }
         }
 
       } catch (err: unknown) {
-        // Fallback safety: should rarely reach here because previous try/catch blocks handle network errors
-        console.warn('Unexpected fetch error:', err);
+        logger.warn('Unexpected fetch error:', err);
         if (storedLocation) {
           setAddress(storedLocation.address || null);
           setWeather(storedLocation.weather || null);
           setIsUsingCachedData(true);
-          setError('Using cached location data. Current data may not be available.');
+          setError('Using cached data');
         } else {
-          setError('Unable to fetch location details and no cached data available.');
+          setError('Unable to fetch location details');
         }
       } finally {
         setLoading(false);
@@ -212,10 +191,8 @@ const LocationDetails: React.FC<LocationDetailsProps> = ({ lat, lon }) => {
     };
 
     fetchData();
+  }, [lat, lon, isOnline, storedLocation, storeLocation]);
 
-  }, [lat, lon, isOnline, storedLocation, storeLocation]); // Include all dependencies used in the effect
-
-  // Separate effect to handle stored location changes when offline with debouncing
   useEffect(() => {
     if (!isOnline && storedLocation && !loading) {
       const timeoutId = setTimeout(() => {
@@ -223,75 +200,91 @@ const LocationDetails: React.FC<LocationDetailsProps> = ({ lat, lon }) => {
         setWeather(storedLocation.weather || null);
         setIsUsingCachedData(true);
         setError(null);
-      }, 100); // Small delay to prevent rapid updates
-
+      }, 100);
       return () => clearTimeout(timeoutId);
     }
   }, [storedLocation, isOnline, loading]);
 
-  if (loading) return <div>Loading location details...</div>;
-  
-  if (error) return (
-    <div style={{ border: "1px solid #ff6b6b", padding: 16, borderRadius: 8, background: "#ffe0e0", margin: "16px 0" }}>
-      <h3>⚠️ Location Details</h3>
-      <p>{error}</p>
-      {isUsingCachedData && (
-        <small style={{ color: "#666" }}>
-          Showing cached data from previous session.
-        </small>
-      )}
-    </div>
-  );
+  if (loading) {
+    return (
+      <div className="bg-gradient-to-r from-white to-slate-50 border border-slate-200 rounded-xl px-6 py-3 shadow-md">
+        <div className="flex items-center gap-3">
+          <div className="w-5 h-5 border-2 border-slate-300 border-t-indigo-600 rounded-full animate-spin" />
+          <span className="text-sm text-slate-600 font-medium">Loading location...</span>
+        </div>
+      </div>
+    );
+  }
 
-  if (!address || !weather) {
-    return <div>No location details to display.</div>;
+  if (error && !address && !weather) {
+    return (
+      <div className="bg-gradient-to-r from-red-50 to-white border border-red-200 rounded-xl px-6 py-3 shadow-md">
+        <div className="flex items-center gap-3">
+          <svg className="w-5 h-5 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <span className="text-sm text-red-700">{error}</span>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div style={{ border: "1px solid #ccc", padding: 16, borderRadius: 8, background: "#fafafa", margin: "16px 0" }}>
-      <h3>
-        📍 Location Details
-        {!isOnline && (
-          <span style={{ fontSize: "0.8em", color: "#ff6b6b", marginLeft: 8 }}>
-            (Offline Mode)
-          </span>
-        )}
-        {isUsingCachedData && (
-          <span style={{ fontSize: "0.8em", color: "#orange", marginLeft: 8 }}>
-            (Cached Data)
-          </span>
-        )}
-      </h3>
-      <p>
-        <strong>Country:</strong> {address.country || "Unknown"}
-        <br />
-        <strong>State:</strong> {address.state || "Unknown"}
-        <br />
-        <strong>City:</strong> {address.city || address.town || address.village || "Unknown"}
-        <br />
-        <strong>Area:</strong> {address.suburb || address.road || "Unknown"}
-        <br />
-        <strong>Postal Code:</strong> {address.postcode || "Unknown"}
-      </p>
-      <h4>🌤️ Weather</h4>
-      <p>
-        <strong>Temperature:</strong> {weather.temperature}°C
-        <br />
-        <strong>Condition:</strong> {weatherDescriptions[weather.weathercode ?? 0] ?? "Unknown"}
-        <br />
-        <strong>Wind:</strong> {weather.windspeed} km/h at {weather.winddirection}°
-        <br />
-        <strong>Time:</strong> {weather.time}
-      </p>
-      {!isOnline && (
-        <div style={{ marginTop: 12, padding: 8, background: "#e3f2fd", borderRadius: 4 }}>
-          <small style={{ color: "#1976d2" }}>
-            📶 You&apos;re currently offline. Location data is from your last online session.
-          </small>
+    <div className="bg-gradient-to-r from-white to-slate-50 border border-slate-200 rounded-xl shadow-md overflow-hidden">
+      <div className="px-6 py-3 grid grid-cols-2 gap-6">
+        {/* Address Section */}
+        <div className="flex items-center gap-4">
+          <div className="flex-shrink-0">
+            <svg className="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-semibold text-slate-900 truncate">
+              {address?.city || address?.town || address?.village || "Unknown City"}
+              {address?.state && `, ${address.state}`}
+            </div>
+            <div className="text-xs text-slate-500 truncate">
+              {address?.country || "Unknown"} {address?.postcode && `· ${address.postcode}`}
+            </div>
+          </div>
+          {!isOnline && (
+            <span className="px-2 py-1 bg-red-100 text-red-700 rounded-full text-xs font-medium whitespace-nowrap">
+              Offline
+            </span>
+          )}
+          {isUsingCachedData && (
+            <span className="px-2 py-1 bg-amber-100 text-amber-700 rounded-full text-xs font-medium whitespace-nowrap">
+              Cached
+            </span>
+          )}
         </div>
-      )}
+
+        {/* Weather Section */}
+        <div className="flex items-center gap-4 border-l border-slate-200 pl-6">
+          <div className="flex-shrink-0">
+            <svg className="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 15a4 4 0 004 4h9a5 5 0 10-.1-9.999 5.002 5.002 0 10-9.78 2.096A4.001 4.001 0 003 15z" />
+            </svg>
+          </div>
+          <div className="min-w-0 flex-1">
+            <div className="text-sm font-semibold text-slate-900">
+              {weather?.temperature != null ? `${weather.temperature}°C` : "N/A"}
+              <span className="mx-2 text-slate-300">·</span>
+              <span className="font-normal text-slate-700">
+                {weather?.weathercode != null ? weatherDescriptions[weather.weathercode] || "Unknown" : "N/A"}
+              </span>
+            </div>
+            <div className="text-xs text-slate-500">
+              {weather?.windspeed != null && `Wind: ${weather.windspeed} km/h`}
+              {weather?.winddirection != null && ` at ${weather.winddirection}°`}
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 };
 
-export default LocationDetails;
+export default LocationDetailsHorizontal;
