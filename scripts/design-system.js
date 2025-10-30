@@ -166,7 +166,6 @@ class CityNavDesignSystem {
         toggles.forEach(toggle => {
             toggle.addEventListener('click', () => {
                 toggle.classList.toggle('active');
-                
                 // Trigger custom event
                 const event = new CustomEvent('toggleChange', {
                     detail: { active: toggle.classList.contains('active') }

@@ -38,4 +38,11 @@
   "exclude": [
     "node_modules"
   ]
+    "next-env.d.ts",
+    "**/*.ts",
+    "**/*.tsx",
+    ".next/types/**/*.ts",
+    "src/**/*.js"
+  ],
+  "exclude": ["node_modules"]
 }

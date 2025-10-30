@@ -1,0 +1,325 @@
+.container {
+  background: white;
+  border-top: 1px solid #e0e0e0;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 1.5rem;
+  border-bottom: 1px solid #f0f0f0;
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.header h3 {
+  margin: 0;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+}
+
+.resultCount {
+  font-size: 0.9rem;
+  color: #666;
+  background: #f5f5f5;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+}
+
+.poiList {
+  padding: 0 1.5rem 1rem;
+}
+
+.emptyState {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem 1rem;
+  text-align: center;
+}
+
+.emptyState p {
+  margin: 1rem 0 0.5rem 0;
+  font-size: 1.1rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.emptyState span {
+  margin: 0;
+  font-size: 0.9rem;
+  color: #999;
+}
+
+.poiItem {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem 0;
+  border-bottom: 1px solid #f0f0f0;
+  transition: all 0.2s ease;
+}
+
+.poiItem:last-child {
+  border-bottom: none;
+}
+
+.poiItem:hover {
+  background: #fafafa;
+  margin: 0 -1.5rem;
+  padding-left: 1.5rem;
+  padding-right: 1.5rem;
+  border-radius: 8px;
+}
+
+.poiContent {
+  display: flex;
+  gap: 1rem;
+  flex: 1;
+  cursor: pointer;
+}
+
+.poiIcon {
+  font-size: 2rem;
+  width: 56px;
+  height: 56px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f8f9fa;
+  border-radius: 14px;
+  flex-shrink: 0;
+  border: 2px solid #f0f0f0;
+  transition: all 0.2s ease;
+}
+
+.poiItem:hover .poiIcon {
+  background: #2e7d5e;
+  border-color: #2e7d5e;
+  color: white;
+}
+
+.poiInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.poiHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.25rem;
+  gap: 0.5rem;
+}
+
+.poiHeader h4 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  line-height: 1.3;
+  flex: 1;
+}
+
+.poiType {
+  font-size: 0.75rem;
+  color: #666;
+  background: #f0f0f0;
+  padding: 0.2rem 0.5rem;
+  border-radius: 8px;
+  text-transform: uppercase;
+  font-weight: 500;
+  letter-spacing: 0.05em;
+  flex-shrink: 0;
+}
+
+.poiDistance {
+  margin: 0 0 0.5rem 0;
+  font-size: 0.85rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.poiDescription {
+  margin: 0 0 0.75rem 0;
+  font-size: 0.85rem;
+  color: #777;
+  line-height: 1.4;
+}
+
+.ratings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: #666;
+  white-space: nowrap;
+}
+
+.rating svg {
+  flex-shrink: 0;
+}
+
+.poiActions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.bookmarkBtn {
+  padding: 0.5rem;
+  border: 1px solid #e0e0e0;
+  background: white;
+  color: #999;
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.bookmarkBtn:hover {
+  border-color: #2e7d5e;
+  color: #2e7d5e;
+  background: #f0f9f0;
+}
+
+.bookmarkBtn.bookmarked {
+  border-color: #ff6b6b;
+  color: #ff6b6b;
+  background: #fff5f5;
+}
+
+.bookmarkBtn.bookmarked:hover {
+  border-color: #ff5252;
+  color: #ff5252;
+  background: #ffebee;
+}
+
+.directionsBtn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: #2e7d5e;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.directionsBtn:hover {
+  background: #245d47;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(46, 125, 94, 0.3);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .header {
+    padding: 0.75rem 1rem;
+  }
+
+  .header h3 {
+    font-size: 1rem;
+  }
+
+  .resultCount {
+    font-size: 0.8rem;
+    padding: 0.2rem 0.6rem;
+  }
+
+  .poiList {
+    padding: 0 1rem 0.75rem;
+  }
+
+  .poiItem {
+    gap: 0.75rem;
+    padding: 0.75rem 0;
+  }
+
+  .poiItem:hover {
+    margin: 0 -1rem;
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .poiIcon {
+    font-size: 1.75rem;
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+  }
+
+  .poiHeader h4 {
+    font-size: 0.9rem;
+  }
+
+  .poiType {
+    font-size: 0.7rem;
+    padding: 0.15rem 0.4rem;
+  }
+
+  .poiDistance {
+    font-size: 0.8rem;
+  }
+
+  .poiDescription {
+    font-size: 0.8rem;
+  }
+
+  .ratings {
+    gap: 0.5rem;
+  }
+
+  .rating {
+    font-size: 0.75rem;
+  }
+
+  .poiActions {
+    gap: 0.4rem;
+  }
+
+  .bookmarkBtn {
+    padding: 0.4rem;
+    border-radius: 6px;
+  }
+
+  .directionsBtn {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.8rem;
+    border-radius: 6px;
+  }
+
+  .emptyState {
+    padding: 2rem 1rem;
+  }
+
+  .emptyState p {
+    font-size: 1rem;
+  }
+
+  .emptyState span {
+    font-size: 0.85rem;
+  }
+}

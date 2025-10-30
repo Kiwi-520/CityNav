@@ -1,21 +1,80 @@
 @import "tailwindcss";
 
+/* CityNav Design System - Design Tokens */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* Color Palette */
+  --primary: #2e7d5e;
+  --primary-container: #b8f2d9;
+  --on-primary: #ffffff;
+  --on-primary-container: #002114;
+
+  --secondary: #5d7c6b;
+  --secondary-container: #e0f0e6;
+  --on-secondary: #ffffff;
+  --on-secondary-container: #1b2e21;
+
+  --tertiary: #3d6373;
+  --tertiary-container: #c1e8fb;
+  --on-tertiary: #ffffff;
+  --on-tertiary-container: #001f29;
+
+  --surface: #fdfdf7;
+  --surface-variant: #e6e3da;
+  --on-surface: #1a1c19;
+  --on-surface-variant: #47483e;
+
+  --outline: #777865;
+  --outline-variant: #c7c8bb;
+
+  --error: #ba1a1a;
+  --error-container: #ffdad6;
+  --on-error: #ffffff;
+  --on-error-container: #410002;
+
+  --success: #388e3c;
+  --success-container: #c8f7c5;
+  --on-success: #ffffff;
+  --on-success-container: #00210b;
+
+  --warning: #f9a825;
+  --warning-container: #ffecb3;
+  --on-warning: #000000;
+  --on-warning-container: #261900;
+
+  /* Typography Scale */
+  --font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+    sans-serif;
+
+  /* Spacing */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 24px;
+  --spacing-xxl: 32px;
+
+  /* Duration */
+  --duration-quick: 0.2s;
+  --duration-medium: 0.3s;
+  --duration-slow: 0.5s;
+
+  /* Labels */
+  --label-medium-size: 14px;
+  --label-medium-weight: 500;
+
+  /* Backward compatibility */
+  --background: var(--surface);
+  --foreground: var(--on-surface);
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-}
+/* Tailwind configuration moved to tailwind.config.js */
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --surface: #0a0a0a;
+    --on-surface: #ededed;
+    --background: var(--surface);
+    --foreground: var(--on-surface);
   }
 }
 
@@ -29,7 +88,56 @@ html, body {
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-family);
+}
+
+/* CityNav specific styles */
+.citynav-bg {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--tertiary) 100%);
+  min-height: 100vh;
+  padding: 20px;
+}
+
+.citynav-card {
+  background: var(--surface);
+  border-radius: 16px;
+  padding: 24px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Button styles */
+.btn {
+  padding: 12px 24px;
+  border-radius: 12px;
+  border: none;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all var(--duration-medium) ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: var(--on-primary);
+}
+
+.btn-primary:hover {
+  background: var(--primary-container);
+  color: var(--on-primary-container);
+}
+
+.btn-icon {
+  padding: 16px;
+  border-radius: 16px;
+}
+
+.btn-large {
+  padding: 20px;
 }
 
 #__next {
