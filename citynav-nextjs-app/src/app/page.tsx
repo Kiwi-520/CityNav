@@ -1,11 +1,10 @@
 // src/app/page.tsx
 
-import MapClientWrapper from "@/components/MapClientWrapper";
+import MapClientWrapper from "@/features/offline-onboarding/components/MapClientWrapper";
 
 export default function Page() {
   return (
-    <main>
-      <h1>Welcome to CityNav!</h1>
+    <main className="h-screen overflow-hidden">
       <MapClientWrapper />
     </main>
   );

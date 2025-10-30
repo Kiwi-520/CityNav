@@ -1,5 +1,16 @@
 // CityNav Design System - Interactive Functionality
 
+// Small env-aware logger for this standalone script
+const dsLog = (function () {
+    const isDev = typeof process !== 'undefined' && process.env && process.env.NODE_ENV === 'development';
+    // store recent logs in a global array for inspection in tests without spamming console
+    if (!window.__ds_log) window.__ds_log = { entries: [] };
+    return {
+        log: (...args) => { window.__ds_log.entries.push(['log', ...args]); },
+        warn: (...args) => { window.__ds_log.entries.push(['warn', ...args]); }
+    };
+})();
+
 class CityNavDesignSystem {
     constructor() {
         this.currentScreen = 'welcome';
@@ -247,7 +258,7 @@ class CityNavDesignSystem {
         // Global navigation function for prototype screens
         window.navigateToScreen = (screenId) => {
             this.currentScreen = screenId;
-            console.log(`Navigating to screen: ${screenId}`);
+            dsLog.log(`Navigating to screen: ${screenId}`);
             
             // In a real app, this would handle routing
             // For the prototype, we'll just log and potentially show different content
@@ -320,7 +331,7 @@ class CityNavDesignSystem {
 
     activateEmergencyMode() {
         // Emergency mode activation
-        console.log('Emergency mode activated!');
+        dsLog.log('Emergency mode activated!');
         
         // Show emergency overlay (in a real app)
         this.showNotification('Emergency mode activated! Contacting emergency services...', 'error');
@@ -492,19 +503,19 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Add some demo event listeners
     document.addEventListener('languageChange', (e) => {
-        console.log('Language changed to:', e.detail.language);
+        dsLog.log('Language changed to:', e.detail.language);
     });
     
     document.addEventListener('modeChange', (e) => {
-        console.log('Transport mode changed to:', e.detail.mode);
+        dsLog.log('Transport mode changed to:', e.detail.mode);
     });
     
     document.addEventListener('categoryChange', (e) => {
-        console.log('Active categories:', e.detail.categories);
+        dsLog.log('Active categories:', e.detail.categories);
     });
     
     document.addEventListener('screenNavigation', (e) => {
-        console.log('Screen navigation:', e.detail);
+        dsLog.log('Screen navigation:', e.detail);
     });
     
     // Form validation demos
@@ -533,5 +544,5 @@ document.addEventListener('DOMContentLoaded', () => {
 
 // Add CSS custom properties support for older browsers
 if (!CSS.supports('color', 'var(--primary)')) {
-    console.warn('CSS Custom Properties not supported. Consider using a polyfill.');
+    dsLog.warn('CSS Custom Properties not supported. Consider using a polyfill.');
 }

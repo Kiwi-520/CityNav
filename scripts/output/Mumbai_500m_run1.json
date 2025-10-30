@@ -1,0 +1,232 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.8 e802775f",
+  "osm3s": {
+    "timestamp_osm_base": "2025-10-05T19:00:30Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 3289533443,
+  "lat": 19.0796355,
+  "lon": 72.8799871,
+  "tags": {
+    "amenity": "restaurant",
+    "capacity": "50",
+    "cuisine": "regional",
+    "name": "Sahara",
+    "smoking": "no"
+  }
+},
+{
+  "type": "node",
+  "id": 3289545269,
+  "lat": 19.0775346,
+  "lon": 72.8789658,
+  "tags": {
+    "amenity": "atm"
+  }
+},
+{
+  "type": "node",
+  "id": 3289549971,
+  "lat": 19.0776977,
+  "lon": 72.8790334,
+  "tags": {
+    "internet_access": "wlan",
+    "name": "Hotel Kamaran residency",
+    "opening_hours": "24/7",
+    "tourism": "hotel"
+  }
+},
+{
+  "type": "node",
+  "id": 5471970528,
+  "lat": 19.0790676,
+  "lon": 72.8795642,
+  "tags": {
+    "bus": "yes",
+    "highway": "bus_stop",
+    "public_transport": "platform"
+  }
+},
+{
+  "type": "node",
+  "id": 7663961436,
+  "lat": 19.0783670,
+  "lon": 72.8804080,
+  "tags": {
+    "addr:district": "Mumbai Suburban",
+    "addr:full": "Opposite Quality Bakery, Near Shalimar Hotel, Swadeshi Mills Road, Kurla West, Kurla, Mumbai",
+    "addr:postcode": "400070",
+    "addr:state": "Maharastra",
+    "amenity": "hospital",
+    "name": "Muskaan Hospital",
+    "source": "Local Knowledge"
+  }
+},
+{
+  "type": "node",
+  "id": 7663961443,
+  "lat": 19.0782470,
+  "lon": 72.8801010,
+  "tags": {
+    "addr:district": "Mumbai Suburban",
+    "addr:full": "AH Wadia Marg, Old Agra Road, Off, LBS Road, Opp. Shalimar Hotel, Kurla West, Mumbai",
+    "addr:postcode": "400070",
+    "addr:state": "Maharastra",
+    "amenity": "hospital",
+    "healthcare": "hospital",
+    "name": "Habib Hospital",
+    "source": "Local Knowledge"
+  }
+},
+{
+  "type": "node",
+  "id": 11449378649,
+  "lat": 19.0752931,
+  "lon": 72.8767607,
+  "tags": {
+    "amenity": "fast_food",
+    "brand": "Domino's",
+    "brand:wikidata": "Q839466",
+    "cuisine": "pizza",
+    "name": "Domino's",
+    "takeaway": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 11449433247,
+  "lat": 19.0758249,
+  "lon": 72.8767950,
+  "tags": {
+    "amenity": "bank",
+    "brand": "AU Small Finance Bank",
+    "brand:wikidata": "Q48729722",
+    "name": "AU Small Finance Bank"
+  }
+},
+{
+  "type": "node",
+  "id": 11451948925,
+  "lat": 19.0790685,
+  "lon": 72.8799913,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Istanbul Darbar"
+  }
+},
+{
+  "type": "node",
+  "id": 11452006995,
+  "lat": 19.0751249,
+  "lon": 72.8764071,
+  "tags": {
+    "amenity": "bank",
+    "brand": "Canara Bank",
+    "brand:en": "Canara Bank",
+    "brand:hi": "केनरा बैंक",
+    "brand:kn": "ಕೆನರಾ ಬ್ಯಾಂಕ್",
+    "brand:pa": "ਕੇਨਰਾ ਬੈਂਕ",
+    "brand:pnb": "کینرا بینک",
+    "brand:ur": "کینرا بینک",
+    "brand:wikidata": "Q2003777",
+    "name": "Canara Bank",
+    "name:en": "Canara Bank",
+    "name:hi": "केनरा बैंक",
+    "name:kn": "ಕೆನರಾ ಬ್ಯಾಂಕ್",
+    "name:pa": "ਕੇਨਰਾ ਬੈਂਕ",
+    "name:pnb": "کینرا بینک",
+    "name:ur": "کینرا بینک"
+  }
+},
+{
+  "type": "node",
+  "id": 11452009155,
+  "lat": 19.0758774,
+  "lon": 72.8768148,
+  "tags": {
+    "amenity": "bank",
+    "brand": "AU Small Finance Bank",
+    "brand:wikidata": "Q48729722",
+    "name": "AU Small Finance Bank"
+  }
+},
+{
+  "type": "node",
+  "id": 11452011988,
+  "lat": 19.0751866,
+  "lon": 72.8764304,
+  "tags": {
+    "amenity": "atm",
+    "name": "Canara ATM"
+  }
+},
+{
+  "type": "node",
+  "id": 11452014432,
+  "lat": 19.0770406,
+  "lon": 72.8780007,
+  "tags": {
+    "amenity": "restaurant",
+    "name": "Karizma Dhaba"
+  }
+},
+{
+  "type": "node",
+  "id": 12632124454,
+  "lat": 19.0772101,
+  "lon": 72.8788131,
+  "tags": {
+    "name": "Hotel Kalpana Elite",
+    "tourism": "hotel"
+  }
+},
+{
+  "type": "way",
+  "id": 359780137,
+  "center": {
+    "lat": 19.0726519,
+    "lon": 72.8761432
+  },
+  "nodes": [
+    3644260075,
+    3644260074,
+    3644260072,
+    3644260073,
+    3644260075
+  ],
+  "tags": {
+    "amenity": "restaurant",
+    "building": "yes",
+    "name": "Deluxe Restaurant"
+  }
+},
+{
+  "type": "way",
+  "id": 1075183332,
+  "center": {
+    "lat": 19.0761643,
+    "lon": 72.8778380
+  },
+  "nodes": [
+    9861056407,
+    12635535600,
+    9861056408,
+    9861056409,
+    9861056410,
+    9861056407
+  ],
+  "tags": {
+    "building": "yes",
+    "building:levels": "1",
+    "name": "Janata Tawa Grill",
+    "tourism": "hotel"
+  }
+}
+
+  ]
+}

@@ -1,0 +1,12 @@
+{
+  "id": "pack_28.61390_77.20900_1600",
+  "bbox": [77.199, 28.603, 77.219, 28.624],
+  "center": [77.209, 28.6139],
+  "radiusMeters": 1600,
+  "categories": ["hospital", "clinic", "railway", "bus_stop", "bank", "atm", "hotel", "restaurant"],
+  "createdAt": "2025-10-06T12:34:56Z",
+  "sizeBytes": 231150,
+  "compressedBytes": 58500,
+  "contentEncoding": "gzip",
+  "itemCount": 688
+}

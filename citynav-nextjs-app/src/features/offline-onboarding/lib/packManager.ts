@@ -1,11 +1,15 @@
-/* Lightweight IndexedDB pack manager for CityNav
+/**
+ * Lightweight IndexedDB pack manager for CityNav
  * - Stores pack manifests in `manifests` store and pack binary data in `data` store
- * - Exports: createPack, listPacks, getPackManifest, getPackData, deletePack, estimateSize
- * No external dependencies; small promise-based wrapper around IndexedDB
+ * - Exposes: createPack, listPacks, getPackManifest, getPackData, deletePack, estimateSize
+ * The module is intentionally small and dependency-free; it wraps the IndexedDB API with
+ * Promises and provides convenience helpers for reading/decompressing stored packs.
  */
 
 export type PackManifest = {
   id: string;
+  // Optional human-friendly name for display (e.g., "Mumbai - 1/13/2025, 3:45 PM")
+  name?: string;
   bbox: [number, number, number, number]; // [minLon,minLat,maxLon,maxLat]
   center: [number, number]; // [lon,lat]
   radiusMeters: number;
@@ -126,11 +130,16 @@ export async function getPackText(id: string): Promise<string | null> {
     const buffer = await blob.arrayBuffer();
     try {
       const pako = await import('pako');
+      // pako.ungzip returns Uint8Array — ask for string output for convenience
       const decompressed = pako.ungzip(new Uint8Array(buffer), { to: 'string' });
       return decompressed;
     } catch (err) {
-      console.warn('gunzip failed', err);
-      // fallback to text trying
+      // If decompression fails, try returning raw text as a last resort.
+      // Avoid throwing here so callers can present a friendly error instead.
+      // Use logger for consistent structured logging.
+      // eslint-disable-next-line @typescript-eslint/no-var-requires
+      const logger = (await import('@/features/offline-onboarding/lib/logger')).default;
+      logger.warn('gunzip failed in packManager.getPackText()', err);
       return await blob.text();
     }
   }

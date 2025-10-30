@@ -1,4 +1,10 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
+/**
+ * useNearbyPOIs
+ * - Issues a bounded Overpass QL POST for nearby POIs
+ * - Normalizes Overpass elements into a compact POI shape
+ * - Caches recent queries to localStorage for responsiveness
+ */
 
 export type POI = {
   id: string;
@@ -74,12 +80,10 @@ export function useNearbyPOIs(lat?: number | null, lon?: number | null, radius =
         const raw = localStorage.getItem(key);
         if (raw) {
           const parsed = JSON.parse(raw) as { ts: number; data: POI[] };
-          if (Date.now() - parsed.ts < ttl) {
-            setData(parsed.data);
-          }
+          if (Date.now() - parsed.ts < ttl) setData(parsed.data);
         }
-      } catch {
-        // ignore cache parsing errors
+      } catch (e) {
+        // ignore cache parsing errors (corrupt or stale value)
       }
 
     setLoading(true);
@@ -127,7 +131,7 @@ export function useNearbyPOIs(lat?: number | null, lon?: number | null, radius =
       } catch {
         // ignore storage errors
       }
-    } catch (err: unknown) {
+  } catch (err: unknown) {
       // If fetch failed, try to fallback to cached value if we set any earlier
       try {
         const key = cacheKey(lat, lon, radius);
@@ -145,10 +149,10 @@ export function useNearbyPOIs(lat?: number | null, lon?: number | null, radius =
       } else {
         setError(maybeErr?.message || String(maybeErr));
       }
-    } finally {
-      setLoading(false);
-      abortRef.current = null;
-    }
+      } finally {
+        setLoading(false);
+        abortRef.current = null;
+      }
   }, [lat, lon, radius, ttl]);
 
   useEffect(() => {

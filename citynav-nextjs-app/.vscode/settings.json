@@ -1,0 +1,6 @@
+{
+  "json.schemaDownload.enable": false,
+  "json.validate.enable": true,
+  // Keep normal TypeScript/JS language features active
+  "typescript.tsdk": ""
+}

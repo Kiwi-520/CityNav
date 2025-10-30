@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import PwaRegister from "@/app/pwa-register";
+import "./globals.css";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (

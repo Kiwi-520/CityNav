@@ -1,0 +1,136 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.8 e802775f",
+  "osm3s": {
+    "timestamp_osm_base": "2025-10-05T18:59:25Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 5483954490,
+  "lat": 28.6096447,
+  "lon": 77.2096689,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "G Block",
+    "name:ur": "جی بلاک",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5453646586,
+  "lat": 28.6158794,
+  "lon": 77.2122822,
+  "tags": {
+    "name": "Central Secretariat",
+    "name:hi": "सेंट्रल सेक्रेटेरिएट",
+    "name:kn": "ಸೆಂಟ್ರಲ್ ಸೆಕ್ರೆಟರಿಸ್ಟ್",
+    "network": "Delhi Metro",
+    "network:wikidata": "Q271195",
+    "note": "Contributors are requested to not edit the \"network\" and the \"operator\" tags. (2023/06/22)",
+    "operator": "Delhi Metro Rail Corporation Limited",
+    "operator:wikidata": "Q1029339",
+    "public_transport": "station",
+    "railway": "station",
+    "ref": "CTST",
+    "station": "subway",
+    "subway": "yes",
+    "train": "yes",
+    "wikidata": "Q5061812",
+    "wikipedia": "en:Central Secretariat metro station"
+  }
+},
+{
+  "type": "node",
+  "id": 5483954443,
+  "lat": 28.6148710,
+  "lon": 77.2124760,
+  "tags": {
+    "alt_name": "Central Secretariat",
+    "alt_name:hi": "केन्द्रिय सचिवालय",
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Krishi Bhawan",
+    "name:hi": "कृषि भवन",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5483954473,
+  "lat": 28.6149393,
+  "lon": 77.2119885,
+  "tags": {
+    "alt_name": "Central Secretariat",
+    "alt_name:hi": "केन्द्रिय सचिवालय",
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Rail Bhawan Metro Station",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5483954474,
+  "lat": 28.6126506,
+  "lon": 77.2118430,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Udyog Bhawan",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5484083823,
+  "lat": 28.6125270,
+  "lon": 77.2122895,
+  "tags": {
+    "bench": "yes",
+    "bin": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Udyog Bhawan",
+    "name:hi": "उद्योग भवन",
+    "public_transport": "platform",
+    "shelter": "yes",
+    "tactile_paving": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 5483330994,
+  "lat": 28.6176833,
+  "lon": 77.2110578,
+  "tags": {
+    "bench": "yes",
+    "bus": "yes",
+    "highway": "bus_stop",
+    "name": "Red Cross Road",
+    "public_transport": "platform",
+    "shelter": "no",
+    "tactile_paving": "no"
+  }
+}
+
+  ]
+}

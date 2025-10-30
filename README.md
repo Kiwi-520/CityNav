@@ -77,7 +77,7 @@ Experience the full application flow:
 ```
 Welcome Screen → Feature Tour → Location Permission → 
 City Selection → Setup Complete → Login → Home Dashboard → 
-Search & Discovery → POI Details → Route Planning → 
+Search & Discovery → Place Details (static / no live POIs) → Route Planning → 
 Turn-by-Turn Navigation → Feedback → Profile Settings
 ```
 
@@ -255,9 +255,9 @@ Brief description of changes
 | | Setup Complete | Onboarding completion | ✅ Complete |
 | **Authentication** | Login Screen | Social + email + guest login | ✅ Complete |
 | **Core App** | Home Dashboard | Main hub with quick actions | ✅ Complete |
-| | Interactive Map | POI exploration interface | ✅ Complete |
+| | Interactive Map | Location-only map (live POI fetching removed) | ✅ Complete |
 | | Search & Discovery | Place search with filters | ✅ Complete |
-| | Nearby Places | Location-based listings | ✅ Complete |
+| | Nearby Places | Location-based listings (static/mock data; live Overpass POI fetching removed) | ✅ Complete |
 | **Navigation** | POI Details | Business information & actions | ✅ Complete |
 | | Route Options | Multi-route planning | ✅ Complete |
 | | Turn-by-Turn Navigation | Live guidance interface | ✅ Complete |
