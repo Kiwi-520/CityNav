@@ -8,9 +8,10 @@ type Props = {
   onSelect?: (manifest: PackManifest, pois: POI[]) => void;
   createPack?: () => Promise<void>;
   onPackCreated?: () => void;
+  onUnloadAndGoLive?: () => void;
 };
 
-export default function PackManagerPanel({ onSelect, createPack, onPackCreated }: Props) {
+export default function PackManagerPanel({ onSelect, createPack, onPackCreated, onUnloadAndGoLive }: Props) {
   const [packs, setPacks] = useState<PackManifest[]>([]);
   const [loading, setLoading] = useState(false);
   const [previewJson, setPreviewJson] = useState<string | null>(null);
@@ -207,6 +208,18 @@ export default function PackManagerPanel({ onSelect, createPack, onPackCreated }
                     >
                       Preview
                     </button>
+                    {onUnloadAndGoLive && (
+                      <button
+                        onClick={() => {
+                          if (confirm('Unload this pack and switch to live mode?')) {
+                            onUnloadAndGoLive();
+                          }
+                        }}
+                        className="px-3 py-1.5 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-xs font-medium shadow-sm transition-colors"
+                      >
+                        Go Live
+                      </button>
+                    )}
                     <button
                       onClick={() => removePack(m.id)}
                       className="px-3 py-1.5 rounded-lg bg-red-500 hover:bg-red-600 text-white text-xs font-medium shadow-sm transition-colors"

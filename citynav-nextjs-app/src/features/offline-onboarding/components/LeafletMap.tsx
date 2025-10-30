@@ -456,7 +456,23 @@ export default function LeafletMap() {
   };
 
   return (
-    <div className="flex flex-col h-screen">
+    <>
+      {/* Custom shimmer animation for unload button */}
+      <style jsx global>{`
+        @keyframes shimmer {
+          0% {
+            transform: translateX(-100%);
+          }
+          100% {
+            transform: translateX(100%);
+          }
+        }
+        .animate-shimmer {
+          animation: shimmer 2s infinite;
+        }
+      `}</style>
+
+      <div className="flex flex-col h-screen">
       {/* Top Navigation */}
       <TopNav 
         onPackSelect={(manifest, pois) => {
@@ -514,6 +530,57 @@ export default function LeafletMap() {
             setSelectedPackId={setSelectedPackId} 
           />
 
+          {/* Unload Pack Button - Top Right Corner */}
+          {selectedPackId && (
+            <div className="absolute top-4 right-4 z-[1001]">
+              <div className="relative group">
+                <button
+                  onClick={() => {
+                    if (confirm('Unload this pack and return to live mode?')) {
+                      setSelectedPackId(null);
+                      setPackPois(null);
+                      setForcedCenter(null);
+                    }
+                  }}
+                  className="relative flex items-center gap-3 px-6 py-3.5 bg-gradient-to-br from-red-500 via-red-600 to-pink-600 hover:from-red-600 hover:via-red-700 hover:to-pink-700 text-white font-bold rounded-2xl shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-red-500/60 active:scale-95 overflow-hidden border-2 border-white/20"
+                  title="Unload pack and return to live mode"
+                >
+                  {/* Animated background gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-shimmer transition-opacity duration-500"></div>
+                  
+                  {/* Pulsing background effect */}
+                  <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 animate-pulse"></div>
+                  
+                  {/* Icon container with rotation on hover */}
+                  <div className="relative z-10 p-1.5 bg-white/20 rounded-lg backdrop-blur-sm transition-transform duration-300 group-hover:rotate-90 group-hover:scale-110">
+                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                  </div>
+                  
+                  {/* Text with subtle slide effect */}
+                  <div className="relative z-10 flex flex-col items-start">
+                    <span className="text-sm tracking-wide font-extrabold leading-tight">Unload Pack</span>
+                    <span className="text-[10px] font-normal opacity-90 tracking-wider">Return to Live</span>
+                  </div>
+                  
+                  {/* Live mode indicator badge with pulse */}
+                  <div className="relative z-10 flex items-center gap-1.5 ml-1 px-2.5 py-1 bg-green-500/30 border border-green-300/30 rounded-full backdrop-blur-sm">
+                    <div className="relative">
+                      <div className="w-2 h-2 bg-green-300 rounded-full"></div>
+                      <div className="absolute inset-0 w-2 h-2 bg-green-300 rounded-full animate-ping"></div>
+                    </div>
+                    <span className="text-[10px] font-bold uppercase tracking-wider text-green-50">Live</span>
+                  </div>
+                </button>
+                
+                {/* Multi-layer glow effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-red-500/40 via-pink-500/40 to-red-500/40 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 animate-pulse"></div>
+                <div className="absolute inset-0 bg-red-600/20 rounded-2xl blur-2xl opacity-50 group-hover:opacity-80 transition-opacity duration-300 -z-20"></div>
+              </div>
+            </div>
+          )}
+
           {/* Navigation Panel Overlay */}
           {selectedDest && (
             <div className="absolute top-4 left-4 z-[1001]">
@@ -529,5 +596,6 @@ export default function LeafletMap() {
         </div>
       </div>
     </div>
+    </>
   );
 }
