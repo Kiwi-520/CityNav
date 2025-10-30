@@ -50,12 +50,10 @@
 }
 
 .bookmarkBtn.hasBookmarks {
-  border-color: #FF6B6B;
-  color: #FF6B6B;
+  border-color: #ff6b6b;
+  color: #ff6b6b;
   background: #fff5f5;
 }
-
-
 
 .mapContainer {
   flex: 1;
@@ -71,56 +69,54 @@
   color: #666;
 }
 
-
-
 /* Responsive Design */
 @media (max-width: 768px) {
   .header {
     padding: 0.75rem;
   }
-  
+
   .title {
     font-size: 1.25rem;
   }
-  
+
   .headerActions {
     gap: 0.25rem;
   }
-  
+
   .bookmarkBtn,
   .filterBtn {
     padding: 0.4rem 0.8rem;
     font-size: 0.8rem;
   }
-  
+
   .chip {
     padding: 0.4rem 0.8rem;
     font-size: 0.8rem;
   }
-  
+
   .mapControls {
     right: 0.75rem;
     top: 0.75rem;
   }
-  
+
   .controlBtn {
     width: 44px;
     height: 44px;
   }
-  
+
   .bottomPanel {
     max-height: 45vh;
   }
-  
+
   .panelHeader,
   .poiList {
     padding: 0.75rem;
   }
-  
+
   .poiItem {
     padding: 0.75rem 0;
   }
-  
+
   .ratings {
     flex-direction: column;
     gap: 0.25rem;

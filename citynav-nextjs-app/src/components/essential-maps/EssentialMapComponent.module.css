@@ -49,7 +49,7 @@
 }
 
 .bookmarkBtn.bookmarked {
-  color: #FF6B6B;
+  color: #ff6b6b;
 }
 
 .popupDescription {
@@ -120,7 +120,7 @@
 :global(.leaflet-popup-content) {
   margin: 0 !important;
   padding: 1rem !important;
-  font-family: 'Inter', sans-serif !important;
+  font-family: "Inter", sans-serif !important;
 }
 
 :global(.leaflet-popup-tip) {
@@ -152,7 +152,7 @@
 
 /* Map controls positioning */
 :global(.leaflet-control-container) {
-  font-family: 'Inter', sans-serif !important;
+  font-family: "Inter", sans-serif !important;
 }
 
 :global(.leaflet-control-zoom) {
@@ -192,24 +192,24 @@
     min-width: 200px;
     max-width: 250px;
   }
-  
+
   .popupHeader h4 {
     font-size: 0.9rem;
   }
-  
+
   .directionsBtn {
     padding: 0.4rem 0.8rem;
     font-size: 0.8rem;
   }
-  
+
   .ratings {
     gap: 0.2rem;
   }
-  
+
   .rating {
     font-size: 0.8rem;
   }
-  
+
   :global(.leaflet-control-zoom a) {
     width: 32px !important;
     height: 32px !important;

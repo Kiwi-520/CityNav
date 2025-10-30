@@ -13,6 +13,7 @@ import "leaflet/dist/leaflet.css";
 import { FiStar, FiNavigation, FiBookmark, FiMapPin } from "react-icons/fi";
 import { POI } from "../../types/essential-maps.types";
 import { osmService } from "../../services/openstreetmap.service";
+import { useLocation } from "../../hooks/useLiveLocation";
 import "../../../styles/essential-maps/map-component.css";
 
 // Fix for default markers in react-leaflet
@@ -27,13 +28,9 @@ L.Icon.Default.mergeOptions({
     "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png",
 });
 
-// Default map configuration
-const DEFAULT_LAT = parseFloat(
-  process.env.NEXT_PUBLIC_DEFAULT_LAT || "18.5204"
-);
-const DEFAULT_LNG = parseFloat(
-  process.env.NEXT_PUBLIC_DEFAULT_LNG || "73.8567"
-);
+// Default map configuration (fallback when no location available)
+const DEFAULT_LAT = parseFloat(process.env.NEXT_PUBLIC_DEFAULT_LAT || "0");
+const DEFAULT_LNG = parseFloat(process.env.NEXT_PUBLIC_DEFAULT_LNG || "0");
 const DEFAULT_ZOOM = parseInt(process.env.NEXT_PUBLIC_DEFAULT_ZOOM || "13");
 
 // Props interface
@@ -164,16 +161,17 @@ const EssentialMapComponent: React.FC<EssentialMapComponentProps> = ({
   onPOISelect,
   activeFilters = [],
 }) => {
+  const { location, requestLocation } = useLocation();
   const [localPois, setLocalPois] = useState<POI[]>([]);
-  const [userLocation, setUserLocation] = useState<L.LatLng | null>(
-    L.latLng(DEFAULT_LAT, DEFAULT_LNG)
-  );
+  const [userLocation, setUserLocation] = useState<L.LatLng | null>(null);
   const [loading, setLoading] = useState(false);
   const [hasRealLocation, setHasRealLocation] = useState(false);
   const mapRef = useRef<L.Map | null>(null);
 
-  // Default location (Pune, India)
-  const defaultPosition: [number, number] = [DEFAULT_LAT, DEFAULT_LNG];
+  // Use live location or fallback to default
+  const defaultPosition: [number, number] = location
+    ? [location.lat, location.lon]
+    : [DEFAULT_LAT, DEFAULT_LNG];
 
   // Combine passed pois with locally fetched pois
   const allPois = [...pois, ...localPois];
@@ -242,6 +240,18 @@ const EssentialMapComponent: React.FC<EssentialMapComponentProps> = ({
     },
     [activeFilters]
   );
+
+  // Update user location when live location is available
+  useEffect(() => {
+    if (location) {
+      const newLocation = L.latLng(location.lat, location.lon);
+      setUserLocation(newLocation);
+      setHasRealLocation(true);
+    } else if (!hasRealLocation) {
+      // Request location if we don't have it yet
+      requestLocation();
+    }
+  }, [location, requestLocation, hasRealLocation]);
 
   // Fetch POIs when user location changes
   useEffect(() => {

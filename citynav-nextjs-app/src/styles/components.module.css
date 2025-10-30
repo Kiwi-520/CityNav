@@ -1,8 +1,14 @@
 .quickActions {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
   gap: var(--spacing-lg);
   margin-bottom: var(--spacing-xl);
+}
+
+@media (max-width: 768px) {
+  .quickActions {
+    grid-template-columns: repeat(2, 1fr);
+  }
 }
 
 .actionButton {

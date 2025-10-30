@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState, useCallback } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import dynamic from "next/dynamic";
-import { FiBookmark } from "react-icons/fi";
+import { FiBookmark, FiMapPin, FiRefreshCw } from "react-icons/fi";
 import { POI } from "../../types/essential-maps.types";
+import { useLocation } from "../../hooks/useLiveLocation";
 import "../../../styles/essential-maps/essential-maps.css";
 
 // Dynamically import components to avoid SSR issues
@@ -30,59 +31,98 @@ const DirectionsModal = dynamic(
   { ssr: false }
 );
 
-// Sample POI data
-const samplePOIs: POI[] = [
-  {
-    id: "1",
-    type: "restroom",
-    name: "Phoenix Mall - Public Restroom",
-    lat: 18.5206,
-    lng: 73.8567,
-    ratings: { cleanliness: 4.2, safety: 4.5 },
-    isBookmarked: false,
-    description: "Clean public restroom with wheelchair access",
-  },
-  {
-    id: "2",
-    type: "atm",
-    name: "HDFC ATM",
-    lat: 18.521,
-    lng: 73.857,
-    ratings: { safety: 4.3, working: 4.8 },
-    isBookmarked: true,
-    description: "24/7 ATM with security guard",
-  },
-  {
-    id: "3",
-    type: "water",
-    name: "RO Water Station",
-    lat: 18.5198,
-    lng: 73.8555,
-    ratings: { cleanliness: 4.6, safety: 4.1 },
-    isBookmarked: false,
-    description: "Purified drinking water station",
-  },
-  {
-    id: "4",
-    type: "food",
-    name: "Food Court - Seasons Mall",
-    lat: 18.5215,
-    lng: 73.858,
-    ratings: { cleanliness: 4.0, safety: 4.4 },
-    isBookmarked: false,
-    description: "Multi-cuisine food court",
-  },
-];
+// Generate POIs based on current location
+const generateLocationBasedPOIs = (
+  lat: number,
+  lng: number,
+  cityName: string
+): POI[] => {
+  return [
+    {
+      id: "1",
+      type: "restroom",
+      name: `${cityName} - Public Restroom`,
+      lat: lat + 0.001,
+      lng: lng + 0.001,
+      ratings: { cleanliness: 4.2, safety: 4.5 },
+      isBookmarked: false,
+      description: "Clean public restroom with wheelchair access",
+    },
+    {
+      id: "2",
+      type: "atm",
+      name: "Local Bank ATM",
+      lat: lat + 0.002,
+      lng: lng - 0.001,
+      ratings: { safety: 4.3, working: 4.8 },
+      isBookmarked: true,
+      description: "24/7 ATM with security guard",
+    },
+    {
+      id: "3",
+      type: "water",
+      name: "Water Station",
+      lat: lat - 0.001,
+      lng: lng + 0.002,
+      ratings: { cleanliness: 4.6, safety: 4.1 },
+      isBookmarked: false,
+      description: "Purified drinking water station",
+    },
+    {
+      id: "4",
+      type: "food",
+      name: `${cityName} Food Court`,
+      lat: lat + 0.003,
+      lng: lng + 0.003,
+      ratings: { cleanliness: 4.0, safety: 4.4 },
+      isBookmarked: false,
+      description: "Multi-cuisine food court",
+    },
+    {
+      id: "5",
+      type: "hospital",
+      name: `${cityName} Medical Center`,
+      lat: lat - 0.002,
+      lng: lng - 0.002,
+      ratings: { safety: 4.7, service: 4.3 },
+      isBookmarked: false,
+      description: "Emergency medical services available",
+    },
+    {
+      id: "6",
+      type: "pharmacy",
+      name: "Local Pharmacy",
+      lat: lat + 0.0015,
+      lng: lng - 0.0015,
+      ratings: { safety: 4.5, service: 4.2 },
+      isBookmarked: false,
+      description: "24/7 pharmacy with prescription services",
+    },
+  ];
+};
 
 const EssentialMapsPage: React.FC = () => {
-  const [pois, setPois] = useState(samplePOIs);
+  const { location, error, loading, requestLocation } = useLocation();
+  const [pois, setPois] = useState<POI[]>([]);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedPOI, setSelectedPOI] = useState<POI | null>(null);
   const [isDirectionsOpen, setIsDirectionsOpen] = useState(false);
 
+  // Generate POIs based on current location
+  useEffect(() => {
+    if (location) {
+      const locationBasedPOIs = generateLocationBasedPOIs(
+        location.lat,
+        location.lon,
+        location.city
+      );
+      setPois(locationBasedPOIs);
+    }
+  }, [location]);
+
   // Listen for directions events from map
-  React.useEffect(() => {
+  useEffect(() => {
     const handleOpenDirections = (event: CustomEvent) => {
       const poi = event.detail;
       setSelectedPOI(poi);
@@ -152,6 +192,26 @@ const EssentialMapsPage: React.FC = () => {
         <div className="headerTop">
           <h1 className="title">Essential Maps</h1>
           <div className="headerActions">
+            {location && (
+              <div className="locationStatus">
+                <FiMapPin size={16} />
+                <span>
+                  {location.city}, {location.country}
+                </span>
+              </div>
+            )}
+            {!location && !loading && (
+              <button onClick={requestLocation} className="locationBtn">
+                <FiMapPin size={16} />
+                Get Location
+              </button>
+            )}
+            {loading && (
+              <div className="locationStatus">
+                <FiRefreshCw size={16} className="spinning" />
+                <span>Getting location...</span>
+              </div>
+            )}
             <button
               className={`bookmarkBtn ${
                 bookmarkedPOIs.length > 0 ? "hasBookmarks" : ""
@@ -172,12 +232,29 @@ const EssentialMapsPage: React.FC = () => {
 
       {/* Map Container */}
       <div className="mapContainer">
-        <EssentialMapComponent
-          pois={filteredPOIs}
-          selectedPOI={selectedPOI}
-          onPOISelect={handlePOIClick}
-          activeFilters={activeFilters}
-        />
+        {!location && !loading && (
+          <div className="locationPrompt">
+            <FiMapPin size={48} />
+            <h3>Location Required</h3>
+            <p>
+              Please enable location services to see essential places around
+              you.
+            </p>
+            <button onClick={requestLocation} className="locationBtn">
+              <FiMapPin size={16} />
+              Get My Location
+            </button>
+            {error && <p className="errorText">Error: {error.message}</p>}
+          </div>
+        )}
+        {location && (
+          <EssentialMapComponent
+            pois={filteredPOIs}
+            selectedPOI={selectedPOI}
+            onPOISelect={handlePOIClick}
+            activeFilters={activeFilters}
+          />
+        )}
       </div>
 
       {/* Bottom POI List */}
