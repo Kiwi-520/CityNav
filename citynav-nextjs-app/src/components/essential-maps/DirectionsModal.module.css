@@ -154,8 +154,12 @@
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 .loading p {
@@ -338,78 +342,78 @@
     width: 95%;
     max-height: 90vh;
   }
-  
+
   .header {
     padding: 1.25rem;
   }
-  
+
   .destinationIcon {
     font-size: 1.75rem;
     width: 48px;
     height: 48px;
     border-radius: 12px;
   }
-  
+
   .title {
     font-size: 1.125rem;
   }
-  
+
   .destinationName {
     font-size: 0.85rem;
   }
-  
+
   .modeSelection {
     padding: 0.875rem 1.25rem;
     gap: 0.4rem;
   }
-  
+
   .modeBtn {
     padding: 0.6rem 0.75rem;
     font-size: 0.8rem;
   }
-  
+
   .summary {
     padding: 1.25rem;
     gap: 1.5rem;
   }
-  
+
   .summaryItem {
     font-size: 0.9rem;
   }
-  
+
   .steps {
     padding: 1.25rem;
   }
-  
+
   .stepsTitle {
     font-size: 1rem;
   }
-  
+
   .step {
     gap: 0.875rem;
     margin-bottom: 1rem;
     padding-bottom: 1rem;
   }
-  
+
   .stepNumber {
     width: 28px;
     height: 28px;
     font-size: 0.8rem;
   }
-  
+
   .stepInstruction {
     font-size: 0.9rem;
   }
-  
+
   .stepMeta {
     font-size: 0.75rem;
   }
-  
+
   .actions {
     padding: 1.25rem;
     gap: 0.875rem;
   }
-  
+
   .cancelBtn,
   .navigateBtn {
     padding: 0.8rem;

@@ -25,7 +25,7 @@
 }
 
 .filterBadge {
-  background: #FF6B6B;
+  background: #ff6b6b;
   color: white;
   font-size: 0.75rem;
   padding: 0.15rem 0.4rem;
@@ -138,8 +138,8 @@
 }
 
 .clearBtn:hover {
-  border-color: #FF6B6B;
-  color: #FF6B6B;
+  border-color: #ff6b6b;
+  color: #ff6b6b;
 }
 
 .filterOptions {
@@ -250,29 +250,29 @@
     width: 95%;
     max-height: 85vh;
   }
-  
+
   .filterHeader {
     padding: 1rem 1.25rem 0.75rem;
   }
-  
+
   .filterHeader h3 {
     font-size: 1.125rem;
   }
-  
+
   .filterContent {
     padding: 1.25rem;
   }
-  
+
   .filterOption {
     padding: 0.875rem;
   }
-  
+
   .optionIcon {
     font-size: 1.25rem;
     width: 36px;
     height: 36px;
   }
-  
+
   .optionLabel {
     font-size: 0.9rem;
   }
