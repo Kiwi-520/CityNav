@@ -2,7 +2,7 @@
 
 import React from "react";
 import { FiFilter, FiX } from "react-icons/fi";
-import "../../../styles/essential-maps/poi-filter.css";
+import "@/features/essential-maps/styles/poi-filter.css";
 
 interface FilterOption {
   id: string;

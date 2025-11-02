@@ -1,16 +1,16 @@
 import type { NextConfig } from "next";
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const withPWA = require("next-pwa")({
-  dest: 'public',
+  dest: "public",
   register: true,
   skipWaiting: true,
   runtimeCaching: [
     // Rule for Map Tiles
     {
       urlPattern: /^https:\/\/a\.tile\.openstreetmap\.org\/.*/i,
-      handler: 'CacheFirst',
+      handler: "CacheFirst",
       options: {
-        cacheName: 'openstreetmap-tiles',
+        cacheName: "openstreetmap-tiles",
         expiration: {
           maxEntries: 500,
           maxAgeSeconds: 30 * 24 * 60 * 60, // 30 days
@@ -23,9 +23,9 @@ const withPWA = require("next-pwa")({
     // Rule for other API calls (e.g., location data)
     {
       urlPattern: /^https:\/\/nominatim\.openstreetmap\.org\/.*/i,
-      handler: 'CacheFirst', // <--- CHANGED FROM NetworkFirst to CacheFirst
+      handler: "CacheFirst", // <--- CHANGED FROM NetworkFirst to CacheFirst
       options: {
-        cacheName: 'api-cache',
+        cacheName: "api-cache",
         expiration: {
           maxEntries: 100,
           maxAgeSeconds: 24 * 60 * 60, // 1 day
@@ -37,10 +37,11 @@ const withPWA = require("next-pwa")({
     },
     // Rule for App Pages/Navigation
     {
-      urlPattern: ({ request }: { request: Request }) => request.mode === 'navigate',
-      handler: 'NetworkFirst',
+      urlPattern: ({ request }: { request: Request }) =>
+        request.mode === "navigate",
+      handler: "NetworkFirst",
       options: {
-        cacheName: 'pages-cache',
+        cacheName: "pages-cache",
         expiration: {
           maxEntries: 50,
           maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
@@ -51,6 +52,10 @@ const withPWA = require("next-pwa")({
 });
 
 const nextConfig: NextConfig = {
+  // Configure Turbopack
+  turbopack: {
+    root: process.cwd(),
+  },
   // Your other Next.js config options can go here
 };
 

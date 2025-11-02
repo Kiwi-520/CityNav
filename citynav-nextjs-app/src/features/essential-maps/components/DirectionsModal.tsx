@@ -6,9 +6,9 @@ import {
   directionsService,
   Route,
   RoutePoint,
-} from "../../services/directions.service";
-import { DirectionsDestination } from "../../types/essential-maps.types";
-import "../../../styles/essential-maps/directions-modal.css";
+} from "@/services/directions.service";
+import { DirectionsDestination } from "@/features/essential-maps/types/essential-maps.types";
+import "@/features/essential-maps/styles/directions-modal.css";
 
 interface DirectionsModalProps {
   isOpen: boolean;

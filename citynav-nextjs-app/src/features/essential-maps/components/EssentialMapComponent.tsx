@@ -11,10 +11,10 @@ import {
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { FiStar, FiNavigation, FiBookmark, FiMapPin } from "react-icons/fi";
-import { POI } from "../../types/essential-maps.types";
-import { osmService } from "../../services/openstreetmap.service";
-import { useLocation } from "../../hooks/useLiveLocation";
-import "../../../styles/essential-maps/map-component.css";
+import { POI } from "@/features/essential-maps/types/essential-maps.types";
+import { osmService } from "@/services/openstreetmap.service";
+import { useLocation } from "@/hooks/useLiveLocation";
+import "@/features/essential-maps/styles/map-component.css";
 
 // Fix for default markers in react-leaflet
 delete (L.Icon.Default.prototype as unknown as { _getIconUrl: unknown })
@@ -46,12 +46,18 @@ const createCustomIcon = (type: string, isBookmarked: boolean = false) => {
   const iconMap: { [key: string]: string } = {
     restroom: "🚻",
     atm: "🏧",
+    bank: "🏦",
     water: "💧",
     food: "🍽️",
+    restaurant: "🍴",
+    cafe: "☕",
     hotel: "🏨",
     fuel: "⛽",
     hospital: "🏥",
     pharmacy: "💊",
+    park: "🌳",
+    police: "🚓",
+    fire_station: "🚒",
   };
 
   const color = isBookmarked ? "#FF6B6B" : "#2E7D5E";
@@ -173,8 +179,9 @@ const EssentialMapComponent: React.FC<EssentialMapComponentProps> = ({
     ? [location.lat, location.lon]
     : [DEFAULT_LAT, DEFAULT_LNG];
 
-  // Combine passed pois with locally fetched pois
-  const allPois = [...pois, ...localPois];
+  // Use only localPois (fetched from OSM), ignore props pois to avoid duplicates
+  // The parent component will receive updates via the poisUpdated event
+  const allPois = localPois;
 
   // Filter POIs based on active filters
   const filteredPOIs =
@@ -206,34 +213,32 @@ const EssentialMapComponent: React.FC<EssentialMapComponentProps> = ({
         const typesToFetch =
           activeFilters.length === 0 ? ["all"] : activeFilters;
         console.log("Fetching POIs for types:", typesToFetch);
-        console.log("Search radius: 2000m");
+        console.log("Search radius: 2000m (2km maximum)");
 
         const nearbyPois = await osmService.fetchNearbyPOIs(
           lat,
           lng,
-          2000,
+          2000, // Fixed 2km radius
           typesToFetch
         );
         console.log("=== POI RESULTS ===");
-        console.log("Found POIs:", nearbyPois.length);
+        console.log("Found POIs within 2km:", nearbyPois.length);
         console.log("POI details:", nearbyPois);
 
         setLocalPois(nearbyPois);
 
-        // If no POIs found, try a larger radius
-        if (nearbyPois.length === 0) {
-          console.log("No POIs found, trying larger radius (5000m)...");
-          const widerSearch = await osmService.fetchNearbyPOIs(
-            lat,
-            lng,
-            5000,
-            typesToFetch
+        // Dispatch event to update POIs in parent component
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(
+            new CustomEvent("poisUpdated", { detail: nearbyPois })
           );
-          console.log("Wider search found:", widerSearch.length, "POIs");
-          setLocalPois(widerSearch);
         }
       } catch (error) {
         console.error("Error fetching POIs:", error);
+        // Dispatch empty array on error
+        if (typeof window !== "undefined") {
+          window.dispatchEvent(new CustomEvent("poisUpdated", { detail: [] }));
+        }
       } finally {
         setLoading(false);
       }
@@ -443,9 +448,9 @@ const EssentialMapComponent: React.FC<EssentialMapComponentProps> = ({
           />
         )}
 
-        {filteredPOIs.map((poi) => (
+        {filteredPOIs.map((poi, index) => (
           <Marker
-            key={poi.id}
+            key={`marker-${poi.id}-${index}`}
             position={[poi.lat, poi.lng]}
             icon={createCustomIcon(poi.type, poi.isBookmarked)}
             eventHandlers={{
@@ -481,7 +486,10 @@ const EssentialMapComponent: React.FC<EssentialMapComponentProps> = ({
                     <strong>Amenities:</strong>
                     <div className="amenityTags">
                       {poi.amenities.map((amenity, index) => (
-                        <span key={index} className="amenityTag">
+                        <span
+                          key={`amenity-${poi.id}-${index}`}
+                          className="amenityTag"
+                        >
                           {amenity}
                         </span>
                       ))}

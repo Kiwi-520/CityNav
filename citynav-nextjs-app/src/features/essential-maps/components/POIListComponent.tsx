@@ -2,8 +2,8 @@
 
 import React from "react";
 import { FiStar, FiBookmark, FiNavigation, FiMapPin } from "react-icons/fi";
-import { POI } from "../../types/essential-maps.types";
-import "../../../styles/essential-maps/poi-list.css";
+import { POI } from "@/features/essential-maps/types/essential-maps.types";
+import "@/features/essential-maps/styles/poi-list.css";
 
 interface POIListComponentProps {
   pois: POI[];
@@ -22,8 +22,18 @@ const POIListComponent: React.FC<POIListComponentProps> = ({
     const iconMap: { [key: string]: string } = {
       restroom: "🚻",
       atm: "🏧",
+      bank: "🏦",
       water: "💧",
       food: "🍽️",
+      restaurant: "🍴",
+      cafe: "☕",
+      hotel: "🏨",
+      hospital: "🏥",
+      pharmacy: "💊",
+      fuel: "⛽",
+      park: "🌳",
+      police: "🚓",
+      fire_station: "🚒",
     };
     return iconMap[type] || "📍";
   };
@@ -32,8 +42,18 @@ const POIListComponent: React.FC<POIListComponentProps> = ({
     const labelMap: { [key: string]: string } = {
       restroom: "Restroom",
       atm: "ATM",
+      bank: "Bank",
       water: "Water Station",
       food: "Food Court",
+      restaurant: "Restaurant",
+      cafe: "Café",
+      hotel: "Hotel",
+      hospital: "Hospital",
+      pharmacy: "Pharmacy",
+      fuel: "Fuel Station",
+      park: "Park",
+      police: "Police Station",
+      fire_station: "Fire Station",
     };
     return labelMap[type] || "Location";
   };
@@ -91,8 +111,8 @@ const POIListComponent: React.FC<POIListComponentProps> = ({
             <span>Try adjusting your search criteria</span>
           </div>
         ) : (
-          pois.map((poi) => (
-            <div key={poi.id} className="poiItem">
+          pois.map((poi, index) => (
+            <div key={`poi-list-${poi.id}-${index}`} className="poiItem">
               <div className="poiContent" onClick={() => onPOIClick(poi)}>
                 <div className="poiIcon">{getTypeIcon(poi.type)}</div>
 
@@ -102,15 +122,7 @@ const POIListComponent: React.FC<POIListComponentProps> = ({
                     <span className="poiType">{getTypeLabel(poi.type)}</span>
                   </div>
 
-                  <p className="poiDistance">
-                    {calculateDistance(
-                      defaultPosition[0],
-                      defaultPosition[1],
-                      poi.lat,
-                      poi.lng
-                    )}{" "}
-                    away
-                  </p>
+                  {poi.area && <p className="poiDistance">📍 {poi.area}</p>}
 
                   {poi.description && (
                     <p className="poiDescription">{poi.description}</p>
