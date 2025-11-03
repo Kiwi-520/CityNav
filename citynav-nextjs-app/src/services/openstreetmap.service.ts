@@ -36,7 +36,13 @@ export interface POIData {
     | "hotel"
     | "fuel"
     | "hospital"
-    | "pharmacy";
+    | "pharmacy"
+    | "bank"
+    | "restaurant"
+    | "cafe"
+    | "park"
+    | "police"
+    | "fire_station";
   name: string;
   lat: number;
   lng: number;
@@ -50,16 +56,18 @@ export interface POIData {
     price?: number;
   };
   isBookmarked: boolean;
+  area?: string; // Location area
   description?: string;
   openingHours?: string;
   amenities?: string[];
 }
 
 class OpenStreetMapService {
-  private baseUrl = "https://overpass-api.de/api/interpreter";
+  private baseUrl = "/api/overpass"; // Use Next.js API route as proxy
   private nominatimUrl =
     process.env.NEXT_PUBLIC_NOMINATIM_BASE_URL ||
     "https://nominatim.openstreetmap.org";
+  private poiCounter = 0; // Counter for unique IDs
 
   /**
    * Fetch POIs near a given location
@@ -89,9 +97,9 @@ class OpenStreetMapService {
         const response = await fetch(this.baseUrl, {
           method: "POST",
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+            "Content-Type": "application/json",
           },
-          body: `data=${encodeURIComponent(query)}`,
+          body: JSON.stringify({ query }),
         });
 
         if (!response.ok) {
@@ -106,7 +114,7 @@ class OpenStreetMapService {
           "elements"
         );
 
-        const pois = this.parseOverpassResponse(data);
+        const pois = this.parseOverpassResponse(data, lat, lng, radius);
         console.log(`✅ Parsed ${pois.length} POIs from query ${i + 1}`);
         allResults.push(...pois);
       }
@@ -116,15 +124,80 @@ class OpenStreetMapService {
       if (uniqueResults.length > 0) {
         console.log("📋 Sample POI:", uniqueResults[0]);
       } else {
-        console.log("⚠️ No POIs found, trying fallback...");
+        console.log("⚠️ No POIs found within", radius, "meters");
       }
 
       return uniqueResults.length > 0
-        ? uniqueResults
-        : this.getFallbackPOIs(lat, lng);
+        ? await this.enrichPOIsWithArea(uniqueResults)
+        : [];
     } catch (error) {
       console.error("❌ Error fetching POIs from OpenStreetMap:", error);
-      return this.getFallbackPOIs(lat, lng);
+      return [];
+    }
+  }
+
+  /**
+   * Enrich POIs with area information using reverse geocoding
+   */
+  private async enrichPOIsWithArea(pois: POIData[]): Promise<POIData[]> {
+    const enrichedPOIs = await Promise.all(
+      pois.map(async (poi) => {
+        if (!poi.area) {
+          try {
+            const areaInfo = await this.getAreaFromCoordinates(
+              poi.lat,
+              poi.lng
+            );
+            return { ...poi, area: areaInfo };
+          } catch (error) {
+            console.warn(`Failed to get area for POI ${poi.id}:`, error);
+            return poi;
+          }
+        }
+        return poi;
+      })
+    );
+    return enrichedPOIs;
+  }
+
+  /**
+   * Get area name from coordinates using Nominatim reverse geocoding
+   */
+  private async getAreaFromCoordinates(
+    lat: number,
+    lng: number
+  ): Promise<string | undefined> {
+    try {
+      const response = await fetch(
+        `${this.nominatimUrl}/reverse?format=json&lat=${lat}&lon=${lng}&zoom=16&addressdetails=1`,
+        {
+          headers: {
+            "User-Agent": "CityNav/1.0",
+          },
+        }
+      );
+
+      if (!response.ok) {
+        return undefined;
+      }
+
+      const data = await response.json();
+      const address = data.address;
+
+      // Try to get the most relevant area information
+      return (
+        address?.suburb ||
+        address?.neighbourhood ||
+        address?.quarter ||
+        address?.district ||
+        address?.city_district ||
+        address?.town ||
+        address?.city ||
+        undefined
+      );
+    } catch (error) {
+      console.warn("Error fetching area:", error);
+      return undefined;
     }
   }
 
@@ -159,6 +232,14 @@ class OpenStreetMapService {
         );
         out center;
       `,
+      bank: `
+        [out:json][timeout:25];
+        (
+          node["amenity"="bank"](${bbox});
+          way["amenity"="bank"](${bbox});
+        );
+        out center;
+      `,
       water: `
         [out:json][timeout:25];
         (
@@ -177,6 +258,22 @@ class OpenStreetMapService {
           way["amenity"="restaurant"](${bbox});
           node["amenity"="fast_food"](${bbox});
           way["amenity"="fast_food"](${bbox});
+        );
+        out center;
+      `,
+      restaurant: `
+        [out:json][timeout:25];
+        (
+          node["amenity"="restaurant"](${bbox});
+          way["amenity"="restaurant"](${bbox});
+        );
+        out center;
+      `,
+      cafe: `
+        [out:json][timeout:25];
+        (
+          node["amenity"="cafe"](${bbox});
+          way["amenity"="cafe"](${bbox});
         );
         out center;
       `,
@@ -218,6 +315,32 @@ class OpenStreetMapService {
         );
         out center;
       `,
+      park: `
+        [out:json][timeout:25];
+        (
+          node["leisure"="park"](${bbox});
+          way["leisure"="park"](${bbox});
+          node["leisure"="garden"](${bbox});
+          way["leisure"="garden"](${bbox});
+        );
+        out center;
+      `,
+      police: `
+        [out:json][timeout:25];
+        (
+          node["amenity"="police"](${bbox});
+          way["amenity"="police"](${bbox});
+        );
+        out center;
+      `,
+      fire_station: `
+        [out:json][timeout:25];
+        (
+          node["amenity"="fire_station"](${bbox});
+          way["amenity"="fire_station"](${bbox});
+        );
+        out center;
+      `,
     };
 
     if (poiTypes.includes("all")) {
@@ -254,7 +377,12 @@ class OpenStreetMapService {
   /**
    * Parse Overpass API response to POI data
    */
-  private parseOverpassResponse(data: OSMResponse): POIData[] {
+  private parseOverpassResponse(
+    data: OSMResponse,
+    userLat: number,
+    userLng: number,
+    maxRadius: number
+  ): POIData[] {
     const pois: POIData[] = [];
 
     if (!data.elements) return pois;
@@ -262,11 +390,48 @@ class OpenStreetMapService {
     data.elements.forEach((element: OSMNode | OSMWay) => {
       const poi = this.elementToPOI(element);
       if (poi) {
-        pois.push(poi);
+        // Calculate distance and filter by radius
+        const distance = this.calculateDistance(
+          userLat,
+          userLng,
+          poi.lat,
+          poi.lng
+        );
+
+        // Only include POIs within the specified radius
+        if (distance <= maxRadius) {
+          pois.push(poi);
+        } else {
+          console.log(
+            `🚫 Filtered out ${poi.name} - ${distance}m away (max: ${maxRadius}m)`
+          );
+        }
       }
     });
 
     return pois;
+  }
+
+  /**
+   * Calculate distance between two points in meters using Haversine formula
+   */
+  private calculateDistance(
+    lat1: number,
+    lng1: number,
+    lat2: number,
+    lng2: number
+  ): number {
+    const R = 6371000; // Earth's radius in meters
+    const dLat = ((lat2 - lat1) * Math.PI) / 180;
+    const dLng = ((lng2 - lng1) * Math.PI) / 180;
+    const a =
+      Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+      Math.cos((lat1 * Math.PI) / 180) *
+        Math.cos((lat2 * Math.PI) / 180) *
+        Math.sin(dLng / 2) *
+        Math.sin(dLng / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    return R * c; // Distance in meters
   }
 
   /**
@@ -292,15 +457,19 @@ class OpenStreetMapService {
       type = "restroom";
     } else if (tags.amenity === "atm" || tags.atm) {
       type = "atm";
+    } else if (tags.amenity === "bank") {
+      type = "bank";
     } else if (
       tags.amenity === "drinking_water" ||
       tags.man_made === "water_point"
     ) {
       type = "water";
-    } else if (
-      ["food_court", "restaurant", "fast_food"].includes(tags.amenity)
-    ) {
+    } else if (["food_court", "fast_food"].includes(tags.amenity)) {
       type = "food";
+    } else if (tags.amenity === "restaurant") {
+      type = "restaurant";
+    } else if (tags.amenity === "cafe") {
+      type = "cafe";
     } else if (["hotel", "motel", "guest_house"].includes(tags.tourism)) {
       type = "hotel";
     } else if (tags.amenity === "fuel") {
@@ -309,6 +478,12 @@ class OpenStreetMapService {
       type = "hospital";
     } else if (tags.amenity === "pharmacy") {
       type = "pharmacy";
+    } else if (["park", "garden"].includes(tags.leisure)) {
+      type = "park";
+    } else if (tags.amenity === "police") {
+      type = "police";
+    } else if (tags.amenity === "fire_station") {
+      type = "fire_station";
     } else {
       return null;
     }
@@ -323,14 +498,24 @@ class OpenStreetMapService {
     // Generate mock ratings (in a real app, this would come from user reviews)
     const ratings = this.generateMockRatings(type);
 
+    // Extract area from tags
+    const area =
+      tags["addr:suburb"] ||
+      tags["addr:district"] ||
+      tags["addr:city"] ||
+      tags["addr:neighbourhood"] ||
+      undefined;
+
+    // Generate truly unique ID - use OSM element ID which is guaranteed unique
     const poi: POIData = {
-      id: `${element.type}_${element.id}`,
+      id: `poi_${element.type}_${element.id}`,
       type,
       name,
       lat,
       lng,
       ratings,
       isBookmarked: false,
+      area,
       description: this.generateDescription(type, tags),
       openingHours: tags.opening_hours,
       amenities: this.extractAmenities(tags),
@@ -343,15 +528,45 @@ class OpenStreetMapService {
    * Generate default name for POI
    */
   private getDefaultName(type: POIData["type"], tags: OSMTags): string {
+    // Try to build a more descriptive name from tags
+    if (type === "atm") {
+      const operator = tags.operator || tags.bank || tags.brand;
+      return operator ? `${operator} ATM` : "ATM";
+    }
+
+    if (type === "food") {
+      const cuisine = tags.cuisine;
+      const name = cuisine
+        ? `${cuisine.charAt(0).toUpperCase() + cuisine.slice(1)} Restaurant`
+        : "Restaurant";
+      return name;
+    }
+
+    if (type === "fuel") {
+      const brand = tags.brand || tags.operator;
+      return brand ? `${brand} Gas Station` : "Gas Station";
+    }
+
+    if (type === "pharmacy") {
+      const brand = tags.brand || tags.operator;
+      return brand ? `${brand} Pharmacy` : "Pharmacy";
+    }
+
     const defaults: Record<POIData["type"], string> = {
       restroom: "Public Restroom",
-      atm: tags.operator || tags.brand || "ATM",
-      water: "Water Station",
-      food: tags.cuisine ? `${tags.cuisine} Restaurant` : "Restaurant",
+      atm: "ATM",
+      bank: "Bank",
+      water: "Drinking Water",
+      food: "Restaurant",
+      restaurant: "Restaurant",
+      cafe: "Café",
       hotel: tags.brand || "Hotel",
-      fuel: tags.brand || "Gas Station",
+      fuel: "Gas Station",
       hospital: "Hospital",
       pharmacy: "Pharmacy",
+      park: "Park",
+      police: "Police Station",
+      fire_station: "Fire Station",
     };
     return defaults[type] || "Point of Interest";
   }
@@ -447,21 +662,21 @@ class OpenStreetMapService {
   }
 
   /**
-   * Remove duplicate POIs
+   * Remove duplicate POIs based on their unique ID
    */
   private removeDuplicates(pois: POIData[]): POIData[] {
-    const seen = new Set<string>();
-    const unique: POIData[] = [];
+    const seen = new Map<string, POIData>();
 
     for (const poi of pois) {
-      const key = `${poi.lat.toFixed(6)}_${poi.lng.toFixed(6)}_${poi.type}`;
-      if (!seen.has(key)) {
-        seen.add(key);
-        unique.push(poi);
+      // Use the POI ID as the unique key - this ensures no duplicate IDs
+      if (!seen.has(poi.id)) {
+        seen.set(poi.id, poi);
+      } else {
+        console.log(`🔄 Skipping duplicate POI: ${poi.id} - ${poi.name}`);
       }
     }
 
-    return unique;
+    return Array.from(seen.values());
   }
 
   /**

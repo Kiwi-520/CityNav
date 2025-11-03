@@ -12,7 +12,13 @@ export interface POI {
     | "hotel"
     | "fuel"
     | "hospital"
-    | "pharmacy";
+    | "pharmacy"
+    | "bank"
+    | "restaurant"
+    | "cafe"
+    | "park"
+    | "police"
+    | "fire_station";
   name: string;
   lat: number;
   lng: number;
@@ -26,7 +32,8 @@ export interface POI {
     price?: number;
   };
   isBookmarked: boolean;
-  distance?: string;
+  distance?: string | number; // Distance can be string (e.g., "500m") or number (meters)
+  area?: string; // Location area like "Ghatkopar West", "Andheri East"
   description?: string;
   openingHours?: string;
   amenities?: string[];

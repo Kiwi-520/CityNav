@@ -3,123 +3,85 @@
 import React, { useState, useCallback, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { FiBookmark, FiMapPin, FiRefreshCw } from "react-icons/fi";
-import { POI } from "../../types/essential-maps.types";
-import { useLocation } from "../../hooks/useLiveLocation";
-import "../../../styles/essential-maps/essential-maps.css";
+import { POI } from "@/features/essential-maps/types/essential-maps.types";
+import { useLocation } from "@/hooks/useLiveLocation";
+import FeatureNavigation from "@/components/FeatureNavigation";
+import CategoryNavigation from "@/features/essential-maps/components/CategoryNavigation";
+import "@/features/essential-maps/styles/essential-maps.css";
 
 // Dynamically import components to avoid SSR issues
-const EssentialMapComponent = dynamic(
-  () => import("../../components/essential-maps/EssentialMapComponent"),
+const MapboxMapComponent = dynamic(
+  () => import("@/features/essential-maps/components/MapboxMapComponent"),
   {
     ssr: false,
-    loading: () => <div className="mapLoader">Loading map...</div>,
+    loading: () => <div className="mapLoader">Loading Mapbox map...</div>,
   }
 );
 
 const POIFilterComponent = dynamic(
-  () => import("../../components/essential-maps/POIFilterComponent"),
+  () => import("@/features/essential-maps/components/POIFilterComponent"),
   { ssr: false }
 );
 
 const POIListComponent = dynamic(
-  () => import("../../components/essential-maps/POIListComponent"),
+  () => import("@/features/essential-maps/components/POIListComponent"),
   { ssr: false }
 );
 
 const DirectionsModal = dynamic(
-  () => import("../../components/essential-maps/DirectionsModal"),
+  () => import("@/features/essential-maps/components/DirectionsModal"),
   { ssr: false }
 );
 
-// Generate POIs based on current location
-const generateLocationBasedPOIs = (
-  lat: number,
-  lng: number,
-  cityName: string
-): POI[] => {
-  return [
-    {
-      id: "1",
-      type: "restroom",
-      name: `${cityName} - Public Restroom`,
-      lat: lat + 0.001,
-      lng: lng + 0.001,
-      ratings: { cleanliness: 4.2, safety: 4.5 },
-      isBookmarked: false,
-      description: "Clean public restroom with wheelchair access",
-    },
-    {
-      id: "2",
-      type: "atm",
-      name: "Local Bank ATM",
-      lat: lat + 0.002,
-      lng: lng - 0.001,
-      ratings: { safety: 4.3, working: 4.8 },
-      isBookmarked: true,
-      description: "24/7 ATM with security guard",
-    },
-    {
-      id: "3",
-      type: "water",
-      name: "Water Station",
-      lat: lat - 0.001,
-      lng: lng + 0.002,
-      ratings: { cleanliness: 4.6, safety: 4.1 },
-      isBookmarked: false,
-      description: "Purified drinking water station",
-    },
-    {
-      id: "4",
-      type: "food",
-      name: `${cityName} Food Court`,
-      lat: lat + 0.003,
-      lng: lng + 0.003,
-      ratings: { cleanliness: 4.0, safety: 4.4 },
-      isBookmarked: false,
-      description: "Multi-cuisine food court",
-    },
-    {
-      id: "5",
-      type: "hospital",
-      name: `${cityName} Medical Center`,
-      lat: lat - 0.002,
-      lng: lng - 0.002,
-      ratings: { safety: 4.7, service: 4.3 },
-      isBookmarked: false,
-      description: "Emergency medical services available",
-    },
-    {
-      id: "6",
-      type: "pharmacy",
-      name: "Local Pharmacy",
-      lat: lat + 0.0015,
-      lng: lng - 0.0015,
-      ratings: { safety: 4.5, service: 4.2 },
-      isBookmarked: false,
-      description: "24/7 pharmacy with prescription services",
-    },
-  ];
-};
+// Category definitions (without count - will be added dynamically)
+const baseCategories = [
+  { id: "atm", name: "ATM", icon: "🏧" },
+  { id: "bank", name: "Bank", icon: "🏦" },
+  { id: "restroom", name: "Restroom", icon: "🚻" },
+  { id: "food", name: "Food", icon: "🍽️" },
+  { id: "restaurant", name: "Restaurant", icon: "🍴" },
+  { id: "cafe", name: "Café", icon: "☕" },
+  { id: "hotel", name: "Hotel", icon: "🏨" },
+  { id: "hospital", name: "Hospital", icon: "🏥" },
+  { id: "pharmacy", name: "Pharmacy", icon: "💊" },
+  { id: "water", name: "Water", icon: "💧" },
+  { id: "fuel", name: "Fuel Station", icon: "⛽" },
+  { id: "park", name: "Park", icon: "🌳" },
+  { id: "police", name: "Police", icon: "🚓" },
+  { id: "fire_station", name: "Fire Station", icon: "🚒" },
+];
 
 const EssentialMapsPage: React.FC = () => {
   const { location, error, loading, requestLocation } = useLocation();
   const [pois, setPois] = useState<POI[]>([]);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [selectedPOI, setSelectedPOI] = useState<POI | null>(null);
   const [isDirectionsOpen, setIsDirectionsOpen] = useState(false);
 
-  // Generate POIs based on current location
+  // Listen for POI updates from the map component
   useEffect(() => {
-    if (location) {
-      const locationBasedPOIs = generateLocationBasedPOIs(
-        location.lat,
-        location.lon,
-        location.city
+    const handlePOIsUpdated = (event: CustomEvent) => {
+      const newPOIs = event.detail;
+      if (newPOIs && Array.isArray(newPOIs)) {
+        setPois(newPOIs);
+      }
+    };
+
+    if (typeof window !== "undefined") {
+      window.addEventListener(
+        "poisUpdated",
+        handlePOIsUpdated as EventListener
       );
-      setPois(locationBasedPOIs);
+      return () => {
+        window.removeEventListener(
+          "poisUpdated",
+          handlePOIsUpdated as EventListener
+        );
+      };
     }
-  }, [location]);
+  }, []);
 
   // Listen for directions events from map
   useEffect(() => {
@@ -143,18 +105,34 @@ const EssentialMapsPage: React.FC = () => {
     }
   }, []);
 
-  // Filter POIs based on active filters
-  const filteredPOIs =
-    activeFilters.length === 0
-      ? pois
-      : pois.filter((poi) => activeFilters.includes(poi.type));
+  // Filter POIs based on active filters OR selected category
+  const filteredPOIs = selectedCategory
+    ? pois.filter((poi) => poi.type === selectedCategory)
+    : activeFilters.length === 0
+    ? pois
+    : pois.filter((poi) => activeFilters.includes(poi.type));
 
   // Get bookmarked POIs
   const bookmarkedPOIs = pois.filter((poi) => poi.isBookmarked);
 
+  // Handle category selection
+  const handleCategorySelect = useCallback((categoryId: string | null) => {
+    setSelectedCategory(categoryId);
+    // Update active filters to match selected category
+    if (categoryId) {
+      setActiveFilters([categoryId]);
+    } else {
+      setActiveFilters([]);
+    }
+  }, []);
+
   // Handle filter changes
   const handleFilterChange = useCallback((filters: string[]) => {
     setActiveFilters(filters);
+    // Clear selected category when using filters
+    if (filters.length > 0) {
+      setSelectedCategory(null);
+    }
   }, []);
 
   // Toggle bookmark status
@@ -185,8 +163,17 @@ const EssentialMapsPage: React.FC = () => {
     setSelectedPOI(null);
   }, []);
 
+  // Add count to categories dynamically
+  const categoriesWithCounts = baseCategories.map((cat) => ({
+    ...cat,
+    count: pois.filter((poi) => poi.type === cat.id).length,
+  }));
+
   return (
     <div className="container">
+      {/* Feature Navigation Tabs */}
+      {/* <FeatureNavigation /> */}
+
       {/* Header with filters and actions */}
       <div className="header">
         <div className="headerTop">
@@ -248,7 +235,7 @@ const EssentialMapsPage: React.FC = () => {
           </div>
         )}
         {location && (
-          <EssentialMapComponent
+          <MapboxMapComponent
             pois={filteredPOIs}
             selectedPOI={selectedPOI}
             onPOISelect={handlePOIClick}
@@ -256,6 +243,13 @@ const EssentialMapsPage: React.FC = () => {
           />
         )}
       </div>
+
+      {/* Category Navigation - MOVED BELOW MAP */}
+      <CategoryNavigation
+        categories={categoriesWithCounts}
+        pois={pois}
+        onCategorySelect={handleCategorySelect}
+      />
 
       {/* Bottom POI List */}
       <POIListComponent
