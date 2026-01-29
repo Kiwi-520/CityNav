@@ -7,7 +7,6 @@ import {
   FiSearch,
   FiNavigation,
   FiMap,
-  FiDownload,
 } from "react-icons/fi";
 
 export default function BottomNavigation() {
@@ -18,32 +17,11 @@ export default function BottomNavigation() {
     { href: "/search-discovery", icon: FiSearch, label: "Search" },
     { href: "/route-options", icon: FiNavigation, label: "Routes" },
     { href: "/essential-maps", icon: FiMap, label: "Maps" },
-    { href: "/offline-onboarding", icon: FiDownload, label: "Offline" },
   ];
 
   return (
-    <nav
-      style={{
-        position: "fixed",
-        bottom: 0,
-        left: 0,
-        right: 0,
-        background: "rgba(255, 255, 255, 0.95)",
-        backdropFilter: "blur(10px)",
-        borderTop: "1px solid rgba(0, 0, 0, 0.1)",
-        padding: "12px 0",
-        zIndex: 1000,
-      }}
-    >
-      <div
-        style={{
-          display: "flex",
-          justifyContent: "space-around",
-          alignItems: "center",
-          maxWidth: "600px",
-          margin: "0 auto",
-        }}
-      >
+    <nav className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-700 py-3 z-[1000]">
+      <div className="flex justify-around items-center max-w-[600px] mx-auto">
         {navItems.map((item) => {
           const IconComponent = item.icon;
           const isActive = pathname === item.href;
@@ -52,31 +30,13 @@ export default function BottomNavigation() {
             <Link
               key={item.href}
               href={item.href}
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "center",
-                gap: "4px",
-                textDecoration: "none",
-                color: isActive
-                  ? "var(--primary)"
-                  : "var(--on-surface-variant)",
-                fontSize: "12px",
-                fontWeight: isActive ? "600" : "400",
-                transition: "all 0.3s ease",
-                padding: "8px",
-                borderRadius: "8px",
-                minWidth: "60px",
-              }}
+              className={`flex flex-col items-center gap-1 no-underline text-xs p-2 rounded-lg min-w-[60px] transition-all ${
+                isActive
+                  ? "text-indigo-600 dark:text-indigo-400 font-semibold"
+                  : "text-slate-600 dark:text-slate-400 font-normal hover:text-indigo-500 dark:hover:text-indigo-300"
+              }`}
             >
-              <IconComponent
-                size={20}
-                style={{
-                  color: isActive
-                    ? "var(--primary)"
-                    : "var(--on-surface-variant)",
-                }}
-              />
+              <IconComponent size={20} />
               <span>{item.label}</span>
             </Link>
           );

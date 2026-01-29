@@ -1,17 +1,10 @@
 import { useEffect, useState, useRef, useCallback } from 'react';
-/**
- * useNearbyPOIs
- * - Issues a bounded Overpass QL POST for nearby POIs
- * - Normalizes Overpass elements into a compact POI shape
- * - Caches recent queries to localStorage for responsiveness
- */
-
 export type POI = {
   id: string;
   lat: number;
   lon: number;
   name?: string;
-  category: 'hospital' | 'clinic' | 'railway' | 'bus_stop' | 'bank' | 'atm' | 'hotel' | 'restaurant' | string;
+  category: 'hospital' | 'clinic' | 'railway' | 'bus_stop' | 'bank' | 'atm' | 'hotel' | 'restaurant' | 'tourist_attraction' | 'museum' | 'monument' | 'viewpoint' | string;
   tags: Record<string, string>;
 };
 
@@ -21,8 +14,6 @@ type UseNearbyOptions = {
 };
 
 function buildOverpassQuery(lat: number, lon: number, radius: number) {
-  // Query nodes, ways and relations for the categories we want.
-  // We request center for ways/relations so we can get a lat/lon.
   return `
 [out:json][timeout:25];
 (
@@ -30,9 +21,13 @@ function buildOverpassQuery(lat: number, lon: number, radius: number) {
   way["amenity"~"hospital|clinic|bank|atm|restaurant|cafe|fast_food"](around:${radius},${lat},${lon});
   relation["amenity"~"hospital|clinic|bank|atm|restaurant|cafe|fast_food"](around:${radius},${lat},${lon});
 
-  node["tourism"="hotel"](around:${radius},${lat},${lon});
-  way["tourism"="hotel"](around:${radius},${lat},${lon});
-  relation["tourism"="hotel"](around:${radius},${lat},${lon});
+  node["tourism"~"hotel|attraction|museum|monument|viewpoint|artwork|gallery"](around:${radius},${lat},${lon});
+  way["tourism"~"hotel|attraction|museum|monument|viewpoint|artwork|gallery"](around:${radius},${lat},${lon});
+  relation["tourism"~"hotel|attraction|museum|monument|viewpoint|artwork|gallery"](around:${radius},${lat},${lon});
+
+  node["historic"~"monument|memorial|castle|ruins|archaeological_site"](around:${radius},${lat},${lon});
+  way["historic"~"monument|memorial|castle|ruins|archaeological_site"](around:${radius},${lat},${lon});
+  relation["historic"~"monument|memorial|castle|ruins|archaeological_site"](around:${radius},${lat},${lon});
 
   node["railway"="station"](around:${radius},${lat},${lon});
   way["railway"="station"](around:${radius},${lat},${lon});
@@ -48,17 +43,36 @@ out center qt;
 
 function detectCategory(tags: Record<string, string> = {}) {
   const amenity = tags['amenity'];
+  const tourism = tags['tourism'];
+  const historic = tags['historic'];
+  
+  // Health facilities
   if (amenity === 'hospital') return 'hospital';
   if (amenity === 'clinic') return 'clinic';
+  
+  // Financial
   if (amenity === 'bank') return 'bank';
   if (amenity === 'atm') return 'atm';
-  // restaurants/cafes/fast_food should be treated as restaurants in UI
+  
+  // Food & Accommodation
   if (amenity === 'restaurant' || amenity === 'cafe' || amenity === 'fast_food') return 'restaurant';
-  if (tags['tourism'] === 'hotel') return 'hotel';
+  if (tourism === 'hotel') return 'hotel';
+  
+  // Transportation
   if (tags['railway'] === 'station') return 'railway';
   if (tags['highway'] === 'bus_stop') return 'bus_stop';
-  // fallback to any useful tag
+  
+  // Tourist attractions and famous places
+  if (tourism === 'attraction') return 'tourist_attraction';
+  if (tourism === 'museum' || tourism === 'gallery') return 'museum';
+  if (tourism === 'monument' || tourism === 'artwork') return 'monument';
+  if (tourism === 'viewpoint') return 'viewpoint';
+  if (historic === 'monument' || historic === 'memorial' || historic === 'castle' || historic === 'ruins' || historic === 'archaeological_site') return 'monument';
+  
+  // Fallback to any useful tag
   if (amenity) return amenity;
+  if (tourism) return tourism;
+  if (historic) return historic;
   return 'unknown';
 }
 
@@ -66,7 +80,7 @@ function cacheKey(lat: number, lon: number, radius: number) {
   return `nearby_pois_${lat.toFixed(5)}_${lon.toFixed(5)}_${Math.round(radius)}`;
 }
 
-export function useNearbyPOIs(lat?: number | null, lon?: number | null, radius = 1500, options?: UseNearbyOptions) {
+export function useNearbyPOIs(lat?: number | null, lon?: number | null, radius = 1000, options?: UseNearbyOptions) {
   const ttl = (options?.ttlMinutes ?? 15) * 60 * 1000;
   const [data, setData] = useState<POI[] | null>(null);
   const [loading, setLoading] = useState(false);
@@ -132,7 +146,6 @@ export function useNearbyPOIs(lat?: number | null, lon?: number | null, radius =
         // ignore storage errors
       }
   } catch (err: unknown) {
-      // If fetch failed, try to fallback to cached value if we set any earlier
       try {
         const key = cacheKey(lat, lon, radius);
         const raw = localStorage.getItem(key);

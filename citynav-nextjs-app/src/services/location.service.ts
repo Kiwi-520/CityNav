@@ -27,7 +27,6 @@ class LocationService {
     return LocationService.instance;
   }
 
-  // Get current position once
   async getCurrentLocation(): Promise<LocationData> {
     return new Promise((resolve, reject) => {
       if (!navigator.geolocation) {
@@ -71,7 +70,6 @@ class LocationService {
     });
   }
 
-  // Watch position for continuous updates
   watchLocation(
     onSuccess: (location: LocationData) => void,
     onError: (error: LocationError) => void
@@ -118,7 +116,6 @@ class LocationService {
     return this.watchId;
   }
 
-  // Stop watching location
   stopWatching(): void {
     if (this.watchId !== null) {
       navigator.geolocation.clearWatch(this.watchId);
@@ -126,13 +123,11 @@ class LocationService {
     }
   }
 
-  // Reverse geocoding to get city details from coordinates
   private async reverseGeocode(
     lat: number,
     lon: number
   ): Promise<LocationData> {
     try {
-      // Using Nominatim API for reverse geocoding (free)
       const response = await fetch(
         `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`
       );
@@ -158,7 +153,6 @@ class LocationService {
         address: data.display_name,
       };
     } catch (error) {
-      // Fallback with offline detection
       return {
         lat,
         lon,
@@ -169,12 +163,10 @@ class LocationService {
     }
   }
 
-  // Get cached location
   getCachedLocation(): LocationData | null {
     return this.currentLocation;
   }
 
-  // Save location to localStorage for offline use
   saveLocationToStorage(location: LocationData): void {
     try {
       localStorage.setItem("citynav_last_location", JSON.stringify(location));
@@ -183,7 +175,6 @@ class LocationService {
     }
   }
 
-  // Load location from localStorage
   loadLocationFromStorage(): LocationData | null {
     try {
       const stored = localStorage.getItem("citynav_last_location");
@@ -194,7 +185,6 @@ class LocationService {
     }
   }
 
-  // Get error message based on error code
   private getErrorMessage(code: number): string {
     switch (code) {
       case 1:
@@ -208,7 +198,6 @@ class LocationService {
     }
   }
 
-  // Calculate distance between two points (in km)
   calculateDistance(
     lat1: number,
     lon1: number,

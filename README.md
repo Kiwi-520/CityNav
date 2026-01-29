@@ -1,201 +1,464 @@
-# 🚀 CityNav - Navigation App Prototype
+# �️ CityNav - Smart City Navigation PWA
 
-A comprehensive PWA navigation application prototype with 18+ screens built using Material Design 3 principles.
+A modern Progressive Web App for city navigation with offline maps, location-based services, and essential city apps - built with Next.js 15, TypeScript, and Tailwind CSS.
 
-![CityNav](https://img.shields.io/badge/CityNav-PWA%20Prototype-brightgreen) ![Status](https://img.shields.io/badge/Status-Ready%20for%20Testing-success) ![Screens](https://img.shields.io/badge/Screens-18%20MVP-blue)
+![CityNav](https://img.shields.io/badge/CityNav-Next.js%20PWA-brightgreen) ![Status](https://img.shields.io/badge/Status-Active%20Development-success) ![TypeScript](https://img.shields.io/badge/TypeScript-5.0-blue)
 
 ## 📋 Table of Contents
 - [Quick Start](#-quick-start)
-- [Testing Guide](#-testing-guide)
-- [App Flow Experience](#-app-flow-experience)
+- [Features](#-features)
 - [Project Structure](#-project-structure)
-- [Development Setup](#-development-setup)
-- [Contributing Guidelines](#-contributing-guidelines)
-- [Screen Overview](#-screen-overview)
+- [Technology Stack](#-technology-stack)
+- [Setup Instructions](#-setup-instructions)
+- [Available Features](#-available-features)
+- [Contributing](#-contributing)
 
 ---
 
 ## 🚀 Quick Start
 
-### 1. Clone the Repository
+### **For Non-Technical Users:**
+
+#### 1. Install Required Software
+First, install these tools (one-time setup):
+- **Node.js** (Download from https://nodejs.org - choose the LTS version)
+- **Git** (Download from https://git-scm.com)
+
+#### 2. Download the Project
+Open your terminal (Command Prompt on Windows, Terminal on Mac/Linux) and run:
 ```bash
 git clone https://github.com/Kiwi-520/CityNav.git
-cd CityNav/prototype1
+cd CityNav/citynav-nextjs-app
 ```
 
-### 2. Start Local Server
+#### 3. Install Dependencies
 ```bash
-# Using Python (recommended)
-python -m http.server 1550
+npm install
+```
+*This will download all required packages (may take 2-3 minutes)*
 
-# Alternative using Node.js
-npx serve -p 1550
-
-# Alternative using PHP
-php -S localhost:1550
+#### 4. Start the Application
+```bash
+npm run dev
 ```
 
-### 3. Open in Browser
-Navigate to: **http://localhost:1550**
+#### 5. Open in Browser
+Once you see "Ready in X seconds", open your browser and go to:
+```
+http://localhost:3000
+```
+
+That's it! The app is now running on your computer.
+
+### **To Stop the App:**
+Press `Ctrl + C` in the terminal
 
 ---
 
-## 🧪 Testing Guide
+## ✨ Features
 
-### **Screen Testing Suite**
-Access the comprehensive screen testing dashboard:
+### 🏠 **Home Dashboard**
+- Real-time location detection with weather display
+- Quick access to search, routes, maps, and offline features
+- Essential city apps section (automatically changes based on your location)
+- Multi-language support (English, हिंदी, मराठी)
+- Dark mode / Light mode / System theme
 
-```
-🔗 URL: http://localhost:1550/screen-test.html
-```
+### 🗺️ **Essential Maps (Offline-Ready)**
+- Interactive Leaflet map with OpenStreetMap tiles
+- **1 km radius** location-based POI discovery
+- Categories: Hospitals, Police Stations, Fire Stations, Pharmacies, ATMs, Restaurants, Cafes, Tourist Attractions, Museums, Monuments, Viewpoints
+- **Offline Pack Creation**: Save nearby POIs for offline access with pincode-based naming
+- **Live GPS tracking** with accuracy indicators
+- Category filtering with color-coded markers
+- POI details with distance calculation
+- Turn-by-turn navigation ready
 
-**Features:**
-- ✅ Test all 18 MVP screens individually
-- ✅ Quick navigation between screens
-- ✅ Visual preview of each screen
-- ✅ Status indicators for each component
-- ✅ Direct links to individual screens
+### 📱 **Essential Apps**
+Location-based app recommendations that automatically change based on your city:
 
-**Perfect for:**
-- QA testing and validation
-- Screen-by-screen review
-- Individual component testing
-- Design system verification
+**Mumbai:**
+- 🚌 Chalo (Bus tracking)
+- 🚂 IRCTC Rail Connect
+- 🚆 RailYatri
+- 🚇 Mumbai Metro One
+- 🕐 m-Indicator (Local train timings)
+- 🚖 Uber
+- 🚍 BEST Undertaking
 
----
+**Pune:**
+- 🚌 Chalo (PMPML Bus)
+- 🚂 IRCTC Rail Connect
+- 🚇 Pune Metro
+- 🚖 Ola
+- 🚆 RailYatri
 
-## 🎯 App Flow Experience
+**Delhi:**
+- 🚌 DTC Bus Sewa
+- 🚇 Delhi Metro Rail
+- 🚂 IRCTC Rail Connect
+- 🏍️ Rapido
+- 🚖 Uber
 
-### **Complete User Journey**
-Experience the full application flow:
+**Bangalore:**
+- 🚇 Namma Metro
+- 🚌 BMTC Official
+- 🚍 Chalo
+- 🏍️ Rapido
+- 🚖 Ola
 
-```
-🔗 URL: http://localhost:1550/citynav-app.html
-```
+*+ Generic apps for other cities*
 
-**Complete User Flow:**
-```
-Welcome Screen → Feature Tour → Location Permission → 
-City Selection → Setup Complete → Login → Home Dashboard → 
-Search & Discovery → Place Details (static / no live POIs) → Route Planning → 
-Turn-by-Turn Navigation → Feedback → Profile Settings
-```
+### 🔍 **Search & Discovery**
+- Place search functionality
+- Category-based filtering
+- Location-based results
 
-**Interactive Features:**
-- ✅ **Authentication**: Social login, email validation, guest mode
-- ✅ **Navigation**: Seamless screen transitions with state management
-- ✅ **Search**: Place discovery with category filtering  
-- ✅ **Route Planning**: Multi-route selection and navigation
-- ✅ **User Feedback**: Star ratings, category selection, comments
-- ✅ **Error Handling**: Graceful error recovery and user guidance
+### 🧭 **Route Planning**
+- Route options with multiple alternatives
+- Distance and time estimates
+- Interactive route visualization
 
-**Perfect for:**
-- Stakeholder demonstrations
-- User experience testing
-- Complete workflow validation
-- Team reviews and approvals
+### 🎨 **Theming & Personalization**
+- **Dark Mode**: Full dark theme support across entire app
+- **Light Mode**: Clean, modern light interface
+- **System Theme**: Automatically follows device preference
+- **Language Selection**: English, हिंदी, मराठी
+- Settings accessible via gear icon in header
 
 ---
 
 ## 📁 Project Structure
 
 ```
-prototype1/
-├── 📄 citynav-app.html          # Main SPA application
-├── 📄 screen-test.html          # Testing dashboard
-├── 📄 index.html                # Design system showcase
-├── 📁 screens/                  # Individual screen files (21 screens)
-│   ├── welcome.html
-│   ├── login.html
-│   ├── home-dashboard.html
-│   ├── poi-details.html
-│   └── ... (18+ screens)
-├── 📁 styles/                   # CSS architecture
-│   ├── design-tokens.css        # Material Design 3 system
-│   ├── base.css                 # Responsive foundation
-│   └── components.css           # UI component library
-└── 📁 scripts/                  # JavaScript utilities
-    └── design-system.js
+citynav-nextjs-app/
+├── 📁 src/
+│   ├── 📁 app/                          # Next.js 15 App Router
+│   │   ├── page.tsx                    # Home page (main entry)
+│   │   ├── layout.tsx                  # Root layout with navigation
+│   │   ├── globals.css                 # Global styles
+│   │   ├── 📁 home/
+│   │   │   └── HomeDashboard.tsx       # Main dashboard with location & apps
+│   │   ├── 📁 essential-maps/
+│   │   │   └── page.tsx                # Offline maps feature
+│   │   ├── 📁 essential-apps/
+│   │   │   └── page.tsx                # City-specific app recommendations
+│   │   ├── 📁 search-discovery/
+│   │   │   └── page.tsx                # Search functionality
+│   │   └── 📁 route-options/
+│   │       └── page.tsx                # Route planning
+│   │
+│   ├── 📁 components/                   # Reusable UI components
+│   │   ├── BottomNavigation.tsx        # Bottom nav bar
+│   │   ├── PageHeader.tsx              # Page header with dark mode
+│   │   ├── QuickActions.tsx            # Quick action buttons
+│   │   ├── Button.tsx                  # Button component
+│   │   └── GeolocationPrompt.tsx       # Location permission
+│   │
+│   ├── 📁 features/
+│   │   └── 📁 offline-onboarding/
+│   │       ├── 📁 components/
+│   │       │   ├── LeafletMap.tsx      # Main map component
+│   │       │   ├── PackManagerPanel.tsx # Offline pack management
+│   │       │   ├── CategoryFilterSidebar.tsx # POI category filters
+│   │       │   ├── NavigationPanel.tsx  # Route navigation
+│   │       │   ├── LocationDetailsHorizontal.tsx # Location display
+│   │       │   ├── EssentialsNavSidebar.tsx # Floating nav button
+│   │       │   └── MapView.tsx         # Map rendering
+│   │       ├── 📁 hooks/
+│   │       │   ├── useNearbyPOIs.ts    # Overpass API POI fetching
+│   │       │   ├── useOfflineLocation.ts # Location management
+│   │       │   └── useRoute.ts         # Route calculation
+│   │       └── 📁 lib/
+│   │           ├── packManager.ts      # IndexedDB offline storage
+│   │           └── logger.ts           # Debug logging
+│   │
+│   ├── 📁 data/
+│   │   ├── city-apps.json              # City-specific app data
+│   │   └── onboarding-content.json     # Onboarding content
+│   │
+│   ├── 📁 hooks/
+│   │   └── useLiveLocation.ts          # Live GPS tracking
+│   │
+│   └── 📁 services/
+│       └── (API services)
+│
+├── 📁 public/
+│   ├── manifest.json                   # PWA manifest
+│   ├── sw.js                          # Service worker
+│   └── 📁 images/                     # App images & icons
+│
+├── package.json                        # Dependencies & scripts
+├── next.config.ts                     # Next.js configuration
+├── tailwind.config.js                 # Tailwind CSS config
+└── tsconfig.json                      # TypeScript config
 ```
 
 ---
 
-## 🛠 Development Setup
+## 🛠 Technology Stack
+
+### **Core Technologies**
+- **Next.js 15.5.2** - React framework with App Router
+- **React 19** - UI library
+- **TypeScript 5** - Type-safe JavaScript
+- **Tailwind CSS 4** - Utility-first CSS framework
+
+### **Mapping & Location**
+- **Leaflet 1.9.4** - Interactive maps
+- **React Leaflet 5.0.0** - React wrapper for Leaflet
+- **OpenStreetMap** - Map tiles (offline-capable)
+- **Overpass API** - POI data fetching
+- **Nominatim API** - Geocoding & reverse geocoding
+
+### **Data & Storage**
+- **IndexedDB** - Offline pack storage via packManager
+- **Pako** - Gzip compression for offline data
+- **LocalStorage** - User preferences (theme, language)
+
+### **PWA Features**
+- **next-pwa 5.6.0** - Progressive Web App functionality
+- **Service Worker** - Offline caching
+- **Workbox** - PWA tooling
+
+### **UI & Icons**
+- **React Icons 5.5.0** - Icon library
+- **Axios 1.11.0** - HTTP client
+
+---
+
+## 🔧 Setup Instructions
 
 ### **Prerequisites**
-- **Git** (for version control)
-- **Python 3.x** or **Node.js** (for local server)
-- **Modern browser** (Chrome, Firefox, Safari, Edge)
+- **Node.js 18+** (Download: https://nodejs.org)
+- **npm** (comes with Node.js)
+- **Git** (Download: https://git-scm.com)
 
-### **Local Development**
-1. **Clone and setup**:
-   ```bash
-   git clone https://github.com/Kiwi-520/CityNav.git
-   cd CityNav/prototype1
-   python -m http.server 1550
-   ```
+### **Step-by-Step Setup**
 
-2. **Development workflow**:
-   ```bash
-   # Make changes to files
-   # Test at http://localhost:1550/screen-test.html
-   # Validate complete flow at http://localhost:1550/citynav-app.html
-   ```
+#### 1. Clone Repository
+```bash
+git clone https://github.com/Kiwi-520/CityNav.git
+cd CityNav/citynav-nextjs-app
+```
 
-### **Technology Stack**
-- **HTML5**: Semantic markup structure
-- **CSS3**: Modern styling with custom properties, Grid, Flexbox
-- **Vanilla JavaScript**: No external dependencies
-- **Material Design 3**: Complete design system implementation
-- **Progressive Web App**: Offline-ready architecture
+#### 2. Install Dependencies
+```bash
+npm install
+```
+
+*This installs all required packages listed in package.json*
+
+#### 3. Run Development Server
+```bash
+npm run dev
+```
+
+#### 4. Build for Production (Optional)
+```bash
+npm run build
+npm start
+```
+
+### **Available Scripts**
+
+| Command | Description |
+|---------|-------------|
+| `npm run dev` | Start development server (http://localhost:3000) |
+| `npm run build` | Build production-ready app |
+| `npm start` | Start production server |
+| `npm run lint` | Run ESLint code checker |
 
 ---
 
-## 🤝 Contributing Guidelines
+## 🎯 Available Features
 
-### **Important: Never Push Directly to Main Branch**
+### **1. Home Page** (`/`)
+- **Location Display**: Shows current city, state, and weather
+- **Quick Actions**: Search, Routes, Maps, Offline Packs
+- **Essential Apps**: First 4 city-specific apps with "View All" link
+- **Settings Menu**: Language selector + Theme switcher
+- **Status Bar**: Online/offline indicator, location services status
 
-All contributions must follow the branch-based workflow:
+### **2. Essential Maps** (`/essential-maps`)
+- **Interactive Map**: Leaflet with OpenStreetMap tiles
+- **POI Categories**:
+  - 🏥 Health & Emergency (Hospitals, Pharmacies, Police, Fire Stations)
+  - 🏛️ Tourist Attractions (Museums, Monuments, Viewpoints, Tourist Spots)
+  - 💰 Financial (ATMs, Banks)
+  - 🍽️ Food & Drink (Restaurants, Cafes, Fast Food)
+- **Search Radius**: 1 km from current location
+- **Offline Packs**:
+  - Create pack with current location + pincode
+  - Auto-naming: "Area, Broader Location - Pincode" (e.g., "Khopal Wadi, Ghatkopar - 400077")
+  - Stores all nearby POIs for offline access
+  - Load/unload packs via floating sidebar button
+- **Location Details**: City/town prioritized over neighborhood
+- **Live GPS**: Real-time location tracking with accuracy badges
 
-### **Step 1: Create a New Branch**
+### **3. Essential Apps** (`/essential-apps`)
+- **Location-Aware**: Automatically shows apps for detected city
+- **Categories**: Bus, Train, Metro, Taxi, Bike Taxi, Navigation
+- **App Info**: Name, icon, category tag, description
+- **Actions**: Download app (Play Store) or visit website
+- **Category Filtering**: Filter apps by type
+- **Cities Covered**: Mumbai, Pune, Delhi, Bangalore + Default
+
+### **4. Search & Discovery** (`/search-discovery`)
+- Place search with filters
+- Location-based results
+- Category organization
+
+### **5. Route Options** (`/route-options`)
+- Multiple route alternatives
+- Distance and time estimates
+- Route comparison
+
+### **Theme System**
+- ☀️ **Light Mode**: White backgrounds, dark text
+- 🌙 **Dark Mode**: Dark backgrounds, light text
+- 🌍 **System Theme**: Follows device preference
+- Persistent across sessions (saved in localStorage)
+- Instant switching without page reload
+
+### **Language Support**
+- 🇬🇧 English
+- 🇮🇳 हिंदी (Hindi)
+- 🇮🇳 मराठी (Marathi)
+- Saved in localStorage for persistence
+
+---
+
+## 🧩 Key Implementation Details
+
+### **Offline Pack System**
+```typescript
+// Location naming format
+const locationName = `${neighbourhood}, ${suburb/city_district} - ${postcode}`;
+// Example: "Khopal Wadi, Ghatkopar - 400077"
+
+// POI storage
+- Compressed with Pako (gzip)
+- Stored in IndexedDB
+- 1 km radius from pack center
+- All categories included
+```
+
+### **Dark Mode Implementation**
+```typescript
+// Theme is applied via class on root element
+document.documentElement.classList.add('dark');  // Dark mode
+document.documentElement.classList.remove('dark'); // Light mode
+
+// All components use Tailwind dark: variants
+className="bg-white dark:bg-slate-800"
+```
+
+### **City Detection**
+```typescript
+// Reverse geocoding with Nominatim
+1. Get GPS coordinates
+2. Reverse geocode to get address
+3. Extract city/town
+4. Load city-specific apps from city-apps.json
+5. Fallback to "default" if city not found
+```
+
+---
+
+## 🤝 Contributing
+
+### **Branch Strategy**
 ```bash
-# Switch to main branch and pull latest changes
-git checkout main
-git pull origin main
+# Never push directly to main!
 
-# Create a new feature branch
+# 1. Create feature branch
 git checkout -b feature/your-feature-name
-# Example: git checkout -b feature/navigation-improvements
-```
 
-### **Step 2: Make Your Changes**
-```bash
-# Work on your changes
-# Test thoroughly using screen-test.html and citynav-app.html
-# Ensure all screens work properly
-```
-
-### **Step 3: Commit Your Changes**
-```bash
-# Stage your changes
+# 2. Make changes and commit
 git add .
+git commit -m "feat: add your feature description"
 
-# Commit with descriptive message
-git commit -m "feat: add navigation improvements to POI details screen"
+# 3. Push branch
+git push origin feature/your-feature-name
 
-# Use conventional commits:
-# feat: new feature
-# fix: bug fix
-# docs: documentation changes
-# style: formatting changes
-# refactor: code refactoring
-# test: adding tests
+# 4. Create Pull Request on GitHub
 ```
 
-### **Step 4: Push Branch and Create Pull Request**
+### **Commit Conventions**
+- `feat:` - New feature
+- `fix:` - Bug fix
+- `docs:` - Documentation changes
+- `style:` - Code formatting
+- `refactor:` - Code refactoring
+- `perf:` - Performance improvements
+
+---
+
+## 🐛 Troubleshooting
+
+### **App Won't Start**
 ```bash
-# Push your feature branch
-git push origin feature/your-feature-name
+# Delete node_modules and reinstall
+rm -rf node_modules package-lock.json
+npm install
+npm run dev
+```
+
+### **Location Not Working**
+- Allow location permission in browser
+- Check HTTPS connection (required for geolocation)
+- Verify GPS is enabled on device
+
+### **Maps Not Loading**
+- Check internet connection for initial tile download
+- OpenStreetMap tiles cache in browser after first load
+
+### **Dark Mode Not Working**
+- Check if theme is saved: Open DevTools → Application → Local Storage → appTheme
+- Try manually switching theme in settings
+
+---
+
+## 📞 Support
+
+### **For Issues:**
+1. Check this README first
+2. Open browser console (F12) to see errors
+3. Create issue on GitHub with:
+   - Error message
+   - Steps to reproduce
+   - Browser and OS version
+
+---
+
+## 🎉 Current Status
+
+### ✅ **Completed Features**
+- ✅ Home dashboard with location detection
+- ✅ Essential maps with offline packs (1 km radius)
+- ✅ Essential apps (city-specific recommendations)
+- ✅ Dark mode / Light mode / System theme
+- ✅ Multi-language support (3 languages)
+- ✅ PWA ready with service worker
+- ✅ Responsive design (mobile + desktop)
+- ✅ Bottom navigation
+- ✅ Search & route features
+- ✅ Tourist attraction categories
+- ✅ Pincode-based pack naming
+- ✅ Category filtering with color coding
+- ✅ Live GPS tracking
+
+### 🚧 **In Progress**
+- Search discovery implementation
+- Route navigation enhancements
+- Additional city support for Essential Apps
+
+---
+
+**Last Updated: January 30, 2026**
+
+**Built with ❤️ using Next.js 15, TypeScript, and modern web technologies**
 
 # Go to GitHub and create a Pull Request
 # 1. Navigate to https://github.com/Kiwi-520/CityNav

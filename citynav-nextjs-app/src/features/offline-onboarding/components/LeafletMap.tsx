@@ -1,6 +1,6 @@
 import { useEffect, useState, useMemo } from 'react';
 import LocationDetailsHorizontal from '@/features/offline-onboarding/components/LocationDetailsHorizontal';
-import TopNav from '@/features/offline-onboarding/components/TopNav';
+import EssentialsNavSidebar from '@/features/offline-onboarding/components/EssentialsNavSidebar';
 import CategoryFilterSidebar from '@/features/offline-onboarding/components/CategoryFilterSidebar';
 import { useOfflineLocation } from '@/features/offline-onboarding/hooks/useOfflineLocation';
 import { useRoute } from '@/features/offline-onboarding/hooks/useRoute';
@@ -18,9 +18,6 @@ export default function LeafletMap() {
   const { isOnline, storedLocation } = useOfflineLocation();
   const displayLat = pos ? pos[0] : (!isOnline && storedLocation ? storedLocation.latitude : null);
   const displayLon = pos ? pos[1] : (!isOnline && storedLocation ? storedLocation.longitude : null);
-  // If live geolocation (pos) isn't available yet but the app has a stored location
-  // use the stored location or sensible default so the map centers correctly.
-
   const { route, loading: routeLoading, error: routeError } = useRoute(
     displayLat != null && displayLon != null ? { lat: displayLat, lon: displayLon } : null,
     selectedDest
@@ -28,7 +25,6 @@ export default function LeafletMap() {
 
   useEffect(() => {
     if (!navigator.geolocation) {
-      // If no geolocation and we're offline, try to use stored location
       if (!isOnline && storedLocation) {
         setPos([storedLocation.latitude, storedLocation.longitude]);
       }
@@ -39,7 +35,6 @@ export default function LeafletMap() {
       (p) => setPos([p.coords.latitude, p.coords.longitude]),
       (error) => {
         logger.error('Geolocation error:', error);
-        // If geolocation fails and we're offline, use stored location
         if (!isOnline && storedLocation) {
           setPos([storedLocation.latitude, storedLocation.longitude]);
         }
@@ -47,16 +42,14 @@ export default function LeafletMap() {
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
     return () => navigator.geolocation.clearWatch(watchId);
-  }, [isOnline, storedLocation]); // Add dependencies for error fallback
+  }, [isOnline, storedLocation]);
 
-  // Separate effect to handle offline mode with stored location
   useEffect(() => {
     if (!isOnline && storedLocation && !pos) {
       setPos([storedLocation.latitude, storedLocation.longitude]);
     }
   }, [isOnline, storedLocation, pos]);
 
-  // Memoize calculated values to prevent unnecessary re-renders
   const center: [number, number] = useMemo(() => {
     return pos || (!isOnline && storedLocation ? [storedLocation.latitude, storedLocation.longitude] : [28.6139, 77.2090]);
   }, [pos, isOnline, storedLocation]);
@@ -65,10 +58,9 @@ export default function LeafletMap() {
     return pos || (!isOnline && storedLocation ? [storedLocation.latitude, storedLocation.longitude] as [number, number] : null);
   }, [pos, isOnline, storedLocation]);
 
-  // Nearby POIs
   const latForPOI = displayPosition ? displayPosition[0] : null;
   const lonForPOI = displayPosition ? displayPosition[1] : null;
-  const { data: pois, loading: poisLoading, error: poisError, refresh: refreshPOIs } = useNearbyPOIs(latForPOI, lonForPOI, 1600);
+  const { data: pois, loading: poisLoading, error: poisError, refresh: refreshPOIs } = useNearbyPOIs(latForPOI, lonForPOI, 1000);
   const defaultCategories: Record<string, boolean> = {
     hospital: true,
     clinic: true,
@@ -78,6 +70,10 @@ export default function LeafletMap() {
     atm: true,
     hotel: true,
     restaurant: true,
+    tourist_attraction: true,
+    museum: true,
+    monument: true,
+    viewpoint: true,
   };
 
   const [activeCategories, setActiveCategories] = useState<Record<string, boolean>>(() => {
@@ -90,7 +86,6 @@ export default function LeafletMap() {
     return defaultCategories;
   });
 
-  // Persist filter choices so user sees same categories on reload
   useEffect(() => {
     try {
       localStorage.setItem('poi_filters', JSON.stringify(activeCategories));
@@ -99,7 +94,6 @@ export default function LeafletMap() {
     }
   }, [activeCategories]);
 
-  // Helper: compute great-circle distance (approx) in meters
   function distanceMeters(lat1: number, lon1: number, lat2: number, lon2: number) {
     const toRad = (d: number) => d * Math.PI / 180;
     const R = 6371000; // earth radius meters
@@ -109,12 +103,10 @@ export default function LeafletMap() {
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
     return R * c;
   }
-
-  // Auto-create a pack when POIs load while online (dev-friendly).
-  // Uses deterministic id per center+radius to avoid duplicates. Disabled by default.
+  // Auto-create a pack when online and POIs are available
   useEffect(() => {
-    const AUTO_CREATE_PACK = false; // toggle for dev; set true to enable auto-create during development
-    const RADIUS = 1600;
+    const AUTO_CREATE_PACK = false; 
+    const RADIUS = 1000; // 1km radius for essentials
     if (!AUTO_CREATE_PACK) return;
     if (!isOnline) return;
     if (!pois || pois.length === 0) return;
@@ -125,12 +117,9 @@ export default function LeafletMap() {
         const lonC = center[1];
         const id = `pack_${latC.toFixed(5)}_${lonC.toFixed(5)}_${RADIUS}`;
         const existing = await packManager.getPackManifest(id);
-        if (existing) return; // already created
-
+        if (existing) return;
         const ndjson = pois.map(p => JSON.stringify(p)).join('\n') + '\n';
-        // gzip compress using pako
         try {
-          // lazy import to keep pako out of SSR paths
           const pako = await import('pako');
           const encoded = new TextEncoder().encode(ndjson);
           const compressed = pako.gzip(encoded);
@@ -149,7 +138,6 @@ export default function LeafletMap() {
           };
           await packManager.createPack(manifest as any, compressedBlob);
         } catch (err) {
-          // fallback to uncompressed
           const blob = new Blob([ndjson], { type: 'application/x-ndjson' });
           const manifest = {
             id,
@@ -170,7 +158,6 @@ export default function LeafletMap() {
     })();
   }, [pois, isOnline]);
 
-  // When offline, try to load a nearby pack and use it as POI source
   useEffect(() => {
     if (isOnline) {
       setPackPois(null);
@@ -182,7 +169,6 @@ export default function LeafletMap() {
         const lonC = displayPosition ? displayPosition[1] : center[1];
         const manifests = await packManager.listPacks();
         if (!manifests || manifests.length === 0) return;
-        // find nearest manifest within its radius
         let chosen: any = null;
         for (const m of manifests) {
           if (!m.center || !Array.isArray(m.center) || m.center.length < 2) continue;
@@ -197,7 +183,6 @@ export default function LeafletMap() {
         const lines = txt.split('\n').filter(Boolean);
         const parsed = lines.map(l => JSON.parse(l) as POI);
           setPackPois(parsed);
-          // when loading automatically from nearby pack, also set forced center so map recenters
           if (chosen.center && Array.isArray(chosen.center) && chosen.center.length >= 2) {
             setForcedCenter([chosen.center[1], chosen.center[0]]);
           }
@@ -208,16 +193,13 @@ export default function LeafletMap() {
     })();
   }, [isOnline, displayPosition]);
 
-  // When a pack is selected explicitly, prioritize it regardless of online state
   const [selectedPackId, setSelectedPackId] = useState<string | null>(null);
-
-  // Choose which POIs to display: if a pack has been selected explicitly, always show it.
   const displayPois: POI[] = selectedPackId ? (packPois || []) : (isOnline ? (pois || []) : (packPois || pois || []));
 
   // Auto-create pack every 10 minutes with location-based naming
   useEffect(() => {
-    if (!isOnline) return; // Only create packs when online
-    if (!displayPosition) return; // Need valid position
+    if (!isOnline) return; 
+    if (!displayPosition) return; 
     
     const AUTO_PACK_INTERVAL = 10 * 60 * 1000; // 10 minutes in milliseconds
     
@@ -230,9 +212,8 @@ export default function LeafletMap() {
 
         const latC = displayPosition[0];
         const lonC = displayPosition[1];
-        const RADIUS = 1600;
+        const RADIUS = 1000; // 1km radius for essentials
 
-        // Fetch location name for pack naming
         let locationName = 'Unknown Location';
         try {
           const geoRes = await fetch(
@@ -242,16 +223,40 @@ export default function LeafletMap() {
           if (geoRes.ok) {
             const geoData = await geoRes.json();
             const addr = geoData.address || {};
-            // Prefer area/neighbourhood/suburb/city_district/locality for more precise names
-            const area = addr.neighbourhood || addr.suburb || addr.city_district || addr.locality || addr.hamlet || addr.village;
-            const city = addr.city || addr.town || addr.village || addr.county || addr.state;
+            const neighbourhood = addr.neighbourhood;
+            const suburb = addr.suburb;
+            const cityDistrict = addr.city_district;
+            const locality = addr.locality;
+            const city = addr.city || addr.town || addr.county;
+            const state = addr.state;
             const country = addr.country;
-            if (area && city) {
-              locationName = `${area}, ${city}`;
-            } else if (area) {
-              locationName = `${area}${city ? ', ' + city : ''}`;
+            const postcode = addr.postcode;    
+            let locationParts: string[] = [];
+ 
+            if (neighbourhood) {
+              locationParts.push(neighbourhood);
+            } else if (locality) {
+              locationParts.push(locality);
+            }
+            if (suburb && suburb !== neighbourhood) {
+              locationParts.push(suburb);
+            } else if (cityDistrict && cityDistrict !== neighbourhood) {
+              locationParts.push(cityDistrict);
+            } else if (city && city !== neighbourhood && city !== suburb) {
+              locationParts.push(city);
+            }
+            if (locationParts.length > 0) {
+              locationName = locationParts.join(', ');
+              if (postcode) {
+                locationName += ` - ${postcode}`;
+              }
             } else if (city) {
               locationName = city;
+              if (postcode) {
+                locationName += ` - ${postcode}`;
+              }
+            } else if (state) {
+              locationName = state;
             } else if (country) {
               locationName = country;
             } else {
@@ -263,13 +268,11 @@ export default function LeafletMap() {
           locationName = `${latC.toFixed(3)}, ${lonC.toFixed(3)}`;
         }
 
-        // Create unique ID with timestamp
         const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
         const id = `auto_${locationName.replace(/[^a-zA-Z0-9]/g, '_')}_${timestamp}`;
         
         const ndjson = pois.map(p => JSON.stringify(p)).join('\n') + '\n';
 
-        // Try gzip compression
         try {
           const pako = await import('pako');
           const encoded = new TextEncoder().encode(ndjson);
@@ -293,12 +296,10 @@ export default function LeafletMap() {
           await packManager.createPack(manifest as any, compressedBlob);
           logger.info('Auto-created pack:', locationName, 'with', pois.length, 'POIs');
           
-          // Show notification (you can add a toast library later)
           if (typeof window !== 'undefined') {
             console.log(`✅ Auto-pack created: ${locationName} (${pois.length} places)`);
           }
         } catch (err) {
-          // Fallback to uncompressed
           const blob = new Blob([ndjson], { type: 'application/x-ndjson' });
           const manifest = {
             id,
@@ -320,18 +321,14 @@ export default function LeafletMap() {
       }
     };
 
-    // Create first pack immediately
     createAutoPackWithLocation();
 
-    // Then create pack every 10 minutes
     const intervalId = setInterval(createAutoPackWithLocation, AUTO_PACK_INTERVAL);
 
-    // Cleanup on unmount or when dependencies change
     return () => clearInterval(intervalId);
-  }, [isOnline, displayPosition, pois, activeCategories]); // Re-run when these change
+  }, [isOnline, displayPosition, pois, activeCategories]);
 
 
-  // Compute compressed size preview for current POI selection (for UI)
   const [compressedPreview, setCompressedPreview] = useState<{ bytes: number; gzipped: boolean } | null>(null);
   useEffect(() => {
     let cancelled = false;
@@ -343,14 +340,12 @@ export default function LeafletMap() {
           return;
         }
         const ndjson = toPack.map(p => JSON.stringify(p)).join('\n') + '\n';
-        // try gzip
         try {
           const pako = await import('pako');
           const encoded = new TextEncoder().encode(ndjson);
           const compressed = pako.gzip(encoded);
           if (!cancelled) setCompressedPreview({ bytes: compressed.length, gzipped: true });
         } catch {
-          // fallback to uncompressed size
           const blob = new Blob([ndjson], { type: 'application/x-ndjson' });
           if (!cancelled) setCompressedPreview({ bytes: blob.size, gzipped: false });
         }
@@ -361,7 +356,6 @@ export default function LeafletMap() {
     return () => { cancelled = true; };
   }, [pois, activeCategories]);
 
-  // Helper function to create a pack from current POIs
   const createPackFromCurrentPOIs = async () => {
     if (!pois || pois.length === 0) {
       alert('No POIs available to create a pack');
@@ -371,9 +365,9 @@ export default function LeafletMap() {
     try {
       const latC = (displayPosition ? displayPosition[0] : center[0]);
       const lonC = (displayPosition ? displayPosition[1] : center[1]);
-      const RADIUS = 1600;
-      // Derive a friendly location name via reverse geocoding for better discoverability offline
+      const RADIUS = 1000; // 1km radius for essentials
       let locationName = 'Unknown Location';
+
       try {
         const geoRes = await fetch(
           `https://nominatim.openstreetmap.org/reverse?lat=${latC}&lon=${lonC}&format=jsonv2&addressdetails=1`,
@@ -382,15 +376,40 @@ export default function LeafletMap() {
         if (geoRes.ok) {
           const geoData = await geoRes.json();
           const addr = geoData.address || {};
-          const area = addr.neighbourhood || addr.suburb || addr.city_district || addr.locality || addr.hamlet || addr.village;
-          const city = addr.city || addr.town || addr.village || addr.county || addr.state;
+          const neighbourhood = addr.neighbourhood;
+          const suburb = addr.suburb;
+          const cityDistrict = addr.city_district;
+          const locality = addr.locality;
+          const city = addr.city || addr.town || addr.county;
+          const state = addr.state;
           const country = addr.country;
-          if (area && city) {
-            locationName = `${area}, ${city}`;
-          } else if (area) {
-            locationName = `${area}${city ? ', ' + city : ''}`;
+          const postcode = addr.postcode;
+          let locationParts: string[] = [];
+          if (neighbourhood) {
+            locationParts.push(neighbourhood);
+          } else if (locality) {
+            locationParts.push(locality);
+          }
+          if (suburb && suburb !== neighbourhood) {
+            locationParts.push(suburb);
+          } else if (cityDistrict && cityDistrict !== neighbourhood) {
+            locationParts.push(cityDistrict);
+          } else if (city && city !== neighbourhood && city !== suburb) {
+            locationParts.push(city);
+          }
+          
+          if (locationParts.length > 0) {
+            locationName = locationParts.join(', ');
+            if (postcode) {
+              locationName += ` - ${postcode}`;
+            }
           } else if (city) {
             locationName = city;
+            if (postcode) {
+              locationName += ` - ${postcode}`;
+            }
+          } else if (state) {
+            locationName = state;
           } else if (country) {
             locationName = country;
           } else {
@@ -403,8 +422,7 @@ export default function LeafletMap() {
         logger.warn('Geocoding failed for manual pack naming, using coordinates', err);
         locationName = `${latC.toFixed(3)}, ${lonC.toFixed(3)}`;
       }
-
-      // Create unique ID with timestamp, mark as manual
+      
       const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
       const id = `manual_${locationName.replace(/[^a-zA-Z0-9]/g, '_')}_${timestamp}`;
       
@@ -472,9 +490,9 @@ export default function LeafletMap() {
         }
       `}</style>
 
-      <div className="flex flex-col h-screen">
-      {/* Top Navigation */}
-      <TopNav 
+      <div className="flex flex-col h-full">
+      {/* Essentials Navigation Sidebar */}
+      <EssentialsNavSidebar
         onPackSelect={(manifest, pois) => {
           setPackPois(pois);
           setSelectedPackId(manifest.id);
@@ -486,19 +504,50 @@ export default function LeafletMap() {
         onPackCreated={() => {
           // Optionally refresh or notify user
         }}
+        onUnloadAndGoLive={() => {
+          setSelectedPackId(null);
+          setPackPois(null);
+          setForcedCenter(null);
+        }}
+        isPackLoaded={!!selectedPackId}
       />
 
       {/* Location Details Horizontal */}
       <div className="px-6 py-4">
         {displayPosition ? (
-          <LocationDetailsHorizontal lat={displayPosition[0]} lon={displayPosition[1]} />
+          <div className="space-y-2">
+            {/* Location Accuracy Indicator */}
+            <div className="flex items-center gap-2 text-xs">
+              <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${
+                isOnline 
+                  ? 'bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800' 
+                  : 'bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
+              }`}>
+                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                </svg>
+                <span className="font-medium">
+                  {isOnline ? 'Live GPS Location' : 'Cached Location'}
+                </span>
+              </div>
+              {pois && pois.length > 0 && (
+                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  </svg>
+                  <span className="font-medium">{pois.length} places found</span>
+                </div>
+              )}
+            </div>
+            <LocationDetailsHorizontal lat={displayPosition[0]} lon={displayPosition[1]} />
+          </div>
         ) : (
-          <div className="bg-gradient-to-r from-slate-50 to-white border border-slate-200 rounded-xl px-6 py-3 shadow-md">
+          <div className="bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-6 py-3 shadow-md">
             <div className="flex items-center gap-3">
-              <svg className="w-5 h-5 text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <svg className="w-5 h-5 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               </svg>
-              <span className="text-sm text-slate-500">Waiting for location...</span>
+              <span className="text-sm text-slate-500 dark:text-slate-400">Waiting for location...</span>
             </div>
           </div>
         )}

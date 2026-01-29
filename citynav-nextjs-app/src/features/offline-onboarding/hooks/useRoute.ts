@@ -23,22 +23,19 @@ export const useRoute = (from?: { lat: number; lon: number } | null, to?: { lat:
 
   const lastKeyRef = useRef<string | null>(null);
   const timerRef = useRef<number | null>(null);
-  // simple in-memory cache for routes during session
   const cacheRef = useRef<Record<string, RouteResult>>({});
 
   const fetchRoute = useCallback(async () => {
     setError(null);
     if (!from || !to) return;
     const key = `${from.lat},${from.lon}:${to.lat},${to.lon}`;
-
-    // serve from cache if available
     const cached = cacheRef.current[key];
     if (cached) {
       setRoute(cached);
       return;
     }
 
-    if (lastKeyRef.current === key) return; // identical request in-flight or recent
+    if (lastKeyRef.current === key) return; 
     lastKeyRef.current = key;
 
     setLoading(true);
@@ -73,13 +70,11 @@ export const useRoute = (from?: { lat: number; lon: number } | null, to?: { lat:
       }
 
       const result: RouteResult = { geometry: coords, distance: r.distance, duration: r.duration, steps };
-      // cache the successful route
       cacheRef.current[key] = result;
       setRoute(result);
     } catch (e) {
       console.error('Route fetch failed', e);
       setError((e as Error).message || 'Route error');
-      // keep previous route on error to avoid blinking
     } finally {
       setLoading(false);
     }

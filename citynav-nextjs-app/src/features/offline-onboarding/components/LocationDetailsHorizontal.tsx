@@ -207,10 +207,10 @@ const LocationDetailsHorizontal: React.FC<LocationDetailsHorizontalProps> = ({ l
 
   if (loading) {
     return (
-      <div className="bg-gradient-to-r from-white to-slate-50 border border-slate-200 rounded-xl px-6 py-3 shadow-md">
+      <div className="bg-gradient-to-r from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-6 py-3 shadow-md">
         <div className="flex items-center gap-3">
-          <div className="w-5 h-5 border-2 border-slate-300 border-t-indigo-600 rounded-full animate-spin" />
-          <span className="text-sm text-slate-600 font-medium">Loading location...</span>
+          <div className="w-5 h-5 border-2 border-slate-300 dark:border-slate-600 border-t-indigo-600 dark:border-t-indigo-400 rounded-full animate-spin" />
+          <span className="text-sm text-slate-600 dark:text-slate-400 font-medium">Loading location...</span>
         </div>
       </div>
     );
@@ -230,23 +230,28 @@ const LocationDetailsHorizontal: React.FC<LocationDetailsHorizontalProps> = ({ l
   }
 
   return (
-    <div className="bg-gradient-to-r from-white to-slate-50 border border-slate-200 rounded-xl shadow-md overflow-hidden">
+    <div className="bg-gradient-to-r from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl shadow-md overflow-hidden">
       <div className="px-6 py-3 grid grid-cols-2 gap-6">
         {/* Address Section */}
         <div className="flex items-center gap-4">
           <div className="flex-shrink-0">
-            <svg className="w-5 h-5 text-indigo-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <svg className="w-5 h-5 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </div>
           <div className="min-w-0 flex-1">
-            <div className="text-sm font-semibold text-slate-900 truncate">
-              {address?.city || address?.town || address?.village || "Unknown City"}
+            <div className="text-sm font-semibold text-slate-900 dark:text-slate-100 truncate">
+              {/* Prioritize city over neighborhood for display */}
+              {address?.city || address?.town || address?.suburb || address?.village || "Unknown City"}
               {address?.state && `, ${address.state}`}
             </div>
-            <div className="text-xs text-slate-500 truncate">
-              {address?.country || "Unknown"} {address?.postcode && `· ${address.postcode}`}
+            <div className="text-xs text-slate-500 dark:text-slate-400 truncate">
+              {/* Show neighborhood if city is present, otherwise show country */}
+              {(address?.city || address?.town) && address?.suburb && address?.suburb !== (address?.city || address?.town) 
+                ? `${address.suburb} · ${address?.country || ""}` 
+                : (address?.country || "Unknown")} 
+              {address?.postcode && ` · ${address.postcode}`}
             </div>
           </div>
           {!isOnline && (

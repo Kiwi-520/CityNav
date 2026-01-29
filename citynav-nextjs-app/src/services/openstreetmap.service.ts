@@ -1,8 +1,3 @@
-/**
- * OpenStreetMap API Service for fetching Points of Interest (POIs)
- * This service uses Overpass API to query OpenStreetMap data
- */
-
 export interface OSMNode {
   type: "node";
   id: number;
@@ -42,7 +37,20 @@ export interface POIData {
     | "cafe"
     | "park"
     | "police"
-    | "fire_station";
+    | "fire_station"
+    | "general_store"
+    | "medical"
+    | "bus_station"
+    | "train_station"
+    | "metro_station"
+    | "parking"
+    | "post_office"
+    | "school"
+    | "college"
+    | "library"
+    | "gym"
+    | "shopping_mall"
+    | "market";
   name: string;
   lat: number;
   lng: number;
@@ -69,13 +77,10 @@ class OpenStreetMapService {
     "https://nominatim.openstreetmap.org";
   private poiCounter = 0; // Counter for unique IDs
 
-  /**
-   * Fetch POIs near a given location
-   */
   async fetchNearbyPOIs(
     lat: number,
     lng: number,
-    radius: number = 2000, // radius in meters
+    radius: number = 1000, // Changed to 1km radius (1000 meters)
     poiTypes: string[] = ["all"]
   ): Promise<POIData[]> {
     console.log("🔍 OSM Service: Starting POI fetch");
@@ -136,9 +141,6 @@ class OpenStreetMapService {
     }
   }
 
-  /**
-   * Enrich POIs with area information using reverse geocoding
-   */
   private async enrichPOIsWithArea(pois: POIData[]): Promise<POIData[]> {
     const enrichedPOIs = await Promise.all(
       pois.map(async (poi) => {
@@ -201,9 +203,6 @@ class OpenStreetMapService {
     }
   }
 
-  /**
-   * Build Overpass API queries for different POI types
-   */
   private buildOverpassQueries(
     lat: number,
     lng: number,
@@ -356,9 +355,6 @@ class OpenStreetMapService {
     return queries;
   }
 
-  /**
-   * Get bounding box for the given center and radius
-   */
   private getBoundingBox(lat: number, lng: number, radius: number): string {
     const earthRadius = 6371000; // Earth's radius in meters
     const latDelta = (radius / earthRadius) * (180 / Math.PI);
@@ -374,9 +370,6 @@ class OpenStreetMapService {
     return `${south},${west},${north},${east}`;
   }
 
-  /**
-   * Parse Overpass API response to POI data
-   */
   private parseOverpassResponse(
     data: OSMResponse,
     userLat: number,
@@ -390,7 +383,6 @@ class OpenStreetMapService {
     data.elements.forEach((element: OSMNode | OSMWay) => {
       const poi = this.elementToPOI(element);
       if (poi) {
-        // Calculate distance and filter by radius
         const distance = this.calculateDistance(
           userLat,
           userLng,
@@ -398,7 +390,6 @@ class OpenStreetMapService {
           poi.lng
         );
 
-        // Only include POIs within the specified radius
         if (distance <= maxRadius) {
           pois.push(poi);
         } else {
@@ -412,9 +403,7 @@ class OpenStreetMapService {
     return pois;
   }
 
-  /**
-   * Calculate distance between two points in meters using Haversine formula
-   */
+
   private calculateDistance(
     lat1: number,
     lng1: number,
@@ -434,9 +423,6 @@ class OpenStreetMapService {
     return R * c; // Distance in meters
   }
 
-  /**
-   * Convert OSM element to POI data
-   */
   private elementToPOI(element: OSMNode | OSMWay): POIData | null {
     const tags = element.tags || {};
     let lat: number, lng: number;
@@ -451,7 +437,6 @@ class OpenStreetMapService {
       return null;
     }
 
-    // Determine POI type
     let type: POIData["type"];
     if (tags.amenity === "toilets" || tags.toilets) {
       type = "restroom";
@@ -488,17 +473,14 @@ class OpenStreetMapService {
       return null;
     }
 
-    // Generate name
     const name =
       tags.name ||
       tags["name:en"] ||
       tags.brand ||
       this.getDefaultName(type, tags);
 
-    // Generate mock ratings (in a real app, this would come from user reviews)
     const ratings = this.generateMockRatings(type);
 
-    // Extract area from tags
     const area =
       tags["addr:suburb"] ||
       tags["addr:district"] ||
@@ -506,7 +488,6 @@ class OpenStreetMapService {
       tags["addr:neighbourhood"] ||
       undefined;
 
-    // Generate truly unique ID - use OSM element ID which is guaranteed unique
     const poi: POIData = {
       id: `poi_${element.type}_${element.id}`,
       type,
@@ -524,11 +505,7 @@ class OpenStreetMapService {
     return poi;
   }
 
-  /**
-   * Generate default name for POI
-   */
   private getDefaultName(type: POIData["type"], tags: OSMTags): string {
-    // Try to build a more descriptive name from tags
     if (type === "atm") {
       const operator = tags.operator || tags.bank || tags.brand;
       return operator ? `${operator} ATM` : "ATM";
@@ -571,9 +548,6 @@ class OpenStreetMapService {
     return defaults[type] || "Point of Interest";
   }
 
-  /**
-   * Generate mock ratings (replace with real rating system)
-   */
   private generateMockRatings(type: POIData["type"]) {
     const baseRating = 3.5 + Math.random() * 1.5;
 
@@ -623,9 +597,6 @@ class OpenStreetMapService {
     }
   }
 
-  /**
-   * Generate description from tags
-   */
   private generateDescription(type: POIData["type"], tags: OSMTags): string {
     const descriptions: { [key: string]: string } = {
       restroom: `Public restroom${
@@ -645,9 +616,6 @@ class OpenStreetMapService {
     return descriptions[type] || "Point of interest";
   }
 
-  /**
-   * Extract amenities from tags
-   */
   private extractAmenities(tags: OSMTags): string[] {
     const amenities: string[] = [];
 
@@ -661,14 +629,10 @@ class OpenStreetMapService {
     return amenities;
   }
 
-  /**
-   * Remove duplicate POIs based on their unique ID
-   */
   private removeDuplicates(pois: POIData[]): POIData[] {
     const seen = new Map<string, POIData>();
 
     for (const poi of pois) {
-      // Use the POI ID as the unique key - this ensures no duplicate IDs
       if (!seen.has(poi.id)) {
         seen.set(poi.id, poi);
       } else {
@@ -679,9 +643,6 @@ class OpenStreetMapService {
     return Array.from(seen.values());
   }
 
-  /**
-   * Fallback POI data when API fails
-   */
   private getFallbackPOIs(lat: number, lng: number): POIData[] {
     console.log("🔄 Using fallback POIs for", lat, lng);
     return [
@@ -743,9 +704,6 @@ class OpenStreetMapService {
     ];
   }
 
-  /**
-   * Search for places using Nominatim
-   */
   async searchPlaces(
     query: string,
     lat?: number,
@@ -771,6 +729,5 @@ class OpenStreetMapService {
   }
 }
 
-// Export singleton instance
 export const osmService = new OpenStreetMapService();
 export default osmService;

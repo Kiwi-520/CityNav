@@ -1,14 +1,5 @@
-/**
- * Lightweight IndexedDB pack manager for CityNav
- * - Stores pack manifests in `manifests` store and pack binary data in `data` store
- * - Exposes: createPack, listPacks, getPackManifest, getPackData, deletePack, estimateSize
- * The module is intentionally small and dependency-free; it wraps the IndexedDB API with
- * Promises and provides convenience helpers for reading/decompressing stored packs.
- */
-
 export type PackManifest = {
   id: string;
-  // Optional human-friendly name for display (e.g., "Mumbai - 1/13/2025, 3:45 PM")
   name?: string;
   bbox: [number, number, number, number]; // [minLon,minLat,maxLon,maxLat]
   center: [number, number]; // [lon,lat]
@@ -63,7 +54,6 @@ async function withStore<T>(storeName: string, mode: IDBTransactionMode, cb: (st
 export async function createPack(manifest: PackManifest, data: Blob | ArrayBuffer | string): Promise<void> {
   const blob = typeof data === 'string' ? new Blob([data], { type: 'application/json' }) : data instanceof ArrayBuffer ? new Blob([data]) : data;
 
-  // Write manifest and data in a single transaction
   const db = await openDB();
   return new Promise<void>((resolve, reject) => {
     const tx = db.transaction([MANIFEST_STORE, DATA_STORE], 'readwrite');
@@ -121,7 +111,6 @@ export async function getPackData(id: string): Promise<Blob | null> {
   });
 }
 
-// Convenience: getPackText will decompress gzip blobs automatically if needed.
 export async function getPackText(id: string): Promise<string | null> {
   const manifest = await getPackManifest(id);
   const blob = await getPackData(id);
@@ -130,14 +119,9 @@ export async function getPackText(id: string): Promise<string | null> {
     const buffer = await blob.arrayBuffer();
     try {
       const pako = await import('pako');
-      // pako.ungzip returns Uint8Array — ask for string output for convenience
       const decompressed = pako.ungzip(new Uint8Array(buffer), { to: 'string' });
       return decompressed;
     } catch (err) {
-      // If decompression fails, try returning raw text as a last resort.
-      // Avoid throwing here so callers can present a friendly error instead.
-      // Use logger for consistent structured logging.
-      // eslint-disable-next-line @typescript-eslint/no-var-requires
       const logger = (await import('@/features/offline-onboarding/lib/logger')).default;
       logger.warn('gunzip failed in packManager.getPackText()', err);
       return await blob.text();
@@ -160,13 +144,11 @@ export async function deletePack(id: string): Promise<boolean> {
 }
 
 export async function estimateSize(): Promise<{ totalBytes: number; count: number }> {
-  // Sum the sizeBytes in manifests where available as a quick estimate.
   const manifests = await listPacks();
   const totalBytes = manifests.reduce((s, m) => s + (m.sizeBytes || 0), 0);
   return { totalBytes, count: manifests.length };
 }
 
-// Utility: stream NDJSON blob into array (small convenience for testing)
 export async function readPackAsText(id: string): Promise<string | null> {
   const blob = await getPackData(id);
   if (!blob) return null;

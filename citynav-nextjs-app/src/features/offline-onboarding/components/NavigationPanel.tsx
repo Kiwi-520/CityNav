@@ -25,7 +25,7 @@ export default function NavigationPanel({ selectedDest, setSelectedDest, route, 
               </svg>
               <h3 className="text-base font-semibold text-slate-900">Navigation</h3>
             </div>
-            <div className="text-xs text-slate-500 font-mono mt-1 truncate">
+            <div className="text-xs text-slate-500 dark:text-slate-400 font-mono mt-1 truncate">
               {selectedDest.lat.toFixed(5)}, {selectedDest.lon.toFixed(5)}
             </div>
           </div>
@@ -61,36 +61,36 @@ export default function NavigationPanel({ selectedDest, setSelectedDest, route, 
             <div className="space-y-4">
               {/* Stats */}
               <div className="grid grid-cols-2 gap-3">
-                <div className="bg-gradient-to-br from-indigo-50 to-white border border-indigo-200 rounded-xl p-3 shadow-sm">
-                  <div className="flex items-center gap-2 text-indigo-600 mb-1">
+                <div className="bg-gradient-to-br from-indigo-50 to-white dark:from-indigo-950/50 dark:to-slate-800 border border-indigo-200 dark:border-indigo-800 rounded-xl p-3 shadow-sm">
+                  <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 mb-1">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
                     </svg>
                     <span className="text-xs font-semibold uppercase tracking-wide">Distance</span>
                   </div>
-                  <div className="text-2xl font-bold text-slate-900">{(route.distance/1000).toFixed(2)} <span className="text-sm text-slate-500 font-normal">km</span></div>
+                  <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">{(route.distance/1000).toFixed(2)} <span className="text-sm text-slate-500 dark:text-slate-400 font-normal">km</span></div>
                 </div>
 
-                <div className="bg-gradient-to-br from-emerald-50 to-white border border-emerald-200 rounded-xl p-3 shadow-sm">
-                  <div className="flex items-center gap-2 text-emerald-600 mb-1">
+                <div className="bg-gradient-to-br from-emerald-50 to-white dark:from-emerald-950/50 dark:to-slate-800 border border-emerald-200 dark:border-emerald-800 rounded-xl p-3 shadow-sm">
+                  <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 mb-1">
                     <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                     </svg>
                     <span className="text-xs font-semibold uppercase tracking-wide">ETA</span>
                   </div>
-                  <div className="text-2xl font-bold text-slate-900">{Math.ceil(route.duration/60)} <span className="text-sm text-slate-500 font-normal">min</span></div>
+                  <div className="text-2xl font-bold text-slate-900 dark:text-slate-100">{Math.ceil(route.duration/60)} <span className="text-sm text-slate-500 dark:text-slate-400 font-normal">min</span></div>
                 </div>
               </div>
 
               {/* Directions */}
-              <div className="bg-gradient-to-br from-white to-slate-50 border-2 border-slate-200 rounded-xl shadow-sm">
-                <div className="px-4 py-3 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
-                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                    <svg className="w-4 h-4 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <div className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-xl shadow-sm">
+                <div className="px-4 py-3 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900">
+                  <div className="flex items-center gap-2 text-sm font-semibold text-slate-900 dark:text-slate-100">
+                    <svg className="w-4 h-4 text-slate-600 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                       <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                     </svg>
                     Turn-by-turn directions
-                    <span className="ml-auto px-2 py-0.5 bg-slate-100 text-slate-600 rounded-full text-xs">
+                    <span className="ml-auto px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-full text-xs">
                       {route.steps.length} steps
                     </span>
                   </div>

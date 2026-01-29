@@ -1,0 +1,259 @@
+{
+  "mumbai": {
+    "cityName": "Mumbai",
+    "apps": [
+      {
+        "name": "Chalo",
+        "category": "Bus",
+        "description": "Real-time bus tracking and schedules",
+        "icon": "🚌",
+        "url": "https://play.google.com/store/apps/details?id=com.app.chalo",
+        "webUrl": "https://www.chalo.com"
+      },
+      {
+        "name": "IRCTC Rail Connect",
+        "category": "Train",
+        "description": "Book train tickets and check PNR status",
+        "icon": "🚂",
+        "url": "https://play.google.com/store/apps/details?id=cris.org.in.prs.ima",
+        "webUrl": "https://www.irctc.co.in"
+      },
+      {
+        "name": "RailYatri",
+        "category": "Train",
+        "description": "Train running status and seat availability",
+        "icon": "🚆",
+        "url": "https://play.google.com/store/apps/details?id=com.railyatri.in.mobile",
+        "webUrl": "https://www.railyatri.in"
+      },
+      {
+        "name": "Mumbai Metro One",
+        "category": "Metro",
+        "description": "Mumbai metro schedules and fares",
+        "icon": "🚇",
+        "url": "https://play.google.com/store/apps/details?id=com.mmopl.app",
+        "webUrl": "https://www.metrorailways.in"
+      },
+      {
+        "name": "m-Indicator",
+        "category": "Train Timing",
+        "description": "Mumbai local train timings and schedules",
+        "icon": "🕐",
+        "url": "https://play.google.com/store/apps/details?id=com.mobond.mindicator",
+        "webUrl": "https://m-indicator.in"
+      },
+      {
+        "name": "Uber",
+        "category": "Taxi",
+        "description": "Book cabs and auto rides",
+        "icon": "🚖",
+        "url": "https://play.google.com/store/apps/details?id=com.ubercab",
+        "webUrl": "https://www.uber.com"
+      },
+      {
+        "name": "BEST Undertaking",
+        "category": "Bus",
+        "description": "Official BEST bus app",
+        "icon": "🚍",
+        "url": "https://play.google.com/store/apps/details?id=in.gov.bestundertaking.app",
+        "webUrl": "https://www.bestundertaking.com"
+      }
+    ]
+  },
+  "pune": {
+    "cityName": "Pune",
+    "apps": [
+      {
+        "name": "Chalo",
+        "category": "Bus",
+        "description": "Real-time PMPML bus tracking",
+        "icon": "🚌",
+        "url": "https://play.google.com/store/apps/details?id=com.app.chalo",
+        "webUrl": "https://www.chalo.com"
+      },
+      {
+        "name": "IRCTC Rail Connect",
+        "category": "Train",
+        "description": "Book train tickets and check PNR status",
+        "icon": "🚂",
+        "url": "https://play.google.com/store/apps/details?id=cris.org.in.prs.ima",
+        "webUrl": "https://www.irctc.co.in"
+      },
+      {
+        "name": "Pune Metro",
+        "category": "Metro",
+        "description": "Pune metro schedules and routes",
+        "icon": "🚇",
+        "url": "https://play.google.com/store/apps/details?id=com.mahametro.punemetro",
+        "webUrl": "https://punemetrorail.org"
+      },
+      {
+        "name": "Ola",
+        "category": "Taxi",
+        "description": "Book cabs and auto rides",
+        "icon": "🚖",
+        "url": "https://play.google.com/store/apps/details?id=com.olacabs.customer",
+        "webUrl": "https://www.olacabs.com"
+      },
+      {
+        "name": "RailYatri",
+        "category": "Train",
+        "description": "Train running status and schedules",
+        "icon": "🚆",
+        "url": "https://play.google.com/store/apps/details?id=com.railyatri.in.mobile",
+        "webUrl": "https://www.railyatri.in"
+      }
+    ]
+  },
+  "delhi": {
+    "cityName": "Delhi",
+    "apps": [
+      {
+        "name": "DTC Bus Sewa",
+        "category": "Bus",
+        "description": "Delhi bus tracking and schedules",
+        "icon": "🚌",
+        "url": "https://play.google.com/store/apps/details?id=com.dtc.bussewa",
+        "webUrl": "https://www.dtc.delhi.gov.in"
+      },
+      {
+        "name": "Delhi Metro Rail",
+        "category": "Metro",
+        "description": "Official Delhi metro app",
+        "icon": "🚇",
+        "url": "https://play.google.com/store/apps/details?id=com.delhimetrorail.app",
+        "webUrl": "https://www.delhimetrorail.com"
+      },
+      {
+        "name": "IRCTC Rail Connect",
+        "category": "Train",
+        "description": "Book train tickets and check PNR status",
+        "icon": "🚂",
+        "url": "https://play.google.com/store/apps/details?id=cris.org.in.prs.ima",
+        "webUrl": "https://www.irctc.co.in"
+      },
+      {
+        "name": "Rapido",
+        "category": "Bike Taxi",
+        "description": "Quick bike taxi rides",
+        "icon": "🏍️",
+        "url": "https://play.google.com/store/apps/details?id=com.rapido.passenger",
+        "webUrl": "https://www.rapido.bike"
+      },
+      {
+        "name": "Uber",
+        "category": "Taxi",
+        "description": "Book cabs and auto rides",
+        "icon": "🚖",
+        "url": "https://play.google.com/store/apps/details?id=com.ubercab",
+        "webUrl": "https://www.uber.com"
+      },
+      {
+        "name": "RailYatri",
+        "category": "Train",
+        "description": "Train running status and schedules",
+        "icon": "🚆",
+        "url": "https://play.google.com/store/apps/details?id=com.railyatri.in.mobile",
+        "webUrl": "https://www.railyatri.in"
+      }
+    ]
+  },
+  "bangalore": {
+    "cityName": "Bangalore",
+    "apps": [
+      {
+        "name": "Namma Metro",
+        "category": "Metro",
+        "description": "Bangalore metro schedules and routes",
+        "icon": "🚇",
+        "url": "https://play.google.com/store/apps/details?id=com.bmrcl.nammametro",
+        "webUrl": "https://english.bmrc.co.in"
+      },
+      {
+        "name": "BMTC Official",
+        "category": "Bus",
+        "description": "Bangalore bus tracking",
+        "icon": "🚌",
+        "url": "https://play.google.com/store/apps/details?id=com.bmtc.mticket",
+        "webUrl": "https://www.mybmtc.com"
+      },
+      {
+        "name": "Chalo",
+        "category": "Bus",
+        "description": "Real-time BMTC bus tracking",
+        "icon": "🚍",
+        "url": "https://play.google.com/store/apps/details?id=com.app.chalo",
+        "webUrl": "https://www.chalo.com"
+      },
+      {
+        "name": "IRCTC Rail Connect",
+        "category": "Train",
+        "description": "Book train tickets and check PNR status",
+        "icon": "🚂",
+        "url": "https://play.google.com/store/apps/details?id=cris.org.in.prs.ima",
+        "webUrl": "https://www.irctc.co.in"
+      },
+      {
+        "name": "Rapido",
+        "category": "Bike Taxi",
+        "description": "Quick bike taxi rides",
+        "icon": "🏍️",
+        "url": "https://play.google.com/store/apps/details?id=com.rapido.passenger",
+        "webUrl": "https://www.rapido.bike"
+      },
+      {
+        "name": "Ola",
+        "category": "Taxi",
+        "description": "Book cabs and auto rides",
+        "icon": "🚖",
+        "url": "https://play.google.com/store/apps/details?id=com.olacabs.customer",
+        "webUrl": "https://www.olacabs.com"
+      }
+    ]
+  },
+  "default": {
+    "cityName": "Your City",
+    "apps": [
+      {
+        "name": "IRCTC Rail Connect",
+        "category": "Train",
+        "description": "Book train tickets and check PNR status",
+        "icon": "🚂",
+        "url": "https://play.google.com/store/apps/details?id=cris.org.in.prs.ima",
+        "webUrl": "https://www.irctc.co.in"
+      },
+      {
+        "name": "RailYatri",
+        "category": "Train",
+        "description": "Train running status and schedules",
+        "icon": "🚆",
+        "url": "https://play.google.com/store/apps/details?id=com.railyatri.in.mobile",
+        "webUrl": "https://www.railyatri.in"
+      },
+      {
+        "name": "Uber",
+        "category": "Taxi",
+        "description": "Book cabs and rides",
+        "icon": "🚖",
+        "url": "https://play.google.com/store/apps/details?id=com.ubercab",
+        "webUrl": "https://www.uber.com"
+      },
+      {
+        "name": "Ola",
+        "category": "Taxi",
+        "description": "Book cabs and auto rides",
+        "icon": "🚕",
+        "url": "https://play.google.com/store/apps/details?id=com.olacabs.customer",
+        "webUrl": "https://www.olacabs.com"
+      },
+      {
+        "name": "Google Maps",
+        "category": "Navigation",
+        "description": "Navigate and explore places",
+        "icon": "🗺️",
+        "url": "https://play.google.com/store/apps/details?id=com.google.android.apps.maps",
+        "webUrl": "https://www.google.com/maps"
+      }
+    ]
+  }
+}

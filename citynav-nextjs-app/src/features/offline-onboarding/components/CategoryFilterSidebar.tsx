@@ -19,6 +19,12 @@ type Section = {
 
 const sections: Section[] = [
   {
+    title: 'Tourist Attractions',
+    icon: '🎭',
+    categories: ['tourist_attraction', 'museum', 'monument', 'viewpoint'],
+    color: 'purple',
+  },
+  {
     title: 'Healthcare',
     icon: '🏥',
     categories: ['hospital', 'clinic'],
@@ -45,13 +51,18 @@ const sections: Section[] = [
 ];
 
 const colorMap: Record<string, { bg: string; border: string; text: string; hover: string }> = {
-  red: { bg: 'bg-red-50', border: 'border-red-200', text: 'text-red-700', hover: 'hover:bg-red-100' },
-  blue: { bg: 'bg-blue-50', border: 'border-blue-200', text: 'text-blue-700', hover: 'hover:bg-blue-100' },
-  green: { bg: 'bg-green-50', border: 'border-green-200', text: 'text-green-700', hover: 'hover:bg-green-100' },
-  amber: { bg: 'bg-amber-50', border: 'border-amber-200', text: 'text-amber-700', hover: 'hover:bg-amber-100' },
+  purple: { bg: 'bg-purple-50 dark:bg-purple-950/30', border: 'border-purple-200 dark:border-purple-800', text: 'text-purple-700 dark:text-purple-300', hover: 'hover:bg-purple-100 dark:hover:bg-purple-900/40' },
+  red: { bg: 'bg-red-50 dark:bg-red-950/30', border: 'border-red-200 dark:border-red-800', text: 'text-red-700 dark:text-red-300', hover: 'hover:bg-red-100 dark:hover:bg-red-900/40' },
+  blue: { bg: 'bg-blue-50 dark:bg-blue-950/30', border: 'border-blue-200 dark:border-blue-800', text: 'text-blue-700 dark:text-blue-300', hover: 'hover:bg-blue-100 dark:hover:bg-blue-900/40' },
+  green: { bg: 'bg-green-50 dark:bg-green-950/30', border: 'border-green-200 dark:border-green-800', text: 'text-green-700 dark:text-green-300', hover: 'hover:bg-green-100 dark:hover:bg-green-900/40' },
+  amber: { bg: 'bg-amber-50 dark:bg-amber-950/30', border: 'border-amber-200 dark:border-amber-800', text: 'text-amber-700 dark:text-amber-300', hover: 'hover:bg-amber-100 dark:hover:bg-amber-900/40' },
 };
 
 const categoryIcons: Record<string, string> = {
+  tourist_attraction: '🎭',
+  museum: '🏛️',
+  monument: '🗿',
+  viewpoint: '👁️',
   hospital: '🏥',
   clinic: '⚕️',
   railway: '🚆',
@@ -76,6 +87,7 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 
 export default function CategoryFilterSidebar({ pois, poisLoading, onNavigate, userPosition }: Props) {
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
+    'Tourist Attractions': true,
     Healthcare: true,
     Transportation: true,
     Finance: true,
@@ -98,16 +110,16 @@ export default function CategoryFilterSidebar({ pois, poisLoading, onNavigate, u
   }
 
   return (
-    <div className="w-80 flex-shrink-0 bg-white border-r border-slate-200 shadow-sm overflow-y-auto">
-      <div className="sticky top-0 bg-gradient-to-r from-slate-50 to-white px-4 py-4 border-b border-slate-200 z-10">
-        <h3 className="text-base font-semibold text-slate-900 flex items-center gap-2">
-          <svg className="w-5 h-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div className="w-80 flex-shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 shadow-sm overflow-y-auto">
+      <div className="sticky top-0 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 px-4 py-4 border-b border-slate-200 dark:border-slate-700 z-10">
+        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+          <svg className="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
           </svg>
           Nearby Places
         </h3>
-        <p className="text-xs text-slate-500 mt-1">Explore places around you</p>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">Explore places around you</p>
       </div>
 
       {poisLoading && (

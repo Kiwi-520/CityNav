@@ -1,38 +1,58 @@
 {
   "name": "CityNav - Urban Navigation Assistant",
   "short_name": "CityNav",
-  "description": "Smart city navigation app for urban travelers",
-  "start_url": "/",
+  "description": "Smart city navigation app with offline support for finding essential places like hospitals, ATMs, restaurants, and more. Works even without internet!",
+  "start_url": "/essential-maps",
   "display": "standalone",
   "background_color": "#ffffff",
-  "theme_color": "#0070f3",
-  "orientation": "portrait",
+  "theme_color": "#1976d2",
+  "orientation": "portrait-primary",
   "scope": "/",
-  "categories": ["navigation", "travel", "utilities"],
+  "categories": ["navigation", "travel", "utilities", "lifestyle"],
+  "prefer_related_applications": false,
   "icons": [
     {
       "src": "/icon-192x192.png",
       "sizes": "192x192",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
     },
     {
       "src": "/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable any"
+      "purpose": "any"
     },
     {
-      "src": "/icon-192x192.svg",
+      "src": "/icon-192x192.png",
       "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "maskable any"
+      "type": "image/png",
+      "purpose": "maskable"
     },
     {
-      "src": "/icon-512x512.svg",
+      "src": "/icon-512x512.png",
       "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "maskable any"
+      "type": "image/png",
+      "purpose": "maskable"
     }
+  ],
+  "shortcuts": [
+    {
+      "name": "Essential Maps",
+      "short_name": "Maps",
+      "description": "Find nearby essential places",
+      "url": "/essential-maps",
+      "icons": [{ "src": "/icon-192x192.png", "sizes": "192x192" }]
+    }
+  ],
+  "screenshots": [],
+  "permissions": [
+    "geolocation"
+  ],
+  "features": [
+    "Cross Platform",
+    "Offline Support",
+    "Location Services",
+    "Real-time Navigation"
   ]
 }
