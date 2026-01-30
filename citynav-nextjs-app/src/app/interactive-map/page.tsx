@@ -20,6 +20,7 @@ export default function InteractiveMapRedirect() {
         background:
           "linear-gradient(135deg, var(--primary) 0%, var(--tertiary) 100%)",
         color: "white",
+        backgroundAttachment: "fixed",
       }}
     >
       <div style={{ textAlign: "center" }}>

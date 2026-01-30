@@ -49,6 +49,7 @@ const Onboarding: React.FC<OnboardingProps> = ({ detectedCity, error, onDismiss,
             minHeight: '100vh',
             backgroundColor: '#f0f2f5',
             fontFamily: 'Arial, sans-serif',
+            backgroundAttachment: 'fixed',
         },
         card: {
             backgroundColor: 'white',

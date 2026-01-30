@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { POI } from '@/features/offline-onboarding/hooks/useNearbyPOIs';
 
 type Props = {
@@ -86,6 +87,7 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 }
 
 export default function CategoryFilterSidebar({ pois, poisLoading, onNavigate, userPosition }: Props) {
+  const router = useRouter();
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({
     'Tourist Attractions': true,
     Healthcare: true,
@@ -96,6 +98,23 @@ export default function CategoryFilterSidebar({ pois, poisLoading, onNavigate, u
 
   const toggleSection = (sectionTitle: string) => {
     setExpandedSections((prev) => ({ ...prev, [sectionTitle]: !prev[sectionTitle] }));
+  };
+
+  const handleNavigateToRoute = (poi: POI) => {
+    // Get source coordinates
+    const sourceLat = userPosition ? userPosition[0] : 28.6139;
+    const sourceLng = userPosition ? userPosition[1] : 77.2090;
+    
+    // Navigate to route-options page
+    const params = new URLSearchParams({
+      destination: poi.name || poi.category,
+      sourceLat: sourceLat.toString(),
+      sourceLng: sourceLng.toString(),
+      destLat: poi.lat.toString(),
+      destLng: poi.lon.toString(),
+    });
+    
+    router.push(`/route-options?${params.toString()}`);
   };
 
   // Group POIs by category
@@ -200,8 +219,9 @@ export default function CategoryFilterSidebar({ pois, poisLoading, onNavigate, u
                                 )}
                               </div>
                               <button
-                                onClick={() => onNavigate(poi)}
+                                onClick={() => handleNavigateToRoute(poi)}
                                 className="flex-shrink-0 px-2.5 py-1 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-medium rounded shadow-sm transition-colors"
+                                title="Get directions and compare routes"
                               >
                                 Go
                               </button>

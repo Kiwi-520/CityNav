@@ -40,7 +40,7 @@ class LocationService {
       const options: PositionOptions = {
         enableHighAccuracy: true,
         timeout: 10000,
-        maximumAge: 300000, // 5 minutes cache
+        maximumAge: 0, // Always get fresh location
       };
 
       navigator.geolocation.getCurrentPosition(
@@ -85,7 +85,7 @@ class LocationService {
     const options: PositionOptions = {
       enableHighAccuracy: true,
       timeout: 15000,
-      maximumAge: 60000, // 1 minute cache for watch
+      maximumAge: 0, // Always get fresh location for watch
     };
 
     this.watchId = navigator.geolocation.watchPosition(
@@ -129,7 +129,12 @@ class LocationService {
   ): Promise<LocationData> {
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=10&addressdetails=1`
+        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`,
+        {
+          headers: {
+            'User-Agent': 'CityNav/1.0'
+          }
+        }
       );
 
       if (!response.ok) {

@@ -1,6 +1,3 @@
-/* CityNav Design System - Screen-Specific Styles */
-
-/* Design System Navigation */
 .design-system-nav {
   position: fixed;
   left: 0;
@@ -65,7 +62,6 @@
   max-width: calc(100vw - 280px);
 }
 
-/* Design System Sections */
 .ds-section {
   margin-bottom: var(--spacing-3xl);
   scroll-margin-top: var(--spacing-xl);
@@ -80,7 +76,6 @@
   border-bottom: 2px solid var(--primary);
 }
 
-/* Color Palette Grid */
 .color-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -127,7 +122,6 @@
   opacity: 0.7;
 }
 
-/* Typography Examples */
 .typography-examples {
   display: flex;
   flex-direction: column;
@@ -147,7 +141,6 @@
   color: var(--on-surface-variant);
 }
 
-/* Spacing Examples */
 .spacing-examples {
   display: flex;
   flex-wrap: wrap;
@@ -176,7 +169,6 @@
   color: var(--on-surface-variant);
 }
 
-/* Elevation Examples */
 .elevation-examples {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -196,7 +188,6 @@
 .elevation-3 { box-shadow: var(--elevation-3); }
 .elevation-4 { box-shadow: var(--elevation-4); }
 
-/* Component Examples */
 .component-examples {
   display: flex;
   flex-direction: column;
@@ -241,7 +232,6 @@
   font-weight: var(--headline-small-weight);
 }
 
-/* Screen Prototypes */
 .screen-prototype {
   margin-bottom: var(--spacing-2xl);
 }

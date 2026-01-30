@@ -274,7 +274,7 @@ class DirectionsService {
         {
           enableHighAccuracy: true,
           timeout: 10000,
-          maximumAge: 60000,
+          maximumAge: 0, // Always get fresh GPS location
         }
       );
     });

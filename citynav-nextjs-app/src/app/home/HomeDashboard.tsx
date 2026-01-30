@@ -16,6 +16,7 @@ import {
 } from "react-icons/fi";
 import QuickActions from "../../components/QuickActions";
 import PageHeader from "../../components/PageHeader";
+import ThemeToggle from "@/components/ThemeToggle";
 import { useLocation } from "@/hooks/useLiveLocation";
 import cityAppsData from "@/data/city-apps.json";
 
