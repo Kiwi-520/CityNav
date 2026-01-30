@@ -1,8 +1,4 @@
-﻿/**
- * OpenStreetMap Overpass API Service
- */
-
-import { offlineStorage } from "./offline-storage.service";
+﻿import { offlineStorage } from "./offline-storage.service";
 
 export interface OSMPOI {
   id: string;
@@ -117,10 +113,7 @@ class OSMService {
       console.log("  📍 Location:", { lat, lng, radius });
       console.log("  🏷️ Types:", poiTypes);
 
-      // Generate cache key
       const cacheKey = this.generateCacheKey(lat, lng, radius, poiTypes);
-
-      // Try to get from cache first
       const cachedPOIs = await offlineStorage.getCachedPOIs<OSMPOI[]>(
         cacheKey,
         { lat, lng }
@@ -131,7 +124,6 @@ class OSMService {
         return cachedPOIs;
       }
 
-      // If no cache or expired, fetch from API
       console.log("🌐 Fetching from OpenStreetMap API...");
 
       const typesToFetch =

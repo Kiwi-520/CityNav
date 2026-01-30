@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 
-// Single clean proxy handler for OSRM route requests.
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -16,8 +15,6 @@ export async function GET(req: Request) {
     const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${fromLon},${fromLat};${toLon},${toLat}?overview=full&geometries=geojson&steps=true`;
     const resp = await fetch(osrmUrl);
     const body = await resp.text();
-
-    // Forward response body and status; preserve content-type when possible
     const ct = resp.headers.get('Content-Type') || 'application/json';
     return new NextResponse(body, { status: resp.status, headers: { 'Content-Type': ct } });
   } catch (err) {

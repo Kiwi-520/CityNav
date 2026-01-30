@@ -2,6 +2,7 @@ import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
+import { useRouter } from 'next/navigation';
 import { POI } from '@/features/offline-onboarding/hooks/useNearbyPOIs';
 
 L.Icon.Default.mergeOptions({
@@ -31,6 +32,25 @@ type Props = {
 };
 
 export default function MapView({ center, displayPosition, forcedCenter, setSelectedDest, route, displayPois, activeCategories }: Props) {
+  const router = useRouter();
+
+  const handleNavigateToLocation = (poi: POI) => {
+    // Get current user position
+    const sourceLat = displayPosition ? displayPosition[0] : center[0];
+    const sourceLng = displayPosition ? displayPosition[1] : center[1];
+    
+    // Navigate to route-options page with proper parameters
+    const params = new URLSearchParams({
+      destination: poi.name || poi.category,
+      sourceLat: sourceLat.toString(),
+      sourceLng: sourceLng.toString(),
+      destLat: poi.lat.toString(),
+      destLng: poi.lon.toString(),
+    });
+    
+    router.push(`/route-options?${params.toString()}`);
+  };
+
   return (
     <div style={{ flex: '0 0 60%', minWidth: 0 }}>
       <MapContainer center={center} zoom={15} style={{ height: '80vh', width: '100%' }}>
@@ -84,7 +104,31 @@ export default function MapView({ center, displayPosition, forcedCenter, setSele
                   <div style={{ fontWeight: 700 }}>{p.name || p.category}</div>
                   <div style={{ fontSize: 12, color: '#6b7280' }}>{p.tags?.operator || p.tags?.brand || ''}</div>
                   <div style={{ marginTop: 6 }}>
-                    <button onClick={() => setSelectedDest({ lat: p.lat, lon: p.lon })} style={{ background: '#2563eb', color: 'white', border: 'none', padding: '6px 8px', borderRadius: 6, cursor: 'pointer' }}>Navigate</button>
+                    <button 
+                      onClick={() => handleNavigateToLocation(p)} 
+                      style={{ 
+                        background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)', 
+                        color: 'white', 
+                        border: 'none', 
+                        padding: '8px 16px', 
+                        borderRadius: 8, 
+                        cursor: 'pointer',
+                        fontWeight: 600,
+                        fontSize: '13px',
+                        boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)',
+                        transition: 'all 0.2s ease'
+                      }}
+                      onMouseOver={(e) => {
+                        e.currentTarget.style.transform = 'translateY(-1px)';
+                        e.currentTarget.style.boxShadow = '0 4px 12px rgba(37, 99, 235, 0.4)';
+                      }}
+                      onMouseOut={(e) => {
+                        e.currentTarget.style.transform = 'translateY(0)';
+                        e.currentTarget.style.boxShadow = '0 2px 8px rgba(37, 99, 235, 0.3)';
+                      }}
+                    >
+                      🧭 Go & Compare Routes
+                    </button>
                   </div>
                 </div>
               </Popup>

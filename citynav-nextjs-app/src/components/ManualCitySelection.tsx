@@ -23,6 +23,7 @@ const ManualCitySelection: React.FC<ManualCitySelectionProps> = ({ onCitySelecte
             minHeight: '100vh',
             backgroundColor: '#f0f2f5',
             fontFamily: 'Arial, sans-serif',
+            backgroundAttachment: 'fixed',
         },
         card: {
             backgroundColor: 'white',

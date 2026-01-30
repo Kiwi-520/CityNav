@@ -4,7 +4,6 @@ import React from "react";
 import dynamic from "next/dynamic";
 import PageHeader from "@/components/PageHeader";
 
-// Import the LeafletMap component (better accuracy for offline)
 const LeafletMap = dynamic(
   () => import("@/features/offline-onboarding/components/LeafletMap"),
   { ssr: false }

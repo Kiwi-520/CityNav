@@ -111,6 +111,7 @@ export default function SearchDiscoveryPage() {
           minHeight: "100vh",
           background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
           color: "white",
+          backgroundAttachment: "fixed",
         }}
       >
         <PageHeader title="Search & Discovery" showBack backHref="/" />
@@ -330,7 +331,7 @@ export default function SearchDiscoveryPage() {
                         <Link
                           href={`/route-options?destination=${encodeURIComponent(
                             result.name
-                          )}&lat=${result.lat}&lon=${result.lon}`}
+                          )}&destLat=${result.lat}&destLng=${result.lon}`}
                           style={{
                             background: "rgba(34, 197, 94, 0.2)",
                             border: "1px solid #22c55e",
