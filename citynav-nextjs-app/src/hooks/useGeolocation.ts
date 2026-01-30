@@ -44,7 +44,6 @@ export const useGeolocation = (): GeolocationResult => {
             setLoading(false);
         };
 
-        // This is the call that triggers the browser pop-up
         navigator.geolocation.getCurrentPosition(handleSuccess, handleError);
     }, []);
 
@@ -52,6 +51,5 @@ export const useGeolocation = (): GeolocationResult => {
         getLocation();
     }, [getLocation]);
 
-    // The refetch function is returned here, ready to be called by the button
     return { detectedCity, error, loading, refetch: getLocation };
 };

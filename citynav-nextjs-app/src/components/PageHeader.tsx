@@ -19,43 +19,17 @@ export default function PageHeader({
   onMenuClick,
 }: PageHeaderProps) {
   return (
-    <header
-      style={{
-        background: "rgba(255, 255, 255, 0.95)",
-        backdropFilter: "blur(10px)",
-        borderBottom: "1px solid rgba(0, 0, 0, 0.1)",
-        padding: "16px 20px",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "space-between",
-        position: "sticky",
-        top: 0,
-        zIndex: 100,
-      }}
-    >
-      <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+    <header className="sticky top-0 z-[100] bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-b border-slate-200 dark:border-slate-700 px-5 py-4 flex items-center justify-between">
+      <div className="flex items-center gap-4">
         {showBack && (
           <Link
             href={backHref}
-            style={{
-              color: "var(--primary)",
-              textDecoration: "none",
-              display: "flex",
-              alignItems: "center",
-              padding: "8px",
-            }}
+            className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 no-underline flex items-center p-2 transition-colors"
           >
             <FiArrowLeft size={20} />
           </Link>
         )}
-        <h1
-          style={{
-            margin: 0,
-            fontSize: "1.5rem",
-            fontWeight: "700",
-            color: "var(--on-surface)",
-          }}
-        >
+        <h1 className="m-0 text-2xl font-bold text-slate-900 dark:text-slate-100">
           {title}
         </h1>
       </div>
@@ -63,13 +37,7 @@ export default function PageHeader({
       {showMenu && (
         <button
           onClick={onMenuClick}
-          style={{
-            background: "transparent",
-            border: "none",
-            padding: "8px",
-            color: "var(--on-surface)",
-            cursor: "pointer",
-          }}
+          className="bg-transparent border-none p-2 text-slate-900 dark:text-slate-100 cursor-pointer hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
         >
           <FiSettings size={20} />
         </button>

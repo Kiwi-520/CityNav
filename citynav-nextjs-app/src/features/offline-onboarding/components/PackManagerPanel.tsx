@@ -30,11 +30,9 @@ export default function PackManagerPanel({ onSelect, createPack, onPackCreated, 
 
   useEffect(() => {
     load();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   async function removePack(id: string) {
-    // eslint-disable-next-line no-restricted-globals
     if (!confirm(`Delete pack ${id}? This cannot be undone.`)) return;
     try {
       await deletePack(id);
@@ -63,8 +61,26 @@ export default function PackManagerPanel({ onSelect, createPack, onPackCreated, 
 
   return (
     <div className="p-4">
+      {/* Description */}
+      <div className="mb-6 p-4 bg-gradient-to-br from-indigo-50 to-blue-50 dark:from-indigo-950/50 dark:to-blue-950/50 border border-indigo-100 dark:border-indigo-800 rounded-xl">
+        <div className="flex items-start gap-3">
+          <div className="flex-shrink-0 w-10 h-10 bg-indigo-100 dark:bg-indigo-900 rounded-lg flex items-center justify-center">
+            <svg className="w-6 h-6 text-indigo-600 dark:text-indigo-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <div className="flex-1">
+            <h4 className="text-sm font-semibold text-indigo-900 dark:text-indigo-200 mb-1">Offline Access</h4>
+            <p className="text-xs text-indigo-700 dark:text-indigo-300 leading-relaxed">
+              Create packs based on your current location to access essential places offline. 
+              Download maps and POIs when online, then use them anywhere without internet.
+            </p>
+          </div>
+        </div>
+      </div>
+
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-base font-semibold text-slate-900">Offline Packs</h3>
+        <h3 className="text-base font-semibold text-slate-900 dark:text-slate-100">Your Packs</h3>
         <div className="flex items-center gap-2">
           <button
             onClick={load}
@@ -89,6 +105,7 @@ export default function PackManagerPanel({ onSelect, createPack, onPackCreated, 
                 }
               }}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium rounded-lg shadow-sm transition-colors"
+              title="Create a new pack based on your current location"
             >
               <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -98,6 +115,43 @@ export default function PackManagerPanel({ onSelect, createPack, onPackCreated, 
           )}
         </div>
       </div>
+
+      {/* Load All Essentials Button */}
+      {packs.length > 0 && (
+        <div className="mb-4">
+          <button
+            onClick={async () => {
+              if (!onSelect) return;
+              try {
+                // Load the most recent pack automatically
+                const mostRecent = sortedPacks[0];
+                if (mostRecent) {
+                  const txt = await getPackText(mostRecent.id);
+                  if (!txt) {
+                    alert('Could not load pack data');
+                    return;
+                  }
+                  const lines = txt.split('\n').filter(Boolean);
+                  const parsed = lines.map((l) => JSON.parse(l) as POI);
+                  onSelect(mostRecent, parsed);
+                }
+              } catch (err) {
+                logger.error('Load all essentials failed', err);
+                alert('Failed to load essentials: ' + (err as any)?.message);
+              }
+            }}
+            className="w-full inline-flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white font-semibold rounded-xl shadow-md hover:shadow-lg transition-all"
+          >
+            <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            <div className="flex flex-col items-start">
+              <span>Load Latest Pack</span>
+              <span className="text-xs font-normal opacity-90">Access all essentials offline</span>
+            </div>
+          </button>
+        </div>
+      )}
 
       <div className="space-y-3">
         {packs.length === 0 ? (
@@ -127,23 +181,23 @@ export default function PackManagerPanel({ onSelect, createPack, onPackCreated, 
             })();
             const created = m.createdAt ? new Date(m.createdAt).toLocaleString() : '';
             return (
-              <div key={m.id} className="bg-gradient-to-br from-white to-slate-50 border-2 border-slate-200 rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow">
+              <div key={m.id} className="bg-gradient-to-br from-white to-slate-50 dark:from-slate-800 dark:to-slate-850 border-2 border-slate-200 dark:border-slate-700 rounded-xl p-4 shadow-md hover:shadow-lg transition-shadow">
                 <div className="flex items-start justify-between gap-4">
                   <div className="min-w-0 flex-1">
                     <div className="flex items-start gap-2 mb-2">
-                      <div className="text-sm font-semibold text-slate-900">{friendly}</div>
-                      <div className="px-2 py-0.5 bg-slate-100 text-slate-600 rounded text-xs font-mono">
+                      <div className="text-sm font-semibold text-slate-900 dark:text-slate-100">{friendly}</div>
+                      <div className="px-2 py-0.5 bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded text-xs font-mono">
                         {m.id.slice(0, 12)}...
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 text-xs text-slate-500 mb-2">
+                    <div className="flex items-center gap-3 text-xs text-slate-500 dark:text-slate-400 mb-2">
                       <div className="flex items-center gap-1">
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z" />
                         </svg>
                         {m.itemCount} items
                       </div>
-                      <span className="text-slate-300">•</span>
+                      <span className="text-slate-300 dark:text-slate-600">•</span>
                       <div className="flex items-center gap-1">
                         <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 7v10c0 2.21 3.582 4 8 4s8-1.79 8-4V7M4 7c0 2.21 3.582 4 8 4s8-1.79 8-4M4 7c0-2.21 3.582-4 8-4s8 1.79 8 4" />
@@ -165,7 +219,7 @@ export default function PackManagerPanel({ onSelect, createPack, onPackCreated, 
                     {m.categories && m.categories.length > 0 && (
                       <div className="flex gap-1.5 flex-wrap">
                         {m.categories.map((c) => (
-                          <span key={c} className="inline-flex items-center px-2 py-0.5 bg-indigo-100 text-indigo-700 rounded-md text-xs font-medium capitalize">
+                          <span key={c} className="inline-flex items-center px-2 py-0.5 bg-indigo-100 dark:bg-indigo-900/50 text-indigo-700 dark:text-indigo-300 rounded-md text-xs font-medium capitalize">
                             {c.replace('_', ' ')}
                           </span>
                         ))}
@@ -236,20 +290,20 @@ export default function PackManagerPanel({ onSelect, createPack, onPackCreated, 
 
       {previewJson && (
         <div className="fixed inset-0 flex items-center justify-center bg-black/50 backdrop-blur-sm z-50 p-4">
-          <div className="w-full max-w-4xl max-h-[90vh] bg-white rounded-2xl shadow-2xl overflow-hidden flex flex-col">
-            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 bg-gradient-to-r from-slate-50 to-white">
-              <h4 className="text-lg font-semibold text-slate-900">Pack Preview</h4>
+          <div className="w-full max-w-4xl max-h-[90vh] bg-white dark:bg-slate-900 rounded-2xl shadow-2xl overflow-hidden flex flex-col">
+            <div className="flex items-center justify-between px-6 py-4 border-b border-slate-200 dark:border-slate-700 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900">
+              <h4 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Pack Preview</h4>
               <button
                 onClick={() => setPreviewJson(null)}
-                className="p-2 hover:bg-slate-100 rounded-lg transition-colors"
+                className="p-2 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
               >
-                <svg className="w-5 h-5 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-5 h-5 text-slate-600 dark:text-slate-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                 </svg>
               </button>
             </div>
-            <div className="flex-1 overflow-auto p-6 bg-slate-50">
-              <pre className="text-xs font-mono text-slate-800 whitespace-pre-wrap break-words bg-white p-4 rounded-lg border border-slate-200 shadow-sm">
+            <div className="flex-1 overflow-auto p-6 bg-slate-50 dark:bg-slate-950">
+              <pre className="text-xs font-mono text-slate-800 dark:text-slate-200 whitespace-pre-wrap break-words bg-white dark:bg-slate-900 p-4 rounded-lg border border-slate-200 dark:border-slate-700 shadow-sm">
                 {previewJson}
               </pre>
             </div>

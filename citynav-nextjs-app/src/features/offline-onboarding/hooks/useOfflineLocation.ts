@@ -38,22 +38,16 @@ export const useOfflineLocation = (): UseOfflineLocationReturn => {
   const [isOnline, setIsOnline] = useState(true);
   const [storedLocation, setStoredLocation] = useState<LocationData | null>(null);
 
-  // Initialize online status and stored location
   useEffect(() => {
-    // Set initial online status
     setIsOnline(navigator.onLine);
-
-    // Load stored location from localStorage
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
       if (stored) {
         const locationData: LocationData = JSON.parse(stored);
-        // Check if location is not too old (24 hours)
         const isLocationFresh = Date.now() - locationData.timestamp < 24 * 60 * 60 * 1000;
         if (isLocationFresh) {
           setStoredLocation(locationData);
         } else {
-          // Remove expired location
           localStorage.removeItem(STORAGE_KEY);
         }
       }
@@ -62,7 +56,6 @@ export const useOfflineLocation = (): UseOfflineLocationReturn => {
       localStorage.removeItem(STORAGE_KEY);
     }
 
-    // Listen for online/offline events
     const handleOnline = () => setIsOnline(true);
     const handleOffline = () => setIsOnline(false);
 
@@ -75,7 +68,6 @@ export const useOfflineLocation = (): UseOfflineLocationReturn => {
     };
   }, []);
 
-  // Store location data - memoized to prevent re-renders
   const storeLocation = useCallback((location: LocationData) => {
     try {
       const locationWithTimestamp = {
@@ -89,7 +81,6 @@ export const useOfflineLocation = (): UseOfflineLocationReturn => {
     }
   }, []);
 
-  // Clear stored location - memoized to prevent re-renders
   const clearStoredLocation = useCallback(() => {
     try {
       localStorage.removeItem(STORAGE_KEY);

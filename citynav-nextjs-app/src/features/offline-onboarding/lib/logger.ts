@@ -31,7 +31,6 @@ export const warn = (...args: unknown[]) => {
 };
 
 export const error = (...args: unknown[]) => {
-  // Always record errors (helpful in production debugging via logs collection)
   pushGlobalLog('error', args);
 };
 

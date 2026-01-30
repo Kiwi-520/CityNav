@@ -3,10 +3,8 @@
 import { useState } from 'react';
 import onboardingContent from '../data/onboarding-content.json';
 
-// FIX: Add 'export' to the type definition
 export type LanguageKey = 'en' | 'hi' | 'mr';
 
-// Define types for the content
 type CityContent = {
     [key in LanguageKey]: {
         welcome: string;

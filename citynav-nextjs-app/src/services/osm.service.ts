@@ -2,6 +2,8 @@
  * OpenStreetMap Overpass API Service
  */
 
+import { offlineStorage } from "./offline-storage.service";
+
 export interface OSMPOI {
   id: string;
   type:
@@ -18,7 +20,20 @@ export interface OSMPOI {
     | "cafe"
     | "park"
     | "police"
-    | "fire_station";
+    | "fire_station"
+    | "general_store"
+    | "medical"
+    | "bus_station"
+    | "train_station"
+    | "metro_station"
+    | "parking"
+    | "post_office"
+    | "school"
+    | "college"
+    | "library"
+    | "gym"
+    | "shopping_mall"
+    | "market";
   name: string;
   lat: number;
   lng: number;
@@ -62,32 +77,62 @@ class OSMService {
     "https://overpass.openstreetmap.ru/api/interpreter",
   ];
   private typeToOSMTags: Record<string, string[]> = {
-    hospital: ['amenity="hospital"', 'amenity="clinic"'],
-    pharmacy: ['amenity="pharmacy"'],
+    hospital: ['amenity="hospital"', 'amenity="clinic"', 'healthcare="hospital"'],
+    pharmacy: ['amenity="pharmacy"', 'shop="chemist"'],
     restaurant: ['amenity="restaurant"'],
     cafe: ['amenity="cafe"'],
-    hotel: ['tourism="hotel"'],
+    hotel: ['tourism="hotel"', 'tourism="motel"', 'tourism="guest_house"'],
     atm: ['amenity="atm"'],
     bank: ['amenity="bank"'],
-    fuel: ['amenity="fuel"'],
+    fuel: ['amenity="fuel"', 'amenity="charging_station"'],
     restroom: ['amenity="toilets"'],
-    water: ['amenity="drinking_water"'],
-    food: ['amenity="fast_food"'],
-    park: ['leisure="park"'],
+    water: ['amenity="drinking_water"', 'man_made="water_well"'],
+    food: ['amenity="fast_food"', 'amenity="food_court"'],
+    park: ['leisure="park"', 'leisure="garden"'],
     police: ['amenity="police"'],
     fire_station: ['amenity="fire_station"'],
+    general_store: ['shop="convenience"', 'shop="supermarket"', 'shop="general"', 'shop="department_store"'],
+    medical: ['amenity="doctors"', 'amenity="clinic"', 'healthcare="doctor"'],
+    bus_station: ['amenity="bus_station"', 'highway="bus_stop"'],
+    train_station: ['railway="station"', 'public_transport="station"'],
+    metro_station: ['station="subway"', 'railway="subway_entrance"'],
+    parking: ['amenity="parking"'],
+    post_office: ['amenity="post_office"'],
+    school: ['amenity="school"'],
+    college: ['amenity="college"', 'amenity="university"'],
+    library: ['amenity="library"'],
+    gym: ['leisure="fitness_centre"', 'leisure="sports_centre"'],
+    shopping_mall: ['shop="mall"', 'shop="shopping_centre"'],
+    market: ['amenity="marketplace"', 'shop="market"'],
   };
 
   async fetchNearbyPOIs(
     lat: number,
     lng: number,
-    radius = 2000,
+    radius = 1000, // Changed to 1km radius (1000 meters)
     poiTypes: string[] = ["all"]
   ): Promise<OSMPOI[]> {
     try {
       console.log("🔍 OSM Service: Fetching POIs...");
       console.log("  📍 Location:", { lat, lng, radius });
       console.log("  🏷️ Types:", poiTypes);
+
+      // Generate cache key
+      const cacheKey = this.generateCacheKey(lat, lng, radius, poiTypes);
+
+      // Try to get from cache first
+      const cachedPOIs = await offlineStorage.getCachedPOIs<OSMPOI[]>(
+        cacheKey,
+        { lat, lng }
+      );
+
+      if (cachedPOIs && cachedPOIs.length > 0) {
+        console.log("✅ Using cached POIs:", cachedPOIs.length);
+        return cachedPOIs;
+      }
+
+      // If no cache or expired, fetch from API
+      console.log("🌐 Fetching from OpenStreetMap API...");
 
       const typesToFetch =
         poiTypes.includes("all") || poiTypes.length === 0
@@ -122,6 +167,12 @@ class OSMService {
       console.log("    - Total POIs fetched:", allPOIs.length);
       console.log("    - After deduplication:", uniquePOIs.length);
       console.log("    - After distance filter:", filteredPOIs.length);
+
+      // Cache the results for offline access
+      if (filteredPOIs.length > 0) {
+        await offlineStorage.cachePOIs(cacheKey, filteredPOIs, { lat, lng });
+        console.log("💾 Cached POIs for offline use (24 hours)");
+      }
 
       return filteredPOIs;
     } catch (error) {
@@ -293,6 +344,19 @@ class OSMService {
       park: "Park",
       police: "Police",
       fire_station: "Fire Station",
+      general_store: "General Store",
+      medical: "Medical Center",
+      bus_station: "Bus Station",
+      train_station: "Train Station",
+      metro_station: "Metro Station",
+      parking: "Parking",
+      post_office: "Post Office",
+      school: "School",
+      college: "College",
+      library: "Library",
+      gym: "Gym",
+      shopping_mall: "Shopping Mall",
+      market: "Market",
     };
     return names[type] || "POI";
   }
@@ -303,21 +367,24 @@ class OSMService {
     lat2: number,
     lng2: number
   ): number {
-    const R = 6371000;
+    const R = 6371000; // Earth's radius in meters
     const dLat = this.toRad(lat2 - lat1);
     const dLng = this.toRad(lng2 - lng1);
+    
     const a =
       Math.sin(dLat / 2) * Math.sin(dLat / 2) +
       Math.cos(this.toRad(lat1)) *
         Math.cos(this.toRad(lat2)) *
         Math.sin(dLng / 2) *
         Math.sin(dLng / 2);
+    
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    return Math.round(R * c);
+    const distance = R * c;
+    return Math.round(distance);
   }
 
   private toRad(deg: number): number {
-    return deg * (Math.PI / 180);
+    return (deg * Math.PI) / 180;
   }
 
   private removeDuplicates(pois: OSMPOI[]): OSMPOI[] {
@@ -332,6 +399,26 @@ class OSMService {
 
   private sleep(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  private generateCacheKey(
+    lat: number,
+    lng: number,
+    radius: number,
+    types: string[]
+  ): string {
+    const latRounded = lat.toFixed(3); // ~100m precision
+    const lngRounded = lng.toFixed(3);
+    const typesStr = types.sort().join("_");
+    return `${latRounded}_${lngRounded}_${radius}_${typesStr}`;
+  }
+
+  clearCache(): void {
+    offlineStorage.clearAllCaches();
+  }
+
+  getCacheStats() {
+    return offlineStorage.getCacheStats();
   }
 }
 

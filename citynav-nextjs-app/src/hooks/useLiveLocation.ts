@@ -24,7 +24,6 @@ export const useLocation = (): UseLocationResult => {
 
   const locationService = LocationService.getInstance();
 
-  // Load cached location on mount
   useEffect(() => {
     const cachedLocation = locationService.loadLocationFromStorage();
     if (cachedLocation) {
@@ -73,7 +72,6 @@ export const useLocation = (): UseLocationResult => {
     setIsWatching(false);
   }, [locationService, isWatching]);
 
-  // Cleanup on unmount
   useEffect(() => {
     return () => {
       if (isWatching) {
