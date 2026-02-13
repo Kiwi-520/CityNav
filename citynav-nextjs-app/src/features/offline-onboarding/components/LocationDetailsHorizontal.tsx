@@ -82,50 +82,35 @@ const LocationDetailsHorizontal: React.FC<LocationDetailsHorizontalProps> = ({ l
         let fetchedWeather: Weather | null = null;
 
         const tryAddressProviders = async () => {
-          const providers = [
-            { name: 'nominatim', url: `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=jsonv2&addressdetails=1` },
-            { name: 'mapsco', url: `https://geocode.maps.co/reverse?lat=${lat}&lon=${lon}` },
-            { name: 'bigdatacloud', url: `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=en` }
-          ];
-
-          for (const prov of providers) {
-            try {
-              const ac = new AbortController();
-              const timeout = setTimeout(() => ac.abort(), 8000);
-              const res = await fetch(prov.url, { signal: ac.signal });
-              clearTimeout(timeout);
-              if (!res.ok) {
-                logger.warn(`Address provider ${prov.name} returned ${res.status}`);
-                continue;
-              }
+          try {
+            const ac = new AbortController();
+            const timeout = setTimeout(() => ac.abort(), 8000);
+            const res = await fetch(`/api/google-geocode?lat=${lat}&lng=${lon}`, { signal: ac.signal });
+            clearTimeout(timeout);
+            if (res.ok) {
               const data = await res.json();
-              if (prov.name === 'bigdatacloud') {
+              const result = data.results?.[0];
+              if (result) {
+                const components = result.address_components || [];
+                const get = (type: string) => components.find((c: any) => c.types?.includes(type))?.long_name;
                 fetchedAddress = {
-                  country: data.countryName,
-                  state: data.principalSubdivision,
-                  city: data.city || data.locality || data.localityInfo?.administrative[0]?.name,
-                  town: data.city,
-                  village: data.locality,
-                  suburb: data.locality,
-                  road: data.locality,
-                  postcode: data.postcode
+                  country: get('country'),
+                  state: get('administrative_area_level_1'),
+                  city: get('locality') || get('administrative_area_level_2'),
+                  town: get('locality'),
+                  village: get('sublocality'),
+                  suburb: get('sublocality_level_1') || get('neighborhood'),
+                  road: get('route'),
+                  postcode: get('postal_code')
                 };
                 return;
               }
-              if (data && data.address) {
-                fetchedAddress = data.address;
-                return;
-              }
-              if (data && (data.city || data.country || data.principalSubdivision)) {
-                fetchedAddress = data;
-                return;
-              }
-            } catch (err) {
-              if ((err as any)?.name === 'AbortError') {
-                logger.warn(`Address provider ${prov.name} timed out`);
-              } else {
-                logger.warn(`Address provider ${prov.name} failed:`, err);
-              }
+            }
+          } catch (err) {
+            if ((err as any)?.name === 'AbortError') {
+              logger.warn('Google Geocode timed out');
+            } else {
+              logger.warn('Google Geocode failed:', err);
             }
           }
         };

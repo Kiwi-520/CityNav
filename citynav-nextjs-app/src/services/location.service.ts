@@ -52,7 +52,7 @@ class LocationService {
             );
             this.currentLocation = locationData;
             resolve(locationData);
-          } catch (error) {
+          } catch (_error) {
             reject({
               code: -2,
               message: "Failed to get location details",
@@ -97,7 +97,7 @@ class LocationService {
           );
           this.currentLocation = locationData;
           onSuccess(locationData);
-        } catch (error) {
+        } catch (_error) {
           onError({
             code: -2,
             message: "Failed to get location details",
@@ -129,35 +129,44 @@ class LocationService {
   ): Promise<LocationData> {
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`,
-        {
-          headers: {
-            'User-Agent': 'CityNav/1.0'
-          }
-        }
+        `/api/google-geocode?lat=${lat}&lng=${lon}`
       );
 
       if (!response.ok) {
-        throw new Error("Geocoding API request failed");
+        throw new Error("Google Geocoding API request failed");
       }
 
       const data = await response.json();
+
+      if (!data.results || data.results.length === 0) {
+        return {
+          lat,
+          lon,
+          city: "Current Location",
+          country: "Unknown",
+          address: `${lat.toFixed(4)}, ${lon.toFixed(4)}`,
+        };
+      }
+
+      const result = data.results[0];
+      const components = result.address_components || [];
+      const getComponent = (type: string) =>
+        components.find((c: any) => c.types.includes(type))?.long_name || '';
 
       return {
         lat,
         lon,
         city:
-          data.address?.city ||
-          data.address?.town ||
-          data.address?.village ||
-          data.address?.municipality ||
+          getComponent('locality') ||
+          getComponent('administrative_area_level_2') ||
+          getComponent('sublocality') ||
           "Unknown City",
-        country: data.address?.country || "Unknown Country",
-        state: data.address?.state || data.address?.province,
-        district: data.address?.district || data.address?.county,
-        address: data.display_name,
+        country: getComponent('country') || "Unknown Country",
+        state: getComponent('administrative_area_level_1') || undefined,
+        district: getComponent('administrative_area_level_3') || getComponent('sublocality_level_1') || undefined,
+        address: result.formatted_address || `${lat.toFixed(4)}, ${lon.toFixed(4)}`,
       };
-    } catch (error) {
+    } catch (_error) {
       return {
         lat,
         lon,

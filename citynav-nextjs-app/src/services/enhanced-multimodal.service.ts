@@ -8,6 +8,12 @@ import {
   ModeConfig,
 } from '../types/multimodal';
 import { transitStopFinder, TransitStop } from './transit-stop-finder.service';
+import {
+  googleDirectionsService,
+  GoogleDirectionsResult,
+  GoogleDirectionStep,
+  MultiDirectionsResult,
+} from './google-directions.service';
 
 export class EnhancedMultimodalEngine {
   private modeConfigs: Map<TransportMode, ModeConfig> = new Map();
@@ -127,76 +133,99 @@ export class EnhancedMultimodalEngine {
     const totalDistance = this.calculateDistance(request.source, request.destination);
     const distanceKm = totalDistance / 1000;
 
-    // Find nearby transit infrastructure
-    const [sourceTransit, destTransit] = await Promise.all([
+    // Fetch Google Directions data and nearby transit stops in parallel
+    const [googleDirections, sourceTransit, destTransit] = await Promise.all([
+      googleDirectionsService.getAllDirections(request.source, request.destination),
       transitStopFinder.findNearbyTransitStops(request.source, 1000),
       transitStopFinder.findNearbyTransitStops(request.destination, 1000),
     ]);
 
     const routes: MultimodalRoute[] = [];
-
-    // Generate routes based on distance and available infrastructure
-    if (totalDistance < 500) {
-      // Very short: Walk only
-      routes.push(this.createWalkRoute(request, totalDistance));
-      routes.push(await this.createAutoRoute(request, totalDistance));
-    } else if (totalDistance < 2000) {
-      // Short: Walk, Auto, or Bus
-      routes.push(this.createWalkRoute(request, totalDistance));
-      routes.push(await this.createAutoRoute(request, totalDistance));
-      const busRoute = await this.createSimpleBusRoute(
-        request,
-        totalDistance,
-        sourceTransit.busStops,
-        destTransit.busStops
-      );
-      if (busRoute) routes.push(busRoute);
-    } else if (totalDistance < 10000) {
-      // Medium: Multiple multimodal options
-      // Option 1: Metro route (if metro available)
-      const metroRoute = await this.createMetroRoute(
-        request,
-        totalDistance,
-        sourceTransit.metroStations,
-        destTransit.metroStations
-      );
-      if (metroRoute) routes.push(metroRoute);
-
-      // Option 2: Bus route
-      const busRoute = await this.createBusRoute(
-        request,
-        totalDistance,
-        sourceTransit.busStops,
-        destTransit.busStops
-      );
-      if (busRoute) routes.push(busRoute);
-
-      // Option 3: Walk + Metro + Walk
-      const walkMetroRoute = await this.createWalkMetroWalkRoute(
-        request,
-        totalDistance,
-        sourceTransit.metroStations,
-        destTransit.metroStations
-      );
-      if (walkMetroRoute) routes.push(walkMetroRoute);
-
-      // Option 4: Auto (direct)
-      routes.push(await this.createAutoRoute(request, totalDistance));
-    } else {
-      // Long distance: Cab, Metro combos
-      routes.push(await this.createCabRoute(request, totalDistance));
-      
-      const metroRoute = await this.createMetroWithFirstLastMile(
-        request,
-        totalDistance,
-        sourceTransit,
-        destTransit
-      );
-      if (metroRoute) routes.push(metroRoute);
+    
+    if (googleDirections.driving) {
+      routes.push(this.createGoogleCabRoute(request, googleDirections.driving));
+      // Auto route uses driving data with adjusted cost
+      if (googleDirections.driving.distance < 15000) {
+        routes.push(this.createGoogleAutoRoute(request, googleDirections.driving));
+      }
     }
 
-    // Sort routes by score (time + cost balanced)
-    routes.sort((a, b) => {
+    if (googleDirections.walking && totalDistance < 3000) {
+      routes.push(this.createGoogleWalkRoute(request, googleDirections.walking));
+    }
+
+    if (googleDirections.transit.length > 0) {
+      for (const transitRoute of googleDirections.transit.slice(0, 3)) {
+        const route = this.createGoogleTransitRoute(request, transitRoute);
+        if (route) routes.push(route);
+      }
+    }
+
+    if (googleDirections.transitBus) {
+      const existing = routes.find(r => r.name.toLowerCase().includes('bus'));
+      if (!existing) {
+        const busRoute = this.createGoogleTransitRoute(request, googleDirections.transitBus, 'bus');
+        if (busRoute) routes.push(busRoute);
+      }
+    }
+
+    if (googleDirections.transitSubway) {
+      const existing = routes.find(r => r.name.toLowerCase().includes('metro') || r.name.toLowerCase().includes('subway'));
+      if (!existing) {
+        const metroRoute = this.createGoogleTransitRoute(request, googleDirections.transitSubway, 'metro');
+        if (metroRoute) routes.push(metroRoute);
+      }
+    }
+
+    if (routes.length < 2) {
+      if (totalDistance < 500) {
+        if (!routes.find(r => r.modesUsed.includes('walk'))) {
+          routes.push(this.createWalkRoute(request, totalDistance));
+        }
+        routes.push(await this.createAutoRoute(request, totalDistance));
+      } else if (totalDistance < 2000) {
+        if (!routes.find(r => r.modesUsed.includes('walk'))) {
+          routes.push(this.createWalkRoute(request, totalDistance));
+        }
+        if (!routes.find(r => r.modesUsed.includes('auto'))) {
+          routes.push(await this.createAutoRoute(request, totalDistance));
+        }
+        const busRoute = await this.createSimpleBusRoute(
+          request, totalDistance, sourceTransit.busStops, destTransit.busStops
+        );
+        if (busRoute) routes.push(busRoute);
+      } else if (totalDistance < 10000) {
+        const metroRoute = await this.createMetroRoute(
+          request, totalDistance, sourceTransit.metroStations, destTransit.metroStations
+        );
+        if (metroRoute) routes.push(metroRoute);
+        const busRoute = await this.createBusRoute(
+          request, totalDistance, sourceTransit.busStops, destTransit.busStops
+        );
+        if (busRoute) routes.push(busRoute);
+        if (!routes.find(r => r.modesUsed.includes('auto'))) {
+          routes.push(await this.createAutoRoute(request, totalDistance));
+        }
+      } else {
+        if (!routes.find(r => r.modesUsed.includes('cab'))) {
+          routes.push(await this.createCabRoute(request, totalDistance));
+        }
+        const metroRoute = await this.createMetroWithFirstLastMile(
+          request, totalDistance, sourceTransit, destTransit
+        );
+        if (metroRoute) routes.push(metroRoute);
+      }
+    }
+
+    const deduped = this.deduplicateRoutes(routes);
+
+    deduped.sort((a, b) => {
+
+      const aHasGoogle = a.segments.some(s => s.routeInfo?.includes('via'));
+      const bHasGoogle = b.segments.some(s => s.routeInfo?.includes('via'));
+      if (aHasGoogle && !bHasGoogle) return -1;
+      if (!aHasGoogle && bHasGoogle) return 1;
+
       const scoreA = a.totalDuration + a.totalCost * 2;
       const scoreB = b.totalDuration + b.totalCost * 2;
       return scoreA - scoreB;
@@ -204,10 +233,257 @@ export class EnhancedMultimodalEngine {
 
     return {
       request,
-      routes,
+      routes: deduped.slice(0, 5), // Return top 5 routes
       calculatedAt: new Date(),
-      calculationTime: 0, // Not tracking calculation time in enhanced version
+      calculationTime: 0,
     };
+  }
+
+  private createGoogleCabRoute(
+    request: RouteRequest,
+    directions: GoogleDirectionsResult
+  ): MultimodalRoute {
+    const durationMin = directions.durationInTraffic || directions.duration;
+    const distanceKm = directions.distance / 1000;
+    
+    // Indian cab pricing: base ₹50 + ₹15-20/km
+    const cost = Math.round(50 + distanceKm * 18);
+
+    const segment: RouteSegment = {
+      id: `seg-cab-google-${Date.now()}`,
+      mode: 'cab',
+      from: request.source,
+      to: request.destination,
+      distance: directions.distance,
+      duration: durationMin,
+      cost,
+      instruction: `Take cab from ${request.source.name || 'your location'} to ${request.destination.name || 'destination'}`,
+      routeInfo: directions.summary ? `via ${directions.summary}` : undefined,
+    };
+
+    return {
+      id: `route-cab-google-${Date.now()}`,
+      type: 'fastest',
+      name: `Cab${directions.summary ? ' via ' + directions.summary : ''}`,
+      segments: [segment],
+      totalDistance: directions.distance,
+      totalDuration: durationMin,
+      totalCost: cost,
+      transferCount: 0,
+      modesUsed: ['cab'],
+      carbonFootprint: 'high',
+      comfortLevel: 'high',
+      description: `${durationMin} min drive (live traffic) • ₹${cost}`,
+      score: durationMin + cost * 0.5,
+    };
+  }
+
+  private createGoogleAutoRoute(
+    request: RouteRequest,
+    directions: GoogleDirectionsResult
+  ): MultimodalRoute {
+    // Auto is slower than car in traffic: add ~20%
+    const durationMin = Math.round((directions.durationInTraffic || directions.duration) * 1.2);
+    const distanceKm = directions.distance / 1000;
+    
+    // Indian auto pricing: base ₹25 + ₹12-15/km
+    const cost = Math.round(25 + distanceKm * 14);
+
+    const segment: RouteSegment = {
+      id: `seg-auto-google-${Date.now()}`,
+      mode: 'auto',
+      from: request.source,
+      to: request.destination,
+      distance: directions.distance,
+      duration: durationMin,
+      cost,
+      instruction: `Take auto-rickshaw from ${request.source.name || 'your location'} to ${request.destination.name || 'destination'}`,
+      routeInfo: directions.summary ? `via ${directions.summary}` : undefined,
+    };
+
+    return {
+      id: `route-auto-google-${Date.now()}`,
+      type: 'comfort',
+      name: `Auto-rickshaw${directions.summary ? ' via ' + directions.summary : ''}`,
+      segments: [segment],
+      totalDistance: directions.distance,
+      totalDuration: durationMin,
+      totalCost: cost,
+      transferCount: 0,
+      modesUsed: ['auto'],
+      carbonFootprint: 'medium',
+      comfortLevel: 'medium',
+      description: `${durationMin} min ride • ₹${cost}`,
+      score: durationMin + cost,
+    };
+  }
+
+  private createGoogleWalkRoute(
+    request: RouteRequest,
+    directions: GoogleDirectionsResult
+  ): MultimodalRoute {
+    const segment: RouteSegment = {
+      id: `seg-walk-google-${Date.now()}`,
+      mode: 'walk',
+      from: request.source,
+      to: request.destination,
+      distance: directions.distance,
+      duration: directions.duration,
+      cost: 0,
+      instruction: `Walk from ${request.source.name || 'your location'} to ${request.destination.name || 'destination'}`,
+      routeInfo: directions.summary ? `via ${directions.summary}` : undefined,
+    };
+
+    return {
+      id: `route-walk-google-${Date.now()}`,
+      type: 'cheapest',
+      name: 'Walking Route',
+      segments: [segment],
+      totalDistance: directions.distance,
+      totalDuration: directions.duration,
+      totalCost: 0,
+      transferCount: 0,
+      modesUsed: ['walk'],
+      carbonFootprint: 'low',
+      comfortLevel: directions.distance < 1000 ? 'high' : 'medium',
+      description: `${directions.duration} min walk (${(directions.distance / 1000).toFixed(1)} km)`,
+      score: directions.duration,
+    };
+  }
+
+  private createGoogleTransitRoute(
+    request: RouteRequest,
+    directions: GoogleDirectionsResult,
+    preferredType?: 'bus' | 'metro'
+  ): MultimodalRoute | null {
+    if (!directions.steps || directions.steps.length === 0) return null;
+
+    const segments: RouteSegment[] = [];
+    const modesUsed: Set<TransportMode> = new Set();
+    let totalCost = 0;
+    let transferCount = 0;
+    const routeLabels: string[] = [];
+
+    for (const step of directions.steps) {
+      if (step.mode === 'WALKING' && step.duration > 0) {
+        segments.push({
+          id: `seg-walk-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          mode: 'walk',
+          from: request.source, // Simplified; Google steps have lat/lng too
+          to: request.destination,
+          distance: step.distance,
+          duration: step.duration,
+          cost: 0,
+          instruction: step.instruction || `Walk ${Math.round(step.distance)}m`,
+        });
+        modesUsed.add('walk');
+      } else if (step.mode === 'TRANSIT' && step.transitDetails) {
+        const td = step.transitDetails;
+        const vehicleType = td.vehicleType.toUpperCase();
+        
+        let mode: TransportMode = 'bus';
+        if (vehicleType === 'SUBWAY' || vehicleType === 'METRO_RAIL' || vehicleType === 'HEAVY_RAIL') {
+          mode = 'metro';
+        } else if (vehicleType === 'BUS' || vehicleType === 'INTERCITY_BUS') {
+          mode = 'bus';
+        } else if (vehicleType === 'COMMUTER_TRAIN' || vehicleType === 'RAIL' || vehicleType === 'HIGH_SPEED_TRAIN') {
+          mode = 'metro'; // Map rail/train to metro category
+        }
+
+        const lineName = td.lineShortName || td.lineName || 'Transit';
+        routeLabels.push(lineName);
+
+        // Estimate transit costs (Indian pricing)
+        let segmentCost = 0;
+        if (mode === 'bus') {
+          segmentCost = Math.round(10 + (step.distance / 1000) * 2); // ~₹10 base + ₹2/km
+        } else if (mode === 'metro') {
+          segmentCost = Math.round(10 + (step.distance / 1000) * 3); // ~₹10 base + ₹3/km
+        }
+        totalCost += segmentCost;
+
+        segments.push({
+          id: `seg-${mode}-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+          mode,
+          from: { lat: 0, lng: 0, name: td.departureStop },
+          to: { lat: 0, lng: 0, name: td.arrivalStop },
+          distance: step.distance,
+          duration: step.duration,
+          cost: segmentCost,
+          instruction: `Board ${lineName} at ${td.departureStop}, alight at ${td.arrivalStop} (${td.numStops} stops)`,
+          routeInfo: lineName,
+          routeNumber: td.lineShortName || undefined,
+          stopCount: td.numStops,
+          waitTime: td.headway > 0 ? Math.round(td.headway / 60) : undefined,
+        });
+        modesUsed.add(mode);
+
+        if (segments.filter(s => s.mode !== 'walk').length > 1) {
+          transferCount++;
+        }
+      }
+    }
+
+    if (segments.length === 0) return null;
+
+    // Determine route type
+    const allModes = Array.from(modesUsed);
+    const hasMetro = modesUsed.has('metro');
+    const hasBus = modesUsed.has('bus');
+
+    let type: 'fastest' | 'cheapest' | 'balanced' | 'comfort' = 'balanced';
+    if (hasMetro && !hasBus) type = 'fastest';
+    else if (hasBus && !hasMetro) type = 'cheapest';
+
+    // Build descriptive name from transit lines used
+    const routeName = routeLabels.length > 0
+      ? routeLabels.join(' → ')
+      : (hasMetro ? 'Metro' : 'Bus') + ' Route';
+
+    const carbonFootprint = hasMetro ? 'low' : hasBus ? 'low' : 'medium';
+
+    return {
+      id: `route-transit-google-${Date.now()}-${Math.random().toString(36).slice(2, 7)}`,
+      type,
+      name: routeName,
+      segments,
+      totalDistance: directions.distance,
+      totalDuration: directions.duration,  // Real Google-calculated duration
+      totalCost: totalCost,
+      transferCount,
+      modesUsed: allModes,
+      carbonFootprint,
+      comfortLevel: hasMetro ? 'high' : 'medium',
+      description: `${directions.duration} min • ${routeLabels.join(' + ')} • ₹${totalCost}`,
+      score: directions.duration + totalCost,
+    };
+  }
+
+  private deduplicateRoutes(routes: MultimodalRoute[]): MultimodalRoute[] {
+    const seen = new Map<string, MultimodalRoute>();
+    
+    for (const route of routes) {
+      const key = route.modesUsed.sort().join('-');
+      const existing = seen.get(key);
+      
+      if (!existing) {
+        seen.set(key, route);
+      } else {
+        // Keep the one with the better (lower) score
+        const existingScore = existing.totalDuration + existing.totalCost;
+        const newScore = route.totalDuration + route.totalCost;
+        
+        // If durations differ significantly, both are unique routes
+        if (Math.abs(existing.totalDuration - route.totalDuration) > 5) {
+          // Different enough, add with modified key
+          seen.set(key + '-' + route.id, route);
+        } else if (newScore < existingScore) {
+          seen.set(key, route);
+        }
+      }
+    }
+
+    return Array.from(seen.values());
   }
 
   private createWalkRoute(request: RouteRequest, distance: number): MultimodalRoute {
@@ -324,7 +600,7 @@ export class EnhancedMultimodalEngine {
     const segments: RouteSegment[] = [];
     let totalDuration = 0;
     let totalCost = 0;
-    let totalDistance = distance;
+    const totalDistance = distance;
 
     // Segment 1: Walk to bus stop
     const walkToStop = this.calculateDistance(request.source, nearestSourceStop.location);

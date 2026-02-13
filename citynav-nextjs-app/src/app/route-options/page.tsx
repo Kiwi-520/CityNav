@@ -9,13 +9,18 @@ import {
   FiZap,
   FiDollarSign,
   FiTrendingUp,
-  FiUsers,
-  FiShield,
 } from "react-icons/fi";
 import Link from "next/link";
+import dynamic from "next/dynamic";
 import { multimodalEngine } from "@/services/multimodal.service";
 import { enhancedMultimodalEngine } from "@/services/enhanced-multimodal.service";
-import { MultimodalRoute, RouteRequest, RouteSegment } from "@/types/multimodal";
+import { MultimodalRoute, RouteRequest } from "@/types/multimodal";
+
+// Dynamically import the navigation view (uses Google Maps, needs client-side only)
+const RouteNavigationView = dynamic(
+  () => import("@/components/RouteNavigationView"),
+  { ssr: false }
+);
 
 // Helper to get mode icon and color
 const getModeDisplay = (mode: string) => {
@@ -53,31 +58,38 @@ function RouteOptionsContent() {
   const [loading, setLoading] = useState(true);
   const [sourceCoords, setSourceCoords] = useState({ lat: 28.5355, lng: 77.3910 }); // Default: Delhi
   const [destCoords, setDestCoords] = useState({ lat: 28.6139, lng: 77.2090 }); // Default: Connaught Place
+  const [activeNavRoute, setActiveNavRoute] = useState<MultimodalRoute | null>(null);
 
-  // Fetch location name from coordinates using reverse geocoding
+  // Fetch location name from coordinates using Google Maps reverse geocoding
   const fetchLocationName = async (lat: number, lng: number): Promise<string> => {
     try {
       const response = await fetch(
-        `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=jsonv2&addressdetails=1&zoom=18`,
-        {
-          headers: {
-            'User-Agent': 'CityNav/1.0'
-          }
-        }
+        `/api/google-geocode?lat=${lat}&lng=${lng}`
       );
       if (!response.ok) return "Unknown Location";
       
       const data = await response.json();
-      const addr = data.address || {};
       
+      if (!data.results || data.results.length === 0) {
+        return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+      }
+
+      const components = data.results[0].address_components || [];
+      const getComponent = (type: string) =>
+        components.find((c: any) => c.types.includes(type))?.long_name || '';
+
       // Build location name from address components
       const parts: string[] = [];
-      if (addr.neighbourhood) parts.push(addr.neighbourhood);
-      else if (addr.suburb) parts.push(addr.suburb);
-      else if (addr.locality) parts.push(addr.locality);
+      const neighbourhood = getComponent('neighborhood') || getComponent('sublocality_level_2');
+      const suburb = getComponent('sublocality_level_1') || getComponent('sublocality');
+      const city = getComponent('locality') || getComponent('administrative_area_level_2');
+      const state = getComponent('administrative_area_level_1');
       
-      if (addr.city || addr.town) parts.push(addr.city || addr.town);
-      else if (addr.state) parts.push(addr.state);
+      if (neighbourhood) parts.push(neighbourhood);
+      else if (suburb) parts.push(suburb);
+      
+      if (city) parts.push(city);
+      else if (state) parts.push(state);
       
       return parts.length > 0 ? parts.join(', ') : `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
     } catch (error) {
@@ -154,14 +166,22 @@ function RouteOptionsContent() {
   }, [searchParams, startLocation]);
 
   const handleStartNavigation = (route: MultimodalRoute) => {
-    // Here you would typically integrate with a mapping service
-    alert(
-      `Starting ${route.name} navigation to ${destination || "destination"}\n\n` +
-      `Total Time: ${formatTime(route.totalDuration)}\n` +
-      `Total Cost: ₹${route.totalCost}\n` +
-      `Modes: ${route.modesUsed.map(m => getModeDisplay(m).label).join(' → ')}`
-    );
+    setActiveNavRoute(route);
   };
+
+  // Show full-screen navigation map when a route is selected
+  if (activeNavRoute) {
+    return (
+      <RouteNavigationView
+        route={activeNavRoute}
+        sourceCoords={sourceCoords}
+        destCoords={destCoords}
+        sourceName={startLocationName}
+        destName={destinationName}
+        onClose={() => setActiveNavRoute(null)}
+      />
+    );
+  }
 
   return (
     <div
@@ -248,9 +268,9 @@ function RouteOptionsContent() {
             backdropFilter: "blur(10px)",
           }}>
             <div style={{ fontSize: "2rem", marginBottom: "16px" }}>🔄</div>
-            <p>Calculating best multimodal routes...</p>
+            <p>Fetching real-time routes from Google Maps...</p>
             <p style={{ fontSize: "0.875rem", opacity: 0.8, marginTop: "8px" }}>
-              ⏱️ Estimated time: 3-5 seconds
+              ⏱️ Getting live traffic data &amp; transit schedules
             </p>
           </div>
         )}
@@ -276,6 +296,18 @@ function RouteOptionsContent() {
               }}>
                 <span>📊</span>
                 Quick Comparison
+                <span style={{
+                  marginLeft: "auto",
+                  fontSize: "0.7rem",
+                  background: "rgba(34, 197, 94, 0.2)",
+                  color: "#22c55e",
+                  padding: "3px 8px",
+                  borderRadius: "8px",
+                  fontWeight: "600",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "4px",
+                }}>🟢 Live Traffic Data</span>
               </h3>
               <div style={{
                 display: "grid",
@@ -426,7 +458,7 @@ function RouteOptionsContent() {
                                   borderRadius: "6px",
                                   fontWeight: "600",
                                 }}>
-                                  RECOMMENDED
+                                  PREFERRED
                                 </span>
                               )}
                             </div>
@@ -538,7 +570,23 @@ function RouteOptionsContent() {
                             fontSize: "0.75rem",
                             fontWeight: "600",
                           }}>
-                            RECOMMENDED
+                            PREFERRED
+                          </span>
+                        )}
+                        {/* Show Google Maps accuracy badge */}
+                        {route.segments.some(s => s.routeInfo?.includes('via') || s.stopCount) && (
+                          <span style={{
+                            background: "rgba(59, 130, 246, 0.2)",
+                            color: "#93c5fd",
+                            padding: "4px 10px",
+                            borderRadius: "12px",
+                            fontSize: "0.7rem",
+                            fontWeight: "600",
+                            display: "inline-flex",
+                            alignItems: "center",
+                            gap: "4px",
+                          }}>
+                            📍 Google Maps
                           </span>
                         )}
                       </div>
@@ -719,11 +767,21 @@ function RouteOptionsContent() {
                                 gap: "12px", 
                                 fontSize: "0.8rem", 
                                 opacity: 0.7,
-                                marginTop: "4px" 
+                                marginTop: "4px",
+                                flexWrap: "wrap",
                               }}>
                                 <span>⏱️ {formatTime(segment.duration)}</span>
                                 <span>📏 {formatDistance(segment.distance)}</span>
                                 <span>💰 ₹{segment.cost}</span>
+                                {segment.routeInfo && (
+                                  <span style={{ color: "#93c5fd" }}>🛤️ {segment.routeInfo}</span>
+                                )}
+                                {segment.stopCount && segment.stopCount > 0 && (
+                                  <span>🚏 {segment.stopCount} stops</span>
+                                )}
+                                {segment.waitTime && segment.waitTime > 0 && (
+                                  <span>⏳ ~{segment.waitTime} min wait</span>
+                                )}
                               </div>
                             </div>
                           );

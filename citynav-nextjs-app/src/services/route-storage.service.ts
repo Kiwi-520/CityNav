@@ -1,4 +1,7 @@
-import { RouteRequest, RouteResponse, MultimodalRoute } from '../types/multimodal';
+import { RouteRequest, RouteResponse } from '../types/multimodal';
+import type { MultimodalRoute } from '../types/multimodal';
+
+export type { MultimodalRoute };
 
 interface StoredRouteData {
   id: string;

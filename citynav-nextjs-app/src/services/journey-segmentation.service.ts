@@ -1,4 +1,7 @@
-import { Location, TransportMode, RouteSegment, ModeConfig } from '../types/multimodal';
+import { Location, TransportMode, ModeConfig } from '../types/multimodal';
+import type { RouteSegment } from '../types/multimodal';
+// RouteSegment re-exported for consumers
+export type { RouteSegment };
 
 export interface SegmentationRules {
   ULTRA_SHORT: { max: number; modes: TransportMode[] };

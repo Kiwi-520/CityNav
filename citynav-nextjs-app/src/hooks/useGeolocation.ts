@@ -26,10 +26,16 @@ export const useGeolocation = (): GeolocationResult => {
         const handleSuccess = (position: GeolocationPosition) => {
             const { latitude, longitude } = position.coords;
             
-            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`)
+            fetch(`/api/google-geocode?lat=${latitude}&lng=${longitude}`)
                 .then(response => response.json())
                 .then(data => {
-                    const city = data.address?.city || data.address?.town || data.address?.village || null;
+                    let city: string | null = null;
+                    if (data.results && data.results.length > 0) {
+                        const components = data.results[0].address_components || [];
+                        const localityComp = components.find((c: any) => c.types.includes('locality'));
+                        const townComp = components.find((c: any) => c.types.includes('administrative_area_level_2'));
+                        city = localityComp?.long_name || townComp?.long_name || null;
+                    }
                     setDetectedCity(city);
                     setLoading(false);
                 })

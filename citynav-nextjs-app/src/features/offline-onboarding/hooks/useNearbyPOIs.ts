@@ -4,7 +4,7 @@ export type POI = {
   lat: number;
   lon: number;
   name?: string;
-  category: 'hospital' | 'clinic' | 'railway' | 'bus_stop' | 'bank' | 'atm' | 'hotel' | 'restaurant' | 'tourist_attraction' | 'museum' | 'monument' | 'viewpoint' | string;
+  category: 'hospital' | 'clinic' | 'pharmacy' | 'railway' | 'bus_stop' | 'bank' | 'atm' | 'hotel' | 'restaurant' | 'cafe' | 'park' | 'tourist_attraction' | 'museum' | 'monument' | 'viewpoint' | 'shopping' | 'fuel' | 'police' | string;
   tags: Record<string, string>;
 };
 
@@ -13,71 +13,55 @@ type UseNearbyOptions = {
   ttlMinutes?: number; // cache TTL
 };
 
-function buildOverpassQuery(lat: number, lon: number, radius: number) {
-  return `
-[out:json][timeout:25];
-(
-  node["amenity"~"hospital|clinic|bank|atm|restaurant|cafe|fast_food"](around:${radius},${lat},${lon});
-  way["amenity"~"hospital|clinic|bank|atm|restaurant|cafe|fast_food"](around:${radius},${lat},${lon});
-  relation["amenity"~"hospital|clinic|bank|atm|restaurant|cafe|fast_food"](around:${radius},${lat},${lon});
+// Google Places types we want to search for and how they map to our category system
+const GOOGLE_PLACE_TYPES = [
+  { type: 'hospital', category: 'hospital' },
+  { type: 'pharmacy', category: 'pharmacy' },
+  { type: 'bank', category: 'bank' },
+  { type: 'atm', category: 'atm' },
+  { type: 'restaurant', category: 'restaurant' },
+  { type: 'cafe', category: 'cafe' },
+  { type: 'lodging', category: 'hotel' },
+  { type: 'train_station', category: 'railway' },
+  { type: 'bus_station', category: 'bus_stop' },
+  { type: 'transit_station', category: 'bus_stop' },
+  { type: 'tourist_attraction', category: 'tourist_attraction' },
+  { type: 'museum', category: 'museum' },
+  { type: 'park', category: 'park' },
+  { type: 'gas_station', category: 'fuel' },
+  { type: 'shopping_mall', category: 'shopping' },
+  { type: 'supermarket', category: 'shopping' },
+  { type: 'police', category: 'police' },
+  { type: 'church', category: 'monument' },
+  { type: 'hindu_temple', category: 'monument' },
+  { type: 'mosque', category: 'monument' },
+];
 
-  node["tourism"~"hotel|attraction|museum|monument|viewpoint|artwork|gallery"](around:${radius},${lat},${lon});
-  way["tourism"~"hotel|attraction|museum|monument|viewpoint|artwork|gallery"](around:${radius},${lat},${lon});
-  relation["tourism"~"hotel|attraction|museum|monument|viewpoint|artwork|gallery"](around:${radius},${lat},${lon});
-
-  node["historic"~"monument|memorial|castle|ruins|archaeological_site"](around:${radius},${lat},${lon});
-  way["historic"~"monument|memorial|castle|ruins|archaeological_site"](around:${radius},${lat},${lon});
-  relation["historic"~"monument|memorial|castle|ruins|archaeological_site"](around:${radius},${lat},${lon});
-
-  node["railway"="station"](around:${radius},${lat},${lon});
-  way["railway"="station"](around:${radius},${lat},${lon});
-  relation["railway"="station"](around:${radius},${lat},${lon});
-
-  node["highway"="bus_stop"](around:${radius},${lat},${lon});
-  way["highway"="bus_stop"](around:${radius},${lat},${lon});
-  relation["highway"="bus_stop"](around:${radius},${lat},${lon});
-);
-out center qt;
-`;
-}
-
-function detectCategory(tags: Record<string, string> = {}) {
-  const amenity = tags['amenity'];
-  const tourism = tags['tourism'];
-  const historic = tags['historic'];
-  
-  // Health facilities
-  if (amenity === 'hospital') return 'hospital';
-  if (amenity === 'clinic') return 'clinic';
-  
-  // Financial
-  if (amenity === 'bank') return 'bank';
-  if (amenity === 'atm') return 'atm';
-  
-  // Food & Accommodation
-  if (amenity === 'restaurant' || amenity === 'cafe' || amenity === 'fast_food') return 'restaurant';
-  if (tourism === 'hotel') return 'hotel';
-  
-  // Transportation
-  if (tags['railway'] === 'station') return 'railway';
-  if (tags['highway'] === 'bus_stop') return 'bus_stop';
-  
-  // Tourist attractions and famous places
-  if (tourism === 'attraction') return 'tourist_attraction';
-  if (tourism === 'museum' || tourism === 'gallery') return 'museum';
-  if (tourism === 'monument' || tourism === 'artwork') return 'monument';
-  if (tourism === 'viewpoint') return 'viewpoint';
-  if (historic === 'monument' || historic === 'memorial' || historic === 'castle' || historic === 'ruins' || historic === 'archaeological_site') return 'monument';
-  
-  // Fallback to any useful tag
-  if (amenity) return amenity;
-  if (tourism) return tourism;
-  if (historic) return historic;
-  return 'unknown';
+function detectCategoryFromGoogleTypes(types: string[]): string {
+  if (types.includes('hospital') || types.includes('doctor')) return 'hospital';
+  if (types.includes('pharmacy') || types.includes('drugstore')) return 'pharmacy';
+  if (types.includes('bank')) return 'bank';
+  if (types.includes('atm')) return 'atm';
+  if (types.includes('restaurant') || types.includes('food')) return 'restaurant';
+  if (types.includes('cafe')) return 'cafe';
+  if (types.includes('lodging')) return 'hotel';
+  if (types.includes('train_station') || types.includes('subway_station')) return 'railway';
+  if (types.includes('bus_station') || types.includes('transit_station')) return 'bus_stop';
+  if (types.includes('tourist_attraction')) return 'tourist_attraction';
+  if (types.includes('museum')) return 'museum';
+  if (types.includes('church') || types.includes('hindu_temple') || types.includes('mosque') || types.includes('place_of_worship')) return 'monument';
+  if (types.includes('park')) return 'park';
+  if (types.includes('gas_station')) return 'fuel';
+  if (types.includes('shopping_mall') || types.includes('supermarket') || types.includes('grocery_or_supermarket')) return 'shopping';
+  if (types.includes('police')) return 'police';
+  if (types.includes('school') || types.includes('university')) return 'education';
+  // Instead of returning unknown, try to map to a reasonable category
+  if (types.includes('point_of_interest') || types.includes('establishment')) return 'tourist_attraction';
+  return types[0] || 'tourist_attraction';
 }
 
 function cacheKey(lat: number, lon: number, radius: number) {
-  return `nearby_pois_${lat.toFixed(5)}_${lon.toFixed(5)}_${Math.round(radius)}`;
+  return `nearby_pois_google_${lat.toFixed(5)}_${lon.toFixed(5)}_${Math.round(radius)}`;
 }
 
 export function useNearbyPOIs(lat?: number | null, lon?: number | null, radius = 1000, options?: UseNearbyOptions) {
@@ -90,15 +74,23 @@ export function useNearbyPOIs(lat?: number | null, lon?: number | null, radius =
   const fetchOnce = useCallback(async () => {
     if (lat == null || lon == null) return;
     const key = cacheKey(lat, lon, radius);
-      try {
-        const raw = localStorage.getItem(key);
-        if (raw) {
-          const parsed = JSON.parse(raw) as { ts: number; data: POI[] };
-          if (Date.now() - parsed.ts < ttl) setData(parsed.data);
+    try {
+      const raw = localStorage.getItem(key);
+      if (raw) {
+        const parsed = JSON.parse(raw) as { ts: number; data: POI[] };
+        // Only use cache if fresh AND has actual results
+        if (Date.now() - parsed.ts < ttl && parsed.data && parsed.data.length > 0) {
+          setData(parsed.data);
+          return; // Cache is still fresh with data
         }
-      } catch (e) {
-        // ignore cache parsing errors (corrupt or stale value)
+        // Remove stale or empty cache
+        if (parsed.data && parsed.data.length === 0) {
+          localStorage.removeItem(key);
+        }
       }
+    } catch (e) {
+      // ignore cache parsing errors
+    }
 
     setLoading(true);
     setError(null);
@@ -107,45 +99,107 @@ export function useNearbyPOIs(lat?: number | null, lon?: number | null, radius =
     const ac = new AbortController();
     abortRef.current = ac;
 
-    const q = buildOverpassQuery(lat, lon, radius);
     try {
-      const url = 'https://overpass-api.de/api/interpreter';
-      const resp = await fetch(url, { method: 'POST', body: q, signal: ac.signal, headers: { 'Content-Type': 'text/plain' } });
-      if (!resp.ok) throw new Error(`Overpass error ${resp.status}`);
-      const json = await resp.json();
-      const elements = Array.isArray(json.elements) ? json.elements : [];
+      // Fetch multiple place types in parallel via our Google Places proxy
+      // Use all the essential types for a comprehensive 1km radius search
+      const typesToSearch = [
+        'hospital', 'pharmacy', 'bank', 'atm', 
+        'restaurant', 'cafe', 'lodging', 
+        'train_station', 'bus_station', 'transit_station',
+        'tourist_attraction', 'museum', 'park',
+        'gas_station', 'shopping_mall', 'supermarket', 'police'
+      ];
+      
+      console.log(`🔍 Fetching POIs within ${radius}m of [${lat}, ${lon}]...`);
+      console.log(`📝 Searching ${typesToSearch.length} Google Place types`);
 
-      type OverpassElement = {
-        type: 'node' | 'way' | 'relation';
-        id: number;
-        lat?: number;
-        lon?: number;
-        center?: { lat: number; lon: number };
-        tags?: Record<string, string>;
-      };
+      const allResults = await Promise.all(
+        typesToSearch.map(async (type) => {
+          try {
+            const url = `/api/google-places?lat=${lat}&lng=${lon}&radius=${radius}&type=${type}`;
+            const resp = await fetch(url, { signal: ac.signal });
+            if (!resp.ok) {
+              console.warn(`⚠️ Google Places API HTTP error for type=${type}: ${resp.status}`);
+              return [];
+            }
+            const json = await resp.json();
+            
+            // Check Google API status
+            if (json.status && json.status !== 'OK' && json.status !== 'ZERO_RESULTS') {
+              console.warn(`⚠️ Google Places API status for type=${type}: ${json.status} - ${json.error_message || ''}`);
+              return [];
+            }
+            
+            const results = json.results || [];
+            if (results.length > 0) {
+              console.log(`  ✅ type=${type}: ${results.length} results`);
+            }
+            return results.map((place: any) => ({
+              ...place,
+              _searchType: type,
+            }));
+          } catch (fetchErr: any) {
+            if (fetchErr?.name !== 'AbortError') {
+              console.warn(`⚠️ Failed to fetch type=${type}:`, fetchErr?.message);
+            }
+            return [];
+          }
+        })
+      );
 
-      const pois: POI[] = (elements as OverpassElement[]).map((el) => {
-        const t = el.tags || {};
-        const category = detectCategory(t);
-        const pointLat = el.type === 'node' ? el.lat : (el.center && el.center.lat) || null;
-        const pointLon = el.type === 'node' ? el.lon : (el.center && el.center.lon) || null;
-        return {
-          id: `${el.type}/${el.id}`,
-          lat: pointLat ?? 0,
-          lon: pointLon ?? 0,
-          name: t.name || t['operator'] || t['brand'] || undefined,
-          category,
-          tags: t,
-        };
-      }).filter((p: POI) => p.lat !== 0 && p.lon !== 0);
+      // Flatten and deduplicate by place_id
+      const seenIds = new Set<string>();
+      const pois: POI[] = [];
+
+      for (const results of allResults) {
+        for (const place of results) {
+          if (!place.place_id || seenIds.has(place.place_id)) continue;
+          seenIds.add(place.place_id);
+
+          const location = place.geometry?.location;
+          if (!location) continue;
+
+          const types = place.types || [];
+          const category = detectCategoryFromGoogleTypes(types);
+
+          pois.push({
+            id: place.place_id,
+            lat: location.lat,
+            lon: location.lng,
+            name: place.name || undefined,
+            category,
+            tags: {
+              operator: place.business_status || '',
+              brand: '',
+              rating: place.rating?.toString() || '',
+              vicinity: place.vicinity || '',
+              ...(place.opening_hours?.open_now !== undefined ? { open_now: place.opening_hours.open_now.toString() } : {}),
+            },
+          });
+        }
+      }
+
+      console.log(`🎯 Total unique POIs found: ${pois.length}`);
+      if (pois.length === 0) {
+        console.warn('⚠️ No POIs found within radius. Check if Google Places API is enabled and billing is active.');
+      } else {
+        // Log category breakdown
+        const categoryCounts: Record<string, number> = {};
+        pois.forEach(p => { categoryCounts[p.category] = (categoryCounts[p.category] || 0) + 1; });
+        console.log('📊 POI categories:', categoryCounts);
+      }
 
       setData(pois);
-      try {
-        localStorage.setItem(key, JSON.stringify({ ts: Date.now(), data: pois }));
-      } catch {
-        // ignore storage errors
+      // Only cache if we got results
+      if (pois.length > 0) {
+        try {
+          localStorage.setItem(key, JSON.stringify({ ts: Date.now(), data: pois }));
+        } catch {
+          // ignore storage errors
+        }
       }
-  } catch (err: unknown) {
+    } catch (err: unknown) {
+      // Try to use cached data on error
       try {
         const key = cacheKey(lat, lon, radius);
         const raw = localStorage.getItem(key);
@@ -158,14 +212,14 @@ export function useNearbyPOIs(lat?: number | null, lon?: number | null, radius =
       }
       const maybeErr = err as { name?: string; message?: string } | undefined;
       if (maybeErr && maybeErr.name === 'AbortError') {
-        // aborted
+        // aborted — don't set error
       } else {
         setError(maybeErr?.message || String(maybeErr));
       }
-      } finally {
-        setLoading(false);
-        abortRef.current = null;
-      }
+    } finally {
+      setLoading(false);
+      abortRef.current = null;
+    }
   }, [lat, lon, radius, ttl]);
 
   useEffect(() => {
