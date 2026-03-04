@@ -1,4 +1,4 @@
-import { MultimodalRoute, RouteSegment, TransportMode } from '../types/multimodal';
+import { MultimodalRoute, TransportMode } from '../types/multimodal';
 
 export interface TimeContext {
   hour: number;

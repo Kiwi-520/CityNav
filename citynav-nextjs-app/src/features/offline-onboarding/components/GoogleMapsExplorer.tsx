@@ -7,10 +7,10 @@ import { useRoute } from '@/features/offline-onboarding/hooks/useRoute';
 import useNearbyPOIs, { POI } from '@/features/offline-onboarding/hooks/useNearbyPOIs';
 import logger from '@/features/offline-onboarding/lib/logger';
 import packManager from '@/features/offline-onboarding/lib/packManager';
-import MapView from '@/features/offline-onboarding/components/MapView';
+import GoogleMapView from '@/features/offline-onboarding/components/GoogleMapView';
 import NavigationPanel from '@/features/offline-onboarding/components/NavigationPanel';
 
-export default function LeafletMap() {
+export default function GoogleMapsExplorer() {
   const [pos, setPos] = useState<[number, number] | null>(null);
   const [selectedDest, setSelectedDest] = useState<{ lat: number; lon: number } | null>(null);
   const [packPois, setPackPois] = useState<POI[] | null>(null);
@@ -64,12 +64,19 @@ export default function LeafletMap() {
   const defaultCategories: Record<string, boolean> = {
     hospital: true,
     clinic: true,
+    pharmacy: true,
     railway: true,
     bus_stop: true,
     bank: true,
     atm: true,
     hotel: true,
     restaurant: true,
+    cafe: true,
+    park: true,
+    fuel: true,
+    shopping: true,
+    police: true,
+    education: true,
     tourist_attraction: true,
     museum: true,
     monument: true,
@@ -215,50 +222,37 @@ export default function LeafletMap() {
         let locationName = 'Unknown Location';
         try {
           const geoRes = await fetch(
-            `https://nominatim.openstreetmap.org/reverse?lat=${latC}&lon=${lonC}&format=jsonv2&addressdetails=1`,
+            `/api/google-geocode?lat=${latC}&lng=${lonC}`,
             { signal: AbortSignal.timeout(5000) }
           );
           if (geoRes.ok) {
             const geoData = await geoRes.json();
-            const addr = geoData.address || {};
-            const neighbourhood = addr.neighbourhood;
-            const suburb = addr.suburb;
-            const cityDistrict = addr.city_district;
-            const locality = addr.locality;
-            const city = addr.city || addr.town || addr.county;
-            const state = addr.state;
-            const country = addr.country;
-            const postcode = addr.postcode;    
-            let locationParts: string[] = [];
- 
-            if (neighbourhood) {
-              locationParts.push(neighbourhood);
-            } else if (locality) {
-              locationParts.push(locality);
-            }
-            if (suburb && suburb !== neighbourhood) {
-              locationParts.push(suburb);
-            } else if (cityDistrict && cityDistrict !== neighbourhood) {
-              locationParts.push(cityDistrict);
-            } else if (city && city !== neighbourhood && city !== suburb) {
-              locationParts.push(city);
-            }
-            if (locationParts.length > 0) {
-              locationName = locationParts.join(', ');
-              if (postcode) {
-                locationName += ` - ${postcode}`;
+            if (geoData.results && geoData.results.length > 0) {
+              const components = geoData.results[0].address_components || [];
+              const getComponent = (type: string) => components.find((c: any) => c.types.includes(type))?.long_name || '';
+              const neighbourhood = getComponent('neighborhood') || getComponent('sublocality_level_2');
+              const suburb = getComponent('sublocality_level_1') || getComponent('sublocality');
+              const city = getComponent('locality') || getComponent('administrative_area_level_2');
+              const state = getComponent('administrative_area_level_1');
+              const country = getComponent('country');
+              const postcode = getComponent('postal_code');
+              const locationParts: string[] = [];
+              if (neighbourhood) locationParts.push(neighbourhood);
+              if (suburb && suburb !== neighbourhood) locationParts.push(suburb);
+              else if (city && city !== neighbourhood) locationParts.push(city);
+              if (locationParts.length > 0) {
+                locationName = locationParts.join(', ');
+                if (postcode) locationName += ` - ${postcode}`;
+              } else if (city) {
+                locationName = city;
+                if (postcode) locationName += ` - ${postcode}`;
+              } else if (state) {
+                locationName = state;
+              } else if (country) {
+                locationName = country;
+              } else {
+                locationName = `${latC.toFixed(3)}, ${lonC.toFixed(3)}`;
               }
-            } else if (city) {
-              locationName = city;
-              if (postcode) {
-                locationName += ` - ${postcode}`;
-              }
-            } else if (state) {
-              locationName = state;
-            } else if (country) {
-              locationName = country;
-            } else {
-              locationName = `${latC.toFixed(3)}, ${lonC.toFixed(3)}`;
             }
           }
         } catch (err) {
@@ -368,48 +362,37 @@ export default function LeafletMap() {
 
       try {
         const geoRes = await fetch(
-          `https://nominatim.openstreetmap.org/reverse?lat=${latC}&lon=${lonC}&format=jsonv2&addressdetails=1`,
+          `/api/google-geocode?lat=${latC}&lng=${lonC}`,
           { signal: AbortSignal.timeout(5000) }
         );
         if (geoRes.ok) {
           const geoData = await geoRes.json();
-          const addr = geoData.address || {};
-          const neighbourhood = addr.neighbourhood;
-          const suburb = addr.suburb;
-          const cityDistrict = addr.city_district;
-          const locality = addr.locality;
-          const city = addr.city || addr.town || addr.county;
-          const state = addr.state;
-          const country = addr.country;
-          const postcode = addr.postcode;
-          let locationParts: string[] = [];
-          if (neighbourhood) {
-            locationParts.push(neighbourhood);
-          } else if (locality) {
-            locationParts.push(locality);
-          }
-          if (suburb && suburb !== neighbourhood) {
-            locationParts.push(suburb);
-          } else if (cityDistrict && cityDistrict !== neighbourhood) {
-            locationParts.push(cityDistrict);
-          } else if (city && city !== neighbourhood && city !== suburb) {
-            locationParts.push(city);
-          }
-          
-          if (locationParts.length > 0) {
-            locationName = locationParts.join(', ');
-            if (postcode) {
-              locationName += ` - ${postcode}`;
+          if (geoData.results && geoData.results.length > 0) {
+            const components = geoData.results[0].address_components || [];
+            const getComponent = (type: string) => components.find((c: any) => c.types.includes(type))?.long_name || '';
+            const neighbourhood = getComponent('neighborhood') || getComponent('sublocality_level_2');
+            const suburb = getComponent('sublocality_level_1') || getComponent('sublocality');
+            const city = getComponent('locality') || getComponent('administrative_area_level_2');
+            const state = getComponent('administrative_area_level_1');
+            const country = getComponent('country');
+            const postcode = getComponent('postal_code');
+            const locationParts: string[] = [];
+            if (neighbourhood) locationParts.push(neighbourhood);
+            if (suburb && suburb !== neighbourhood) locationParts.push(suburb);
+            else if (city && city !== neighbourhood) locationParts.push(city);
+            if (locationParts.length > 0) {
+              locationName = locationParts.join(', ');
+              if (postcode) locationName += ` - ${postcode}`;
+            } else if (city) {
+              locationName = city;
+              if (postcode) locationName += ` - ${postcode}`;
+            } else if (state) {
+              locationName = state;
+            } else if (country) {
+              locationName = country;
+            } else {
+              locationName = `${latC.toFixed(3)}, ${lonC.toFixed(3)}`;
             }
-          } else if (city) {
-            locationName = city;
-            if (postcode) {
-              locationName += ` - ${postcode}`;
-            }
-          } else if (state) {
-            locationName = state;
-          } else if (country) {
-            locationName = country;
           } else {
             locationName = `${latC.toFixed(3)}, ${lonC.toFixed(3)}`;
           }
@@ -555,7 +538,7 @@ export default function LeafletMap() {
           }}
         />
         <div className="flex-1 relative">
-          <MapView 
+          <GoogleMapView 
             center={center} 
             displayPosition={displayPosition} 
             forcedCenter={forcedCenter} 

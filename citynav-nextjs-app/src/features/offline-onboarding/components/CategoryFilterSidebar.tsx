@@ -28,7 +28,7 @@ const sections: Section[] = [
   {
     title: 'Healthcare',
     icon: '🏥',
-    categories: ['hospital', 'clinic'],
+    categories: ['hospital', 'clinic', 'pharmacy'],
     color: 'red',
   },
   {
@@ -44,10 +44,16 @@ const sections: Section[] = [
     color: 'green',
   },
   {
-    title: 'Hospitality',
+    title: 'Food & Stay',
     icon: '🏨',
-    categories: ['hotel', 'restaurant'],
+    categories: ['hotel', 'restaurant', 'cafe'],
     color: 'amber',
+  },
+  {
+    title: 'Services & More',
+    icon: '🏪',
+    categories: ['park', 'fuel', 'shopping', 'police', 'education'],
+    color: 'teal',
   },
 ];
 
@@ -57,6 +63,7 @@ const colorMap: Record<string, { bg: string; border: string; text: string; hover
   blue: { bg: 'bg-blue-50 dark:bg-blue-950/30', border: 'border-blue-200 dark:border-blue-800', text: 'text-blue-700 dark:text-blue-300', hover: 'hover:bg-blue-100 dark:hover:bg-blue-900/40' },
   green: { bg: 'bg-green-50 dark:bg-green-950/30', border: 'border-green-200 dark:border-green-800', text: 'text-green-700 dark:text-green-300', hover: 'hover:bg-green-100 dark:hover:bg-green-900/40' },
   amber: { bg: 'bg-amber-50 dark:bg-amber-950/30', border: 'border-amber-200 dark:border-amber-800', text: 'text-amber-700 dark:text-amber-300', hover: 'hover:bg-amber-100 dark:hover:bg-amber-900/40' },
+  teal: { bg: 'bg-teal-50 dark:bg-teal-950/30', border: 'border-teal-200 dark:border-teal-800', text: 'text-teal-700 dark:text-teal-300', hover: 'hover:bg-teal-100 dark:hover:bg-teal-900/40' },
 };
 
 const categoryIcons: Record<string, string> = {
@@ -66,12 +73,19 @@ const categoryIcons: Record<string, string> = {
   viewpoint: '👁️',
   hospital: '🏥',
   clinic: '⚕️',
+  pharmacy: '💊',
   railway: '🚆',
   bus_stop: '🚌',
   bank: '🏦',
   atm: '🏧',
   hotel: '🏨',
   restaurant: '🍽️',
+  cafe: '☕',
+  park: '🌳',
+  fuel: '⛽',
+  shopping: '🛒',
+  police: '🚔',
+  education: '🎓',
 };
 
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {

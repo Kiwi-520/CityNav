@@ -39,7 +39,7 @@ export class TransitStopFinderService {
   }
 
   /**
-   * Find nearby transit stops using Overpass API (OpenStreetMap)
+   * Find nearby transit stops using Google Places API
    * @param location - Source location
    * @param radiusMeters - Search radius (default: 1000m)
    */
@@ -49,67 +49,44 @@ export class TransitStopFinderService {
   ): Promise<NearbyTransitHubs> {
     const { lat, lng } = location;
 
-    // Overpass API query to find bus stops, metro stations, and railway stations
-    const query = `
-      [out:json][timeout:25];
-      (
-        node["highway"="bus_stop"](around:${radiusMeters},${lat},${lng});
-        node["railway"="station"](around:${radiusMeters},${lat},${lng});
-        node["railway"="halt"](around:${radiusMeters},${lat},${lng});
-        node["station"="subway"](around:${radiusMeters},${lat},${lng});
-        node["public_transport"="stop_position"](around:${radiusMeters},${lat},${lng});
-        node["public_transport"="platform"](around:${radiusMeters},${lat},${lng});
-      );
-      out body;
-      >;
-      out skel qt;
-    `;
-
     try {
       // Add timeout to prevent hanging requests
       const controller = new AbortController();
-      const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+      const timeoutId = setTimeout(() => controller.abort(), 10000);
 
       const response = await fetch(
-        'https://overpass-api.de/api/interpreter',
-        {
-          method: 'POST',
-          body: query,
-          headers: {
-            'Content-Type': 'application/x-www-form-urlencoded',
-          },
-          signal: controller.signal,
-        }
+        `/api/google-transit?lat=${lat}&lng=${lng}&radius=${radiusMeters}`,
+        { signal: controller.signal }
       );
 
       clearTimeout(timeoutId);
 
       if (!response.ok) {
-        console.warn('Overpass API request failed, using mock data:', response.status);
+        console.warn('Google Transit API request failed, using mock data:', response.status);
         return this.getMockTransitStops(location, radiusMeters);
       }
 
       const data = await response.json();
-      const result = this.parseOverpassResponse(data, location);
+      const result = this.parseGoogleTransitResponse(data, location);
       
       // If no real data found, use mock data
       if (result.busStops.length === 0 && result.metroStations.length === 0) {
-        console.log('No transit stops found, using mock data');
+        console.log('No transit stops found via Google, using mock data');
         return this.getMockTransitStops(location, radiusMeters);
       }
       
       return result;
     } catch (error: any) {
       if (error.name === 'AbortError') {
-        console.warn('Overpass API request timed out, using mock data');
+        console.warn('Google Transit API request timed out, using mock data');
       } else {
         console.warn('Error fetching transit stops, using mock data:', error.message);
       }
-      // Return mock data for development/offline mode
       return this.getMockTransitStops(location, radiusMeters);
     }
   }
-  private parseOverpassResponse(
+
+  private parseGoogleTransitResponse(
     data: any,
     sourceLocation: Location
   ): NearbyTransitHubs {
@@ -117,44 +94,47 @@ export class TransitStopFinderService {
     const metroStations: TransitStop[] = [];
     const railwayStations: TransitStop[] = [];
 
-    if (!data.elements || !Array.isArray(data.elements)) {
+    if (!data.transitResults || !Array.isArray(data.transitResults)) {
       return { busStops, metroStations, railwayStations };
     }
 
-    data.elements.forEach((element: any) => {
-      if (!element.lat || !element.lon) return;
+    for (const group of data.transitResults) {
+      const { type: searchType, results } = group;
 
-      const distance = this.calculateDistance(
-        sourceLocation.lat,
-        sourceLocation.lng,
-        element.lat,
-        element.lon
-      );
+      for (const place of results) {
+        const location = place.geometry?.location;
+        if (!location) continue;
 
-      const tags = element.tags || {};
-      const name = tags.name || tags.ref || 'Unnamed Stop';
-      const routes = tags.route_ref ? tags.route_ref.split(';') : [];
+        const distance = this.calculateDistance(
+          sourceLocation.lat,
+          sourceLocation.lng,
+          location.lat,
+          location.lng
+        );
 
-      const stop: TransitStop = {
-        id: `stop_${element.id}`,
-        name,
-        type: this.determineStopType(tags),
-        location: { lat: element.lat, lng: element.lon },
-        distance,
-        routes,
-        operator: tags.operator,
-        tags,
-      };
+        const stop: TransitStop = {
+          id: `stop_${place.place_id}`,
+          name: place.name || 'Unnamed Stop',
+          type: this.mapGoogleTypeToStopType(searchType, place.types || []),
+          location: { lat: location.lat, lng: location.lng },
+          distance,
+          routes: [], // Google Places doesn't directly give route numbers
+          operator: place.business_status === 'OPERATIONAL' ? 'Active' : undefined,
+          tags: {
+            vicinity: place.vicinity || '',
+            rating: place.rating?.toString() || '',
+          },
+        };
 
-      // Categorize by type
-      if (stop.type === 'bus_stop') {
-        busStops.push(stop);
-      } else if (stop.type === 'metro_station') {
-        metroStations.push(stop);
-      } else if (stop.type === 'railway_station') {
-        railwayStations.push(stop);
+        if (stop.type === 'bus_stop') {
+          busStops.push(stop);
+        } else if (stop.type === 'metro_station') {
+          metroStations.push(stop);
+        } else if (stop.type === 'railway_station') {
+          railwayStations.push(stop);
+        }
       }
-    });
+    }
 
     // Sort by distance
     busStops.sort((a, b) => a.distance - b.distance);
@@ -164,24 +144,16 @@ export class TransitStopFinderService {
     return { busStops, metroStations, railwayStations };
   }
 
-  private determineStopType(tags: Record<string, string>): TransitStop['type'] {
-    if (tags.railway === 'station' || tags.railway === 'halt') {
-      return 'railway_station';
-    }
-    if (tags.station === 'subway' || tags.subway === 'yes') {
-      return 'metro_station';
-    }
-    if (tags.highway === 'bus_stop' || tags.bus === 'yes') {
-      return 'bus_stop';
-    }
-    if (tags.railway === 'tram_stop') {
-      return 'tram_stop';
-    }
-    // Default based on public_transport tag
-    if (tags.public_transport === 'platform' || tags.public_transport === 'stop_position') {
-      // Try to determine from other tags
-      if (tags.train === 'yes') return 'railway_station';
-      if (tags.subway === 'yes') return 'metro_station';
+  private mapGoogleTypeToStopType(
+    searchType: string,
+    types: string[]
+  ): TransitStop['type'] {
+    if (searchType === 'subway_station' || types.includes('subway_station')) return 'metro_station';
+    if (searchType === 'train_station' || types.includes('train_station')) return 'railway_station';
+    if (searchType === 'bus_station' || types.includes('bus_station')) return 'bus_stop';
+    if (searchType === 'transit_station') {
+      if (types.includes('subway_station')) return 'metro_station';
+      if (types.includes('train_station')) return 'railway_station';
       return 'bus_stop';
     }
     return 'bus_stop';
@@ -189,7 +161,7 @@ export class TransitStopFinderService {
 
   private getMockTransitStops(
     location: Location,
-    radiusMeters: number
+    _radiusMeters: number
   ): NearbyTransitHubs {
     const { lat, lng } = location;
 

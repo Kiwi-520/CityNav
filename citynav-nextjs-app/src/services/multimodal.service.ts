@@ -11,10 +11,9 @@ import {
 } from '../types/multimodal';
 
 // Import enhanced services
-import { JourneySegmentationEngine } from './journey-segmentation.service';
 import { RouteScoringEngine } from './route-scoring.service';
-import { ContextAwareDecisionEngine, CityContext, WeatherContext } from './context-aware.service';
-import { CityConfigurationManager, ModeConfigConstants } from './city-config.service';
+import { ContextAwareDecisionEngine } from './context-aware.service';
+import { CityConfigurationManager } from './city-config.service';
 
 export class MultimodalDecisionEngine {
   private cityConfig: CityConfig | null = null;
@@ -156,7 +155,6 @@ export class MultimodalDecisionEngine {
   private generateRouteOptions(request: RouteRequest): MultimodalRoute[] {
     const routes: MultimodalRoute[] = [];
     const distance = this.calculateDistance(request.source, request.destination);
-    const distanceKm = distance / 1000;
 
     // SCENARIO 1: Very Short Distance (< 500m) - Walking only
     if (distance < 500) {
