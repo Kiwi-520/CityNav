@@ -62,25 +62,25 @@ export default function GoogleMapsExplorer() {
   const lonForPOI = displayPosition ? displayPosition[1] : null;
   const { data: pois, loading: poisLoading, error: poisError, refresh: refreshPOIs } = useNearbyPOIs(latForPOI, lonForPOI, 1000);
   const defaultCategories: Record<string, boolean> = {
-    hospital: true,
-    clinic: true,
-    pharmacy: true,
-    railway: true,
-    bus_stop: true,
-    bank: true,
-    atm: true,
-    hotel: true,
-    restaurant: true,
-    cafe: true,
-    park: true,
-    fuel: true,
-    shopping: true,
-    police: true,
-    education: true,
-    tourist_attraction: true,
-    museum: true,
-    monument: true,
-    viewpoint: true,
+    hospital: false,
+    clinic: false,
+    pharmacy: false,
+    railway: false,
+    bus_stop: false,
+    bank: false,
+    atm: false,
+    hotel: false,
+    restaurant: false,
+    cafe: false,
+    park: false,
+    fuel: false,
+    shopping: false,
+    police: false,
+    education: false,
+    tourist_attraction: false,
+    museum: false,
+    monument: false,
+    viewpoint: false,
   };
 
   const [activeCategories, setActiveCategories] = useState<Record<string, boolean>>(() => {
@@ -92,6 +92,40 @@ export default function GoogleMapsExplorer() {
     }
     return defaultCategories;
   });
+
+  // Track which sections are toggled on for map display
+  const [activeSections, setActiveSections] = useState<Record<string, boolean>>({});
+
+  // Section definitions matching CategoryFilterSidebar
+  const sectionDefs: { title: string; categories: string[] }[] = [
+    { title: 'Tourist Attractions', categories: ['tourist_attraction', 'museum', 'monument', 'viewpoint'] },
+    { title: 'Healthcare', categories: ['hospital', 'clinic', 'pharmacy'] },
+    { title: 'Transportation', categories: ['railway', 'bus_stop'] },
+    { title: 'Finance', categories: ['bank', 'atm'] },
+    { title: 'Food & Stay', categories: ['hotel', 'restaurant', 'cafe'] },
+    { title: 'Services & More', categories: ['park', 'fuel', 'shopping', 'police', 'education'] },
+  ];
+
+  const handleSectionToggle = (sectionTitle: string, categories: string[]) => {
+    setActiveSections(prev => {
+      const next = { ...prev, [sectionTitle]: !prev[sectionTitle] };
+      // Rebuild activeCategories based on which sections are now active
+      const newCategories = { ...defaultCategories };
+      sectionDefs.forEach(sec => {
+        const isActive = next[sec.title] || false;
+        sec.categories.forEach(cat => {
+          newCategories[cat] = isActive;
+        });
+      });
+      setActiveCategories(newCategories);
+      return next;
+    });
+  };
+
+  const handleClearAll = () => {
+    setActiveSections({});
+    setActiveCategories({ ...defaultCategories });
+  };
 
   useEffect(() => {
     try {
@@ -533,6 +567,9 @@ export default function GoogleMapsExplorer() {
           pois={displayPois}
           poisLoading={poisLoading}
           userPosition={displayPosition}
+          activeSections={activeSections}
+          onSectionToggle={handleSectionToggle}
+          onClearAll={handleClearAll}
           onNavigate={(poi) => {
             setSelectedDest({ lat: poi.lat, lon: poi.lon });
           }}
