@@ -42,7 +42,27 @@ export default function HomeDashboard() {
   const [language, setLanguage] = useState<LanguageKey>('en');
   const [theme, setTheme] = useState<ThemeKey>('system');
   const [cityApps, setCityApps] = useState<any>(null);
+  const [hasRequestedLocation, setHasRequestedLocation] = useState(false);
   const { location, error, loading, requestLocation } = useLocation();
+
+  const sanitizeLocationText = (value?: string) => {
+    if (!value) return "";
+    const cleaned = value.trim();
+    if (!cleaned) return "";
+    if (/^[.,\-\s]+$/.test(cleaned)) return "";
+    return cleaned;
+  };
+
+  const displayCity =
+    sanitizeLocationText(location?.city) ||
+    sanitizeLocationText(location?.district) ||
+    "CityNav";
+
+  const displayCountry =
+    sanitizeLocationText(location?.country) ||
+    sanitizeLocationText(location?.state);
+
+  const locationLabel = [displayCity, displayCountry].filter(Boolean).join(", ");
 
   useEffect(() => {
     // Update clock
@@ -94,6 +114,13 @@ export default function HomeDashboard() {
       setCityApps((cityAppsData as any)["default"]);
     }
   }, [location]);
+
+  useEffect(() => {
+    if (!hasRequestedLocation && !loading) {
+      setHasRequestedLocation(true);
+      requestLocation();
+    }
+  }, [hasRequestedLocation, loading, requestLocation]);
 
   const handleLanguageChange = (newLang: LanguageKey) => {
     setLanguage(newLang);
@@ -193,7 +220,7 @@ export default function HomeDashboard() {
           <div className="flex justify-between items-center mb-4">
             <div>
               <h2 className="m-0 mb-2 text-2xl font-bold text-slate-900 dark:text-slate-100">
-                Welcome to {location ? location.city : "CityNav"}
+                Welcome to {displayCity}
               </h2>
               <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm">
                 <FiClock size={16} />
@@ -203,9 +230,13 @@ export default function HomeDashboard() {
               {location && (
                 <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 text-sm mt-1">
                   <FiMapPin size={14} />
-                  <span>
-                    {location.city}, {location.country}
-                  </span>
+                  <span>{locationLabel || displayCity}</span>
+                </div>
+              )}
+
+              {error && (
+                <div className="text-red-600 dark:text-red-400 text-sm mt-2">
+                  {error.message}
                 </div>
               )}
 

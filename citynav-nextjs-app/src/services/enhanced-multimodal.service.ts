@@ -7,16 +7,20 @@ import {
   RouteSegment,
   ModeConfig,
 } from '../types/multimodal';
-import { transitStopFinder, TransitStop } from './transit-stop-finder.service';
+import { transitStopFinder, TransitStop, NearbyTransitHubs } from './transit-stop-finder.service';
 import {
   googleDirectionsService,
   GoogleDirectionsResult,
-  GoogleDirectionStep,
   MultiDirectionsResult,
 } from './google-directions.service';
 
 export class EnhancedMultimodalEngine {
   private modeConfigs: Map<TransportMode, ModeConfig> = new Map();
+  private readonly emptyTransitHubs: NearbyTransitHubs = {
+    busStops: [],
+    metroStations: [],
+    railwayStations: [],
+  };
 
   constructor() {
     this.initializeDefaultModes();
@@ -131,14 +135,33 @@ export class EnhancedMultimodalEngine {
 
   async calculateRoutesWithStops(request: RouteRequest): Promise<RouteResponse> {
     const totalDistance = this.calculateDistance(request.source, request.destination);
-    const distanceKm = totalDistance / 1000;
 
-    // Fetch Google Directions data and nearby transit stops in parallel
-    const [googleDirections, sourceTransit, destTransit] = await Promise.all([
+    const [googleDirectionsResult, sourceTransitResult, destTransitResult] = await Promise.allSettled([
       googleDirectionsService.getAllDirections(request.source, request.destination),
       transitStopFinder.findNearbyTransitStops(request.source, 1000),
       transitStopFinder.findNearbyTransitStops(request.destination, 1000),
     ]);
+
+    const googleDirections: MultiDirectionsResult =
+      googleDirectionsResult.status === 'fulfilled'
+        ? googleDirectionsResult.value
+        : {
+            driving: null,
+            walking: null,
+            transit: [],
+            transitBus: null,
+            transitSubway: null,
+          };
+
+    const sourceTransit: NearbyTransitHubs =
+      sourceTransitResult.status === 'fulfilled'
+        ? sourceTransitResult.value
+        : this.emptyTransitHubs;
+
+    const destTransit: NearbyTransitHubs =
+      destTransitResult.status === 'fulfilled'
+        ? destTransitResult.value
+        : this.emptyTransitHubs;
 
     const routes: MultimodalRoute[] = [];
     
@@ -156,15 +179,24 @@ export class EnhancedMultimodalEngine {
 
     if (googleDirections.transit.length > 0) {
       for (const transitRoute of googleDirections.transit.slice(0, 3)) {
-        const route = this.createGoogleTransitRoute(request, transitRoute);
-        if (route) routes.push(route);
+        try {
+          const route = this.createGoogleTransitRoute(request, transitRoute);
+          if (route) routes.push(route);
+        } catch {
+          // Ignore malformed transit route and keep other route options available
+        }
       }
     }
 
     if (googleDirections.transitBus) {
       const existing = routes.find(r => r.name.toLowerCase().includes('bus'));
       if (!existing) {
-        const busRoute = this.createGoogleTransitRoute(request, googleDirections.transitBus, 'bus');
+        let busRoute: MultimodalRoute | null = null;
+        try {
+          busRoute = this.createGoogleTransitRoute(request, googleDirections.transitBus, 'bus');
+        } catch {
+          busRoute = null;
+        }
         if (busRoute) routes.push(busRoute);
       }
     }
@@ -172,7 +204,12 @@ export class EnhancedMultimodalEngine {
     if (googleDirections.transitSubway) {
       const existing = routes.find(r => r.name.toLowerCase().includes('metro') || r.name.toLowerCase().includes('subway'));
       if (!existing) {
-        const metroRoute = this.createGoogleTransitRoute(request, googleDirections.transitSubway, 'metro');
+        let metroRoute: MultimodalRoute | null = null;
+        try {
+          metroRoute = this.createGoogleTransitRoute(request, googleDirections.transitSubway, 'metro');
+        } catch {
+          metroRoute = null;
+        }
         if (metroRoute) routes.push(metroRoute);
       }
     }
@@ -217,7 +254,24 @@ export class EnhancedMultimodalEngine {
       }
     }
 
-    const deduped = this.deduplicateRoutes(routes);
+    if (routes.length === 0) {
+      if (totalDistance < 2500) {
+        routes.push(this.createWalkRoute(request, totalDistance));
+        routes.push(await this.createAutoRoute(request, totalDistance));
+      } else {
+        routes.push(await this.createAutoRoute(request, totalDistance));
+        routes.push(await this.createCabRoute(request, totalDistance));
+      }
+    }
+
+    const deduped = this.deduplicateRoutes(routes).filter((route) => {
+      return (
+        Number.isFinite(route.totalDuration) &&
+        route.totalDuration > 0 &&
+        Number.isFinite(route.totalCost) &&
+        route.totalCost >= 0
+      );
+    });
 
     deduped.sort((a, b) => {
 
@@ -226,8 +280,8 @@ export class EnhancedMultimodalEngine {
       if (aHasGoogle && !bHasGoogle) return -1;
       if (!aHasGoogle && bHasGoogle) return 1;
 
-      const scoreA = a.totalDuration + a.totalCost * 2;
-      const scoreB = b.totalDuration + b.totalCost * 2;
+      const scoreA = this.scoreRoute(a, request.preferences?.prioritize);
+      const scoreB = this.scoreRoute(b, request.preferences?.prioritize);
       return scoreA - scoreB;
     });
 
@@ -354,7 +408,7 @@ export class EnhancedMultimodalEngine {
   private createGoogleTransitRoute(
     request: RouteRequest,
     directions: GoogleDirectionsResult,
-    preferredType?: 'bus' | 'metro'
+    _preferredType?: 'bus' | 'metro'
   ): MultimodalRoute | null {
     if (!directions.steps || directions.steps.length === 0) return null;
 
@@ -463,7 +517,7 @@ export class EnhancedMultimodalEngine {
     const seen = new Map<string, MultimodalRoute>();
     
     for (const route of routes) {
-      const key = route.modesUsed.sort().join('-');
+      const key = [...route.modesUsed].sort().join('-');
       const existing = seen.get(key);
       
       if (!existing) {
@@ -486,8 +540,22 @@ export class EnhancedMultimodalEngine {
     return Array.from(seen.values());
   }
 
+  private scoreRoute(route: MultimodalRoute, prioritize?: 'time' | 'cost' | 'comfort'): number {
+    if (prioritize === 'time') {
+      return route.totalDuration + route.totalCost * 0.8 + route.transferCount * 4;
+    }
+    if (prioritize === 'cost') {
+      return route.totalCost * 2 + route.totalDuration * 0.6 + route.transferCount * 2;
+    }
+    if (prioritize === 'comfort') {
+      const comfortPenalty = route.comfortLevel === 'high' ? 0 : route.comfortLevel === 'medium' ? 8 : 16;
+      return route.totalDuration * 0.9 + route.totalCost * 0.9 + route.transferCount * 6 + comfortPenalty;
+    }
+    return route.totalDuration + route.totalCost * 1.2 + route.transferCount * 3;
+  }
+
   private createWalkRoute(request: RouteRequest, distance: number): MultimodalRoute {
-    const { duration, cost } = this.calculateSegmentMetrics('walk', distance);
+    const { duration } = this.calculateSegmentMetrics('walk', distance);
 
     const segment: RouteSegment = {
       id: `seg-walk-${Date.now()}`,
@@ -775,8 +843,8 @@ export class EnhancedMultimodalEngine {
   private async createMetroWithFirstLastMile(
     request: RouteRequest,
     distance: number,
-    sourceTransit: any,
-    destTransit: any
+    sourceTransit: NearbyTransitHubs,
+    destTransit: NearbyTransitHubs
   ): Promise<MultimodalRoute | null> {
     const nearestSourceStation = transitStopFinder.findBestTransitStop(
       sourceTransit.metroStations,

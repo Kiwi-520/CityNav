@@ -70,7 +70,25 @@ function getStepInstruction(step: Step): string {
 }
 
 export default function NavigationPanel({ selectedDest, setSelectedDest, route, routeLoading, routeError }: Props) {
-  if (!selectedDest) return null;
+  if (!selectedDest) {
+    return (
+      <div className="relative z-[1001]">
+        <div className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl max-w-[400px] w-[92vw] p-4">
+          <div className="flex items-start gap-3">
+            <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-lg">
+              🧭
+            </div>
+            <div className="min-w-0">
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Pick a Destination on the Map</h3>
+              <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
+                Go to the map, tap a place you want to visit, then compare routes here.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
   
   return (
     <div className="relative z-[1001]">

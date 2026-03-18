@@ -1,14 +1,16 @@
 import { NextResponse } from 'next/server';
 
+const TRANSIT_TYPES = ['bus_station', 'train_station', 'subway_station', 'transit_station'] as const;
+
 export async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const lat = searchParams.get('lat');
-    const lng = searchParams.get('lng');
-    const radius = searchParams.get('radius') || '1000';
+    const lat = Number(searchParams.get('lat'));
+    const lng = Number(searchParams.get('lng'));
+    const radius = Math.min(Number(searchParams.get('radius') || '1000'), 50000);
 
-    if (!lat || !lng) {
-      return NextResponse.json({ error: 'Missing lat/lng parameters' }, { status: 400 });
+    if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+      return NextResponse.json({ error: 'Missing or invalid lat/lng parameters' }, { status: 400 });
     }
 
     const apiKey = process.env.GOOGLE_MAPS_API_KEY;
@@ -19,20 +21,28 @@ export async function GET(req: Request) {
     const location = `${lat},${lng}`;
 
     // Search for multiple transit types
-    const transitTypes = ['bus_station', 'train_station', 'subway_station', 'transit_station'];
-    
-    const results = await Promise.all(
-      transitTypes.map(async (type) => {
+    const settled = await Promise.allSettled(
+      TRANSIT_TYPES.map(async (type) => {
         const url = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${location}&radius=${radius}&type=${type}&key=${apiKey}`;
         const resp = await fetch(url);
+        if (!resp.ok) {
+          return { type, results: [] };
+        }
         const data = await resp.json();
         return { type, results: data.results || [] };
       })
     );
 
-    return NextResponse.json({ transitResults: results });
+    const transitResults = settled
+      .filter((result): result is PromiseFulfilledResult<{ type: string; results: unknown[] }> => result.status === 'fulfilled')
+      .map((result) => result.value);
+
+    return NextResponse.json({
+      status: transitResults.some((group) => group.results.length > 0) ? 'OK' : 'ZERO_RESULTS',
+      transitResults,
+    });
   } catch (error) {
     console.error('Google Transit proxy error:', error);
-    return NextResponse.json({ error: (error as Error).message || 'Proxy error' }, { status: 500 });
+    return NextResponse.json({ error: (error as Error).message || 'Proxy error', transitResults: [] }, { status: 500 });
   }
 }

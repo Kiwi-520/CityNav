@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useMemo, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   FiMapPin,
@@ -51,7 +51,9 @@ const formatDistance = (meters: number): string => {
 
 function RouteOptionsContent() {
   const searchParams = useSearchParams();
+  const searchParamsKey = useMemo(() => searchParams.toString(), [searchParams]);
   const [destination, setDestination] = useState("");
+  const [needsDestinationSelection, setNeedsDestinationSelection] = useState(false);
   const [startLocationName, setStartLocationName] = useState("Your Location");
   const [destinationName, setDestinationName] = useState("Destination");
   const [routes, setRoutes] = useState<MultimodalRoute[]>([]);
@@ -60,6 +62,8 @@ function RouteOptionsContent() {
   const [destCoords, setDestCoords] = useState({ lat: 28.6139, lng: 77.2090 }); // Default: Connaught Place
   const [activeNavRoute, setActiveNavRoute] = useState<MultimodalRoute | null>(null);
   const { isOnline, storedLocation, storeLocation } = useOfflineLocation();
+  const lastCompletedRequestKeyRef = useRef<string | null>(null);
+  const inFlightRequestKeyRef = useRef<string | null>(null);
 
   const getStoredLocationName = (): string | null => {
     if (!storedLocation) return null;
@@ -113,21 +117,76 @@ function RouteOptionsContent() {
   };
 
   useEffect(() => {
+    let cancelled = false;
+    const params = new URLSearchParams(searchParamsKey);
+
+    const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+    const calculateWithRetry = async (request: RouteRequest): Promise<MultimodalRoute[]> => {
+      const maxAttempts = 3;
+      let lastError: Error | null = null;
+
+      for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+        try {
+          const enhancedResponse = await enhancedMultimodalEngine.calculateRoutesWithStops(request);
+          if (enhancedResponse.routes?.length > 0) {
+            return enhancedResponse.routes;
+          }
+          throw new Error('Enhanced engine returned no routes');
+        } catch (error) {
+          lastError = error as Error;
+        }
+
+        try {
+          const fallbackResponse = await multimodalEngine.calculateRoutes(request);
+          if (fallbackResponse.routes?.length > 0) {
+            return fallbackResponse.routes;
+          }
+          throw new Error('Fallback engine returned no routes');
+        } catch (fallbackError) {
+          lastError = fallbackError as Error;
+        }
+
+        if (attempt < maxAttempts) {
+          await pause(500 * attempt);
+        }
+      }
+
+      throw lastError || new Error('Unable to calculate routes');
+    };
+
     const calculateRoutes = async () => {
       setLoading(true);
+      setNeedsDestinationSelection(false);
       
-      const dest = searchParams.get("destination");
+      const dest = params.get("destination");
       if (dest) {
         setDestination(decodeURIComponent(dest));
       }
 
+      const hasDestinationParam = Boolean(dest && decodeURIComponent(dest).trim());
+      const destLatParam = params.get("destLat");
+      const destLngParam = params.get("destLng");
+      const parsedDestLat = destLatParam != null ? parseFloat(destLatParam) : NaN;
+      const parsedDestLng = destLngParam != null ? parseFloat(destLngParam) : NaN;
+      const hasDestCoords = Number.isFinite(parsedDestLat) && Number.isFinite(parsedDestLng);
+
+      if (!hasDestinationParam && !hasDestCoords) {
+        if (cancelled) return;
+        setRoutes([]);
+        setDestination("");
+        setNeedsDestinationSelection(true);
+        setLoading(false);
+        return;
+      }
+
       // Get coordinates from URL params, then fallback to stored location, then defaults
-      const sourceLatParam = searchParams.get("sourceLat");
-      const sourceLngParam = searchParams.get("sourceLng");
+      const sourceLatParam = params.get("sourceLat");
+      const sourceLngParam = params.get("sourceLng");
       let sourceLat = sourceLatParam != null ? parseFloat(sourceLatParam) : NaN;
       let sourceLng = sourceLngParam != null ? parseFloat(sourceLngParam) : NaN;
-      const destLat = parseFloat(searchParams.get("destLat") || "28.6139");
-      const destLng = parseFloat(searchParams.get("destLng") || "77.2090");
+      const destLat = Number.isFinite(parsedDestLat) ? parsedDestLat : 28.6139;
+      const destLng = Number.isFinite(parsedDestLng) ? parsedDestLng : 77.2090;
 
       if ((!Number.isFinite(sourceLat) || !Number.isFinite(sourceLng)) && storedLocation) {
         sourceLat = storedLocation.latitude;
@@ -150,13 +209,19 @@ function RouteOptionsContent() {
           });
           sourceLat = livePos.coords.latitude;
           sourceLng = livePos.coords.longitude;
-          storeLocation({
-            latitude: sourceLat,
-            longitude: sourceLng,
-            timestamp: Date.now(),
-            address: storedLocation?.address,
-            weather: storedLocation?.weather,
-          });
+          const shouldPersistLocation =
+            !storedLocation ||
+            Math.abs(storedLocation.latitude - sourceLat) > 0.0001 ||
+            Math.abs(storedLocation.longitude - sourceLng) > 0.0001;
+          if (shouldPersistLocation) {
+            storeLocation({
+              latitude: sourceLat,
+              longitude: sourceLng,
+              timestamp: Date.now(),
+              address: storedLocation?.address,
+              weather: storedLocation?.weather,
+            });
+          }
         } catch (geoError) {
           console.warn("Live geolocation unavailable, using fallback source", geoError);
         }
@@ -164,6 +229,17 @@ function RouteOptionsContent() {
         sourceLat = storedLocation.latitude;
         sourceLng = storedLocation.longitude;
       }
+
+      const requestKey = `${sourceLat.toFixed(5)},${sourceLng.toFixed(5)}:${destLat.toFixed(5)},${destLng.toFixed(5)}`;
+      if (inFlightRequestKeyRef.current === requestKey) {
+        setLoading(false);
+        return;
+      }
+      if (lastCompletedRequestKeyRef.current === requestKey) {
+        setLoading(false);
+        return;
+      }
+      inFlightRequestKeyRef.current = requestKey;
 
       setSourceCoords({ lat: sourceLat, lng: sourceLng });
       setDestCoords({ lat: destLat, lng: destLng });
@@ -198,26 +274,31 @@ function RouteOptionsContent() {
       };
 
       try {
-        // Calculate routes using ENHANCED multimodal engine with named stops
-        const response = await enhancedMultimodalEngine.calculateRoutesWithStops(request);
-        setRoutes(response.routes);
+        // Calculate routes with retry and fallback to avoid manual page reloads.
+        const resolvedRoutes = await calculateWithRetry(request);
+        if (cancelled) return;
+        setRoutes(resolvedRoutes);
+        lastCompletedRequestKeyRef.current = requestKey;
       } catch (error) {
         console.error('Error calculating routes:', error);
-        // Fallback to basic engine
-        try {
-          const fallbackResponse = await multimodalEngine.calculateRoutes(request);
-          setRoutes(fallbackResponse.routes);
-        } catch (fallbackError) {
-          console.error('Fallback also failed:', fallbackError);
-          setRoutes([]);
-        }
+        if (cancelled) return;
+        lastCompletedRequestKeyRef.current = null;
+        setRoutes([]);
       } finally {
+        if (inFlightRequestKeyRef.current === requestKey) {
+          inFlightRequestKeyRef.current = null;
+        }
+        if (cancelled) return;
         setLoading(false);
       }
     };
 
     calculateRoutes();
-  }, [searchParams, isOnline, storedLocation, storeLocation]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [searchParamsKey, isOnline, storedLocation?.latitude, storedLocation?.longitude, storeLocation]);
 
   const handleStartNavigation = (route: MultimodalRoute) => {
     setActiveNavRoute(route);
@@ -329,8 +410,39 @@ function RouteOptionsContent() {
           </div>
         )}
 
+        {!loading && needsDestinationSelection && (
+          <div style={{
+            background: "rgba(255, 255, 255, 0.1)",
+            borderRadius: "16px",
+            padding: "40px",
+            textAlign: "center",
+            backdropFilter: "blur(10px)",
+          }}>
+            <div style={{ fontSize: "3rem", marginBottom: "16px" }}>🧭</div>
+            <h3 style={{ margin: "0 0 8px 0" }}>Select a Destination from the Map</h3>
+            <p style={{ opacity: 0.8, margin: "0 0 16px 0" }}>
+              Open the map, pick a place, then come back to view multimodal routes.
+            </p>
+            <Link
+              href="/interactive-map"
+              style={{
+                display: "inline-block",
+                background: "rgba(255, 255, 255, 0.2)",
+                border: "1px solid rgba(255, 255, 255, 0.35)",
+                borderRadius: "10px",
+                padding: "10px 16px",
+                color: "white",
+                fontWeight: 600,
+                textDecoration: "none",
+              }}
+            >
+              Go to Map
+            </Link>
+          </div>
+        )}
+
         {/* Quick Comparison Summary */}
-        {!loading && routes.length > 0 && (
+        {!loading && !needsDestinationSelection && routes.length > 0 && (
           <>
             <div style={{
               background: "rgba(255, 255, 255, 0.08)",
@@ -566,7 +678,7 @@ function RouteOptionsContent() {
         )}
 
         {/* Route Options */}
-        {!loading && routes.length > 0 && (
+        {!loading && !needsDestinationSelection && routes.length > 0 && (
           <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
             {routes.map((route, index) => {
               // Get primary mode color
@@ -850,7 +962,7 @@ function RouteOptionsContent() {
         )}
 
         {/* No Routes Found */}
-        {!loading && routes.length === 0 && (
+        {!loading && !needsDestinationSelection && routes.length === 0 && (
           <div style={{
             background: "rgba(255, 255, 255, 0.1)",
             borderRadius: "16px",
