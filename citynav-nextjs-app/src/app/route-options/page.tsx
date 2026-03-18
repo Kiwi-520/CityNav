@@ -15,6 +15,7 @@ import dynamic from "next/dynamic";
 import { multimodalEngine } from "@/services/multimodal.service";
 import { enhancedMultimodalEngine } from "@/services/enhanced-multimodal.service";
 import { MultimodalRoute, RouteRequest } from "@/types/multimodal";
+import { useOfflineLocation } from "@/features/offline-onboarding/hooks/useOfflineLocation";
 
 // Dynamically import the navigation view (uses Google Maps, needs client-side only)
 const RouteNavigationView = dynamic(
@@ -51,7 +52,6 @@ const formatDistance = (meters: number): string => {
 function RouteOptionsContent() {
   const searchParams = useSearchParams();
   const [destination, setDestination] = useState("");
-  const [startLocation, setStartLocation] = useState("Current Location");
   const [startLocationName, setStartLocationName] = useState("Your Location");
   const [destinationName, setDestinationName] = useState("Destination");
   const [routes, setRoutes] = useState<MultimodalRoute[]>([]);
@@ -59,6 +59,20 @@ function RouteOptionsContent() {
   const [sourceCoords, setSourceCoords] = useState({ lat: 28.5355, lng: 77.3910 }); // Default: Delhi
   const [destCoords, setDestCoords] = useState({ lat: 28.6139, lng: 77.2090 }); // Default: Connaught Place
   const [activeNavRoute, setActiveNavRoute] = useState<MultimodalRoute | null>(null);
+  const { isOnline, storedLocation, storeLocation } = useOfflineLocation();
+
+  const getStoredLocationName = (): string | null => {
+    if (!storedLocation) return null;
+    const address = storedLocation.address;
+    if (address) {
+      const primary = address.city || address.town || address.suburb || address.village;
+      const secondary = address.state || address.country;
+      if (primary && secondary) return `${primary}, ${secondary}`;
+      if (primary) return primary;
+      if (secondary) return secondary;
+    }
+    return `${storedLocation.latitude.toFixed(4)}, ${storedLocation.longitude.toFixed(4)}`;
+  };
 
   // Fetch location name from coordinates using Google Maps reverse geocoding
   const fetchLocationName = async (lat: number, lng: number): Promise<string> => {
@@ -66,7 +80,7 @@ function RouteOptionsContent() {
       const response = await fetch(
         `/api/google-geocode?lat=${lat}&lng=${lng}`
       );
-      if (!response.ok) return "Unknown Location";
+      if (!response.ok) return (!isOnline && getStoredLocationName()) || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
       
       const data = await response.json();
       
@@ -94,7 +108,7 @@ function RouteOptionsContent() {
       return parts.length > 0 ? parts.join(', ') : `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
     } catch (error) {
       console.error('Error fetching location name:', error);
-      return `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
+      return (!isOnline && getStoredLocationName()) || `${lat.toFixed(4)}, ${lng.toFixed(4)}`;
     }
   };
 
@@ -107,18 +121,58 @@ function RouteOptionsContent() {
         setDestination(decodeURIComponent(dest));
       }
 
-      // Get coordinates from URL params or use current location
-      const sourceLat = parseFloat(searchParams.get("sourceLat") || "28.5355");
-      const sourceLng = parseFloat(searchParams.get("sourceLng") || "77.3910");
+      // Get coordinates from URL params, then fallback to stored location, then defaults
+      const sourceLatParam = searchParams.get("sourceLat");
+      const sourceLngParam = searchParams.get("sourceLng");
+      let sourceLat = sourceLatParam != null ? parseFloat(sourceLatParam) : NaN;
+      let sourceLng = sourceLngParam != null ? parseFloat(sourceLngParam) : NaN;
       const destLat = parseFloat(searchParams.get("destLat") || "28.6139");
       const destLng = parseFloat(searchParams.get("destLng") || "77.2090");
+
+      if ((!Number.isFinite(sourceLat) || !Number.isFinite(sourceLng)) && storedLocation) {
+        sourceLat = storedLocation.latitude;
+        sourceLng = storedLocation.longitude;
+      }
+      if (!Number.isFinite(sourceLat) || !Number.isFinite(sourceLng)) {
+        sourceLat = 28.5355;
+        sourceLng = 77.3910;
+      }
+
+      // When online, refresh source from live GPS and persist for offline usage
+      if (isOnline && typeof navigator !== 'undefined' && navigator.geolocation) {
+        try {
+          const livePos = await new Promise<GeolocationPosition>((resolve, reject) => {
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              enableHighAccuracy: true,
+              timeout: 8000,
+              maximumAge: 15000,
+            });
+          });
+          sourceLat = livePos.coords.latitude;
+          sourceLng = livePos.coords.longitude;
+          storeLocation({
+            latitude: sourceLat,
+            longitude: sourceLng,
+            timestamp: Date.now(),
+            address: storedLocation?.address,
+            weather: storedLocation?.weather,
+          });
+        } catch (geoError) {
+          console.warn("Live geolocation unavailable, using fallback source", geoError);
+        }
+      } else if (!isOnline && storedLocation) {
+        sourceLat = storedLocation.latitude;
+        sourceLng = storedLocation.longitude;
+      }
 
       setSourceCoords({ lat: sourceLat, lng: sourceLng });
       setDestCoords({ lat: destLat, lng: destLng });
 
       // Fetch location names
       const [sourceName, destName] = await Promise.all([
-        fetchLocationName(sourceLat, sourceLng),
+        (!isOnline && getStoredLocationName())
+          ? Promise.resolve(getStoredLocationName() as string)
+          : fetchLocationName(sourceLat, sourceLng),
         dest ? Promise.resolve(dest) : fetchLocationName(destLat, destLng)
       ]);
       
@@ -163,7 +217,7 @@ function RouteOptionsContent() {
     };
 
     calculateRoutes();
-  }, [searchParams, startLocation]);
+  }, [searchParams, isOnline, storedLocation, storeLocation]);
 
   const handleStartNavigation = (route: MultimodalRoute) => {
     setActiveNavRoute(route);
