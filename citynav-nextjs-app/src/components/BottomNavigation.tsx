@@ -12,19 +12,28 @@ import {
 export default function BottomNavigation() {
   const pathname = usePathname();
 
+  if (
+    pathname === "/welcome" ||
+    pathname === "/feature-tour" ||
+    pathname === "/location-permission" ||
+    pathname === "/setup-complete"
+  ) {
+    return null;
+  }
+
   const navItems = [
-    { href: "/", icon: FiHome, label: "Home" },
-    { href: "/search-discovery", icon: FiSearch, label: "Search" },
-    { href: "/route-options", icon: FiNavigation, label: "Routes" },
-    { href: "/essential-maps", icon: FiMap, label: "Maps" },
+    { href: "/?dashboard=1", matchPath: "/", icon: FiHome, label: "Home" },
+    { href: "/search-discovery", matchPath: "/search-discovery", icon: FiSearch, label: "Search" },
+    { href: "/route-options", matchPath: "/route-options", icon: FiNavigation, label: "Routes" },
+    { href: "/essential-maps", matchPath: "/essential-maps", icon: FiMap, label: "Maps" },
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-700 py-3 z-[1000]">
-      <div className="flex justify-around items-center max-w-[600px] mx-auto">
+    <nav className="w-full bg-white/95 dark:bg-slate-900/95 backdrop-blur-lg border-t border-slate-200 dark:border-slate-700 py-3 z-[1000]">
+      <div className="flex justify-around items-center max-w-[390px] mx-auto">
         {navItems.map((item) => {
           const IconComponent = item.icon;
-          const isActive = pathname === item.href;
+          const isActive = pathname === item.matchPath;
 
           return (
             <Link
