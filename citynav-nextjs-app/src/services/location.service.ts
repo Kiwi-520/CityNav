@@ -15,8 +15,92 @@ export interface LocationError {
 
 class LocationService {
   private static instance: LocationService;
+  private static readonly LOCATION_RETENTION_MS = 3 * 24 * 60 * 60 * 1000;
   private currentLocation: LocationData | null = null;
   private watchId: number | null = null;
+
+  private sanitizeLocationPart(value?: string): string {
+    if (!value) return "";
+    const cleaned = value.trim();
+    if (!cleaned) return "";
+    if (/^[.,\-\s]+$/.test(cleaned)) return "";
+    return cleaned;
+  }
+
+  private async getCurrentPositionWithFallback(): Promise<GeolocationPosition> {
+    const highAccuracyOptions: PositionOptions = {
+      enableHighAccuracy: true,
+      timeout: 10000,
+      maximumAge: 0,
+    };
+
+    const lowAccuracyOptions: PositionOptions = {
+      enableHighAccuracy: false,
+      timeout: 15000,
+      maximumAge: 60000,
+    };
+
+    const getPosition = (options: PositionOptions): Promise<GeolocationPosition> => {
+      return new Promise((resolve, reject) => {
+        navigator.geolocation.getCurrentPosition(resolve, reject, options);
+      });
+    };
+
+    try {
+      const firstFix = await getPosition(highAccuracyOptions);
+      // If accuracy is coarse (cell-tower), try to improve before returning.
+      if (firstFix.coords.accuracy <= 800) {
+        return firstFix;
+      }
+
+      return await this.waitForBetterAccuracyFix(firstFix, 8000, 300);
+    } catch {
+      const fallbackFix = await getPosition(lowAccuracyOptions);
+      if (fallbackFix.coords.accuracy <= 1000) {
+        return fallbackFix;
+      }
+      return await this.waitForBetterAccuracyFix(fallbackFix, 8000, 500);
+    }
+  }
+
+  private async waitForBetterAccuracyFix(
+    initial: GeolocationPosition,
+    timeoutMs: number,
+    targetAccuracyMeters: number
+  ): Promise<GeolocationPosition> {
+    if (!navigator.geolocation) return initial;
+
+    return new Promise((resolve) => {
+      let settled = false;
+      let best = initial;
+
+      const finish = () => {
+        if (settled) return;
+        settled = true;
+        if (watchId != null) navigator.geolocation.clearWatch(watchId);
+        resolve(best);
+      };
+
+      const watchId = navigator.geolocation.watchPosition(
+        (pos) => {
+          if (pos.coords.accuracy < best.coords.accuracy) {
+            best = pos;
+          }
+          if (best.coords.accuracy <= targetAccuracyMeters) {
+            finish();
+          }
+        },
+        () => finish(),
+        {
+          enableHighAccuracy: true,
+          timeout: timeoutMs,
+          maximumAge: 0,
+        }
+      );
+
+      window.setTimeout(() => finish(), timeoutMs);
+    });
+  }
 
   private constructor() {}
 
@@ -37,13 +121,7 @@ class LocationService {
         return;
       }
 
-      const options: PositionOptions = {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0, // Always get fresh location
-      };
-
-      navigator.geolocation.getCurrentPosition(
+      this.getCurrentPositionWithFallback().then(
         async (position) => {
           try {
             const locationData = await this.reverseGeocode(
@@ -64,8 +142,7 @@ class LocationService {
             code: error.code,
             message: this.getErrorMessage(error.code),
           });
-        },
-        options
+        }
       );
     });
   }
@@ -153,18 +230,41 @@ class LocationService {
       const getComponent = (type: string) =>
         components.find((c: any) => c.types.includes(type))?.long_name || '';
 
+      const city =
+        this.sanitizeLocationPart(getComponent('locality')) ||
+        this.sanitizeLocationPart(getComponent('administrative_area_level_3')) ||
+        this.sanitizeLocationPart(getComponent('administrative_area_level_2')) ||
+        this.sanitizeLocationPart(getComponent('sublocality_level_1')) ||
+        this.sanitizeLocationPart(getComponent('sublocality'));
+
+      const country = this.sanitizeLocationPart(getComponent('country'));
+      const state = this.sanitizeLocationPart(getComponent('administrative_area_level_1'));
+      const district =
+        this.sanitizeLocationPart(getComponent('administrative_area_level_3')) ||
+        this.sanitizeLocationPart(getComponent('sublocality_level_1'));
+
+      const fallbackAddress = this.sanitizeLocationPart(result.formatted_address);
+
+      let fallbackCity = city;
+      let fallbackCountry = country || state;
+      if (!fallbackCity && fallbackAddress) {
+        const [firstPart, secondPart] = fallbackAddress
+          .split(',')
+          .map((part: string) => this.sanitizeLocationPart(part));
+        fallbackCity = firstPart || 'Current Location';
+        if (!fallbackCountry) {
+          fallbackCountry = secondPart || 'Unknown';
+        }
+      }
+
       return {
         lat,
         lon,
-        city:
-          getComponent('locality') ||
-          getComponent('administrative_area_level_2') ||
-          getComponent('sublocality') ||
-          "Unknown City",
-        country: getComponent('country') || "Unknown Country",
-        state: getComponent('administrative_area_level_1') || undefined,
-        district: getComponent('administrative_area_level_3') || getComponent('sublocality_level_1') || undefined,
-        address: result.formatted_address || `${lat.toFixed(4)}, ${lon.toFixed(4)}`,
+        city: fallbackCity || 'Current Location',
+        country: fallbackCountry || 'Unknown',
+        state: state || undefined,
+        district: district || undefined,
+        address: fallbackAddress || `${lat.toFixed(4)}, ${lon.toFixed(4)}`,
       };
     } catch (_error) {
       return {
@@ -183,7 +283,10 @@ class LocationService {
 
   saveLocationToStorage(location: LocationData): void {
     try {
-      localStorage.setItem("citynav_last_location", JSON.stringify(location));
+      localStorage.setItem(
+        "citynav_last_location",
+        JSON.stringify({ savedAt: Date.now(), data: location })
+      );
     } catch (error) {
       console.warn("Failed to save location to storage:", error);
     }
@@ -192,7 +295,24 @@ class LocationService {
   loadLocationFromStorage(): LocationData | null {
     try {
       const stored = localStorage.getItem("citynav_last_location");
-      return stored ? JSON.parse(stored) : null;
+      if (!stored) return null;
+
+      const parsed = JSON.parse(stored) as
+        | { savedAt?: number; data?: LocationData }
+        | LocationData;
+
+      // Backward-compatible fallback for legacy plain object shape.
+      if ((parsed as { data?: LocationData }).data == null) {
+        return parsed as LocationData;
+      }
+
+      const payload = parsed as { savedAt?: number; data?: LocationData };
+      if (!payload.savedAt || (Date.now() - payload.savedAt) >= LocationService.LOCATION_RETENTION_MS) {
+        localStorage.removeItem("citynav_last_location");
+        return null;
+      }
+
+      return payload.data ?? null;
     } catch (error) {
       console.warn("Failed to load location from storage:", error);
       return null;

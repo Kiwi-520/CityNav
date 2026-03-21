@@ -73,11 +73,15 @@ function openRouteDB(): Promise<IDBDatabase> {
   });
 }
 
-async function saveRouteOffline(key: string, route: RouteResult): Promise<void> {
+async function saveRouteOffline(
+  key: string,
+  route: RouteResult,
+  coords?: { fromLat: number; fromLon: number; toLat: number; toLon: number }
+): Promise<void> {
   try {
     const db = await openRouteDB();
     const tx = db.transaction(ROUTE_STORE, 'readwrite');
-    tx.objectStore(ROUTE_STORE).put({ key, route, savedAt: Date.now() });
+    tx.objectStore(ROUTE_STORE).put({ key, route, savedAt: Date.now(), ...coords });
     await new Promise<void>((res, rej) => { tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); });
   } catch { /* silent */ }
 }
@@ -93,6 +97,76 @@ async function loadRouteOffline(key: string): Promise<RouteResult | null> {
     }
     return null;
   } catch { return null; }
+}
+
+type CachedRouteRecord = {
+  key: string;
+  route: RouteResult;
+  savedAt: number;
+  fromLat?: number;
+  fromLon?: number;
+  toLat?: number;
+  toLon?: number;
+};
+
+function parseRouteKey(key: string): { fromLat: number; fromLon: number; toLat: number; toLon: number } | null {
+  const [fromPart, toPart] = key.split(':');
+  if (!fromPart || !toPart) return null;
+  const [fromLat, fromLon] = fromPart.split(',').map(Number);
+  const [toLat, toLon] = toPart.split(',').map(Number);
+  if ([fromLat, fromLon, toLat, toLon].some((v) => Number.isNaN(v))) return null;
+  return { fromLat, fromLon, toLat, toLon };
+}
+
+function sqDistance(aLat: number, aLon: number, bLat: number, bLon: number): number {
+  const dLat = aLat - bLat;
+  const dLon = aLon - bLon;
+  return dLat * dLat + dLon * dLon;
+}
+
+async function loadNearestOfflineRoute(from: { lat: number; lon: number }, to: { lat: number; lon: number }): Promise<RouteResult | null> {
+  try {
+    const db = await openRouteDB();
+    const tx = db.transaction(ROUTE_STORE, 'readonly');
+    const req = tx.objectStore(ROUTE_STORE).openCursor();
+    const records = await new Promise<CachedRouteRecord[]>((resolve, reject) => {
+      const items: CachedRouteRecord[] = [];
+      req.onsuccess = () => {
+        const cursor = req.result;
+        if (!cursor) {
+          resolve(items);
+          return;
+        }
+        items.push(cursor.value as CachedRouteRecord);
+        cursor.continue();
+      };
+      req.onerror = () => reject(req.error);
+    });
+
+    const now = Date.now();
+    let best: { score: number; route: RouteResult } | null = null;
+    for (const record of records) {
+      if (!record?.route || (now - record.savedAt) >= ROUTE_CACHE_TTL) continue;
+      const keyCoords = parseRouteKey(record.key || '');
+      const recFromLat = record.fromLat ?? keyCoords?.fromLat;
+      const recFromLon = record.fromLon ?? keyCoords?.fromLon;
+      const recToLat = record.toLat ?? keyCoords?.toLat;
+      const recToLon = record.toLon ?? keyCoords?.toLon;
+      if (recFromLat == null || recFromLon == null || recToLat == null || recToLon == null) continue;
+
+      const destinationDelta = sqDistance(recToLat, recToLon, to.lat, to.lon);
+      if (destinationDelta > 0.00008) continue;
+      const originDelta = sqDistance(recFromLat, recFromLon, from.lat, from.lon);
+      const score = destinationDelta * 4 + originDelta;
+      if (!best || score < best.score) {
+        best = { score, route: record.route };
+      }
+    }
+
+    return best?.route ?? null;
+  } catch {
+    return null;
+  }
 }
 
 export const useRoute = (from?: { lat: number; lon: number } | null, to?: { lat: number; lon: number } | null) => {
@@ -154,6 +228,12 @@ export const useRoute = (from?: { lat: number; lon: number } | null, to?: { lat:
           setRoute(offlineCached);
           return;
         }
+        const nearestOfflineCached = await loadNearestOfflineRoute(from, to);
+        if (nearestOfflineCached) {
+          cacheRef.current[key] = nearestOfflineCached;
+          setRoute(nearestOfflineCached);
+          return;
+        }
         throw new Error('No internet connection and no cached route available');
       }
 
@@ -206,7 +286,7 @@ export const useRoute = (from?: { lat: number; lon: number } | null, to?: { lat:
       setRoute(result);
 
       // Persist to IndexedDB for offline access
-      void saveRouteOffline(key, result);
+      void saveRouteOffline(key, result, { fromLat: from.lat, fromLon: from.lon, toLat: to.lat, toLon: to.lon });
     } catch (e) {
       console.error('Route fetch failed', e);
       // Last resort: try offline cache even for online failures
@@ -215,6 +295,12 @@ export const useRoute = (from?: { lat: number; lon: number } | null, to?: { lat:
         if (offlineFallback) {
           cacheRef.current[key] = offlineFallback;
           setRoute(offlineFallback);
+          return;
+        }
+        const nearestOfflineFallback = await loadNearestOfflineRoute(from, to);
+        if (nearestOfflineFallback) {
+          cacheRef.current[key] = nearestOfflineFallback;
+          setRoute(nearestOfflineFallback);
           return;
         }
       } catch { /* ignore */ }

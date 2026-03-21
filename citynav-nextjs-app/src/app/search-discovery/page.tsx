@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { FiSearch, FiMapPin, FiClock, FiStar } from "react-icons/fi";
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
+import { useOfflineLocation } from "@/features/offline-onboarding/hooks/useOfflineLocation";
 
 interface SearchResult {
   id: string;
@@ -11,16 +12,106 @@ interface SearchResult {
   type: string;
   address: string;
   distance?: string;
+  distanceMeters?: number;
   rating?: number;
   lat: number;
   lon: number;
 }
+
+type CurrentLocation = {
+  lat: number;
+  lon: number;
+};
+
+const SEARCH_PLACE_TYPES = [
+  "restaurant",
+  "cafe",
+  "hospital",
+  "pharmacy",
+  "atm",
+  "bank",
+  "shopping_mall",
+  "supermarket",
+  "lodging",
+  "train_station",
+  "bus_station",
+  "tourist_attraction",
+  "museum",
+  "park",
+  "gas_station",
+] as const;
+
+const SEARCH_RADIUS_METERS = 4000;
+
+const toReadableType = (types?: string[]): string => {
+  if (!types || types.length === 0) return "Place";
+  return types[0]
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+};
+
+const toDistanceText = (distanceMeters: number): string => {
+  if (distanceMeters < 1000) return `${Math.round(distanceMeters)} m`;
+  return `${(distanceMeters / 1000).toFixed(1)} km`;
+};
+
+const haversineDistanceMeters = (
+  fromLat: number,
+  fromLon: number,
+  toLat: number,
+  toLon: number
+): number => {
+  const toRadians = (value: number) => (value * Math.PI) / 180;
+  const earthRadius = 6371000;
+  const latDelta = toRadians(toLat - fromLat);
+  const lonDelta = toRadians(toLon - fromLon);
+  const a =
+    Math.sin(latDelta / 2) * Math.sin(latDelta / 2) +
+    Math.cos(toRadians(fromLat)) *
+      Math.cos(toRadians(toLat)) *
+      Math.sin(lonDelta / 2) *
+      Math.sin(lonDelta / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return earthRadius * c;
+};
+
+const getLocationFromBrowser = (): Promise<CurrentLocation> => {
+  return new Promise((resolve, reject) => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      reject(new Error("Geolocation is not supported in this browser"));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          lat: position.coords.latitude,
+          lon: position.coords.longitude,
+        });
+      },
+      (error) => reject(error),
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 30000,
+      }
+    );
+  });
+};
 
 export default function SearchDiscoveryPage() {
   const [query, setQuery] = useState("");
   const [results, setResults] = useState<SearchResult[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState<CurrentLocation | null>(
+    null
+  );
+  const [isLocating, setIsLocating] = useState(true);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const latestRequestIdRef = useRef(0);
+  const { storedLocation, storeLocation } = useOfflineLocation();
 
   useEffect(() => {
     const saved = localStorage.getItem("recentSearches");
@@ -29,62 +120,162 @@ export default function SearchDiscoveryPage() {
     }
   }, []);
 
-  const mockResults: SearchResult[] = [
-    {
-      id: "1",
-      name: "Phoenix MarketCity",
-      type: "Shopping Mall",
-      address: "Viman Nagar, Pune",
-      distance: "2.5 km",
-      rating: 4.5,
-      lat: 18.5679,
-      lon: 73.9143,
-    },
-    {
-      id: "2",
-      name: "Shaniwar Wada",
-      type: "Historical Site",
-      address: "Shaniwar Peth, Pune",
-      distance: "5.2 km",
-      rating: 4.3,
-      lat: 18.5196,
-      lon: 73.8553,
-    },
-    {
-      id: "3",
-      name: "Pune Railway Station",
-      type: "Transport Hub",
-      address: "Station Road, Pune",
-      distance: "4.8 km",
-      rating: 4.0,
-      lat: 18.529,
-      lon: 73.8746,
-    },
-  ];
+  useEffect(() => {
+    let cancelled = false;
+
+    const resolveLocation = async () => {
+      if (storedLocation && !cancelled) {
+        setCurrentLocation({
+          lat: storedLocation.latitude,
+          lon: storedLocation.longitude,
+        });
+      }
+
+      try {
+        setIsLocating(true);
+        const freshLocation = await getLocationFromBrowser();
+        if (cancelled) return;
+
+        setCurrentLocation(freshLocation);
+        setLocationError(null);
+        const shouldPersist =
+          !storedLocation ||
+          Math.abs(storedLocation.latitude - freshLocation.lat) > 0.0001 ||
+          Math.abs(storedLocation.longitude - freshLocation.lon) > 0.0001;
+        if (shouldPersist) {
+          storeLocation({
+            latitude: freshLocation.lat,
+            longitude: freshLocation.lon,
+            timestamp: Date.now(),
+            address: storedLocation?.address,
+            weather: storedLocation?.weather,
+          });
+        }
+      } catch (error) {
+        if (cancelled) return;
+        if (!storedLocation) {
+          setLocationError(
+            "Enable location access to search places near your current location."
+          );
+        }
+      } finally {
+        if (!cancelled) {
+          setIsLocating(false);
+        }
+      }
+    };
+
+    void resolveLocation();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [storedLocation?.latitude, storedLocation?.longitude, storeLocation]);
 
   const handleSearch = async (searchQuery: string) => {
-    if (!searchQuery.trim()) {
+    const normalizedQuery = searchQuery.trim();
+    if (!normalizedQuery) {
+      latestRequestIdRef.current += 1;
       setResults([]);
+      setIsLoading(false);
       return;
     }
 
+    if (!currentLocation) {
+      setIsLoading(false);
+      setResults([]);
+      setLocationError(
+        "Current location unavailable. Turn on location and try searching again."
+      );
+      return;
+    }
+
+    const requestId = latestRequestIdRef.current + 1;
+    latestRequestIdRef.current = requestId;
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    setLocationError(null);
 
-    const filtered = mockResults.filter(
-      (result) =>
-        result.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        result.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        result.address.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    try {
+      const lowerQuery = normalizedQuery.toLowerCase();
+      const responses = await Promise.all(
+        SEARCH_PLACE_TYPES.map(async (type) => {
+          const url = `/api/google-places?lat=${currentLocation.lat}&lng=${currentLocation.lon}&radius=${SEARCH_RADIUS_METERS}&type=${type}`;
+          const resp = await fetch(url);
+          if (!resp.ok) return [];
+          const json = await resp.json();
+          if (json.status && json.status !== "OK" && json.status !== "ZERO_RESULTS") {
+            return [];
+          }
+          return Array.isArray(json.results) ? json.results : [];
+        })
+      );
 
-    setResults(filtered);
-    setIsLoading(false);
+      if (latestRequestIdRef.current !== requestId) {
+        return;
+      }
 
-    if (searchQuery.trim() && !recentSearches.includes(searchQuery)) {
-      const newRecent = [searchQuery, ...recentSearches.slice(0, 4)];
-      setRecentSearches(newRecent);
-      localStorage.setItem("recentSearches", JSON.stringify(newRecent));
+      const deduped = new Map<string, SearchResult>();
+      for (const places of responses) {
+        for (const place of places) {
+          const placeId = place.place_id as string | undefined;
+          const placeName = place.name as string | undefined;
+          const lat = place.geometry?.location?.lat as number | undefined;
+          const lon = place.geometry?.location?.lng as number | undefined;
+          if (!placeId || !placeName || lat == null || lon == null) continue;
+          if (deduped.has(placeId)) continue;
+
+          const distanceMeters = haversineDistanceMeters(
+            currentLocation.lat,
+            currentLocation.lon,
+            lat,
+            lon
+          );
+
+          const mapped: SearchResult = {
+            id: placeId,
+            name: placeName,
+            type: toReadableType(place.types),
+            address: (place.vicinity as string) || "Address unavailable",
+            distance: toDistanceText(distanceMeters),
+            distanceMeters,
+            rating: place.rating as number | undefined,
+            lat,
+            lon,
+          };
+
+          deduped.set(placeId, mapped);
+        }
+      }
+
+      const filtered = Array.from(deduped.values())
+        .filter(
+          (result) =>
+            result.name.toLowerCase().includes(lowerQuery) ||
+            result.type.toLowerCase().includes(lowerQuery) ||
+            result.address.toLowerCase().includes(lowerQuery)
+        )
+        .sort((a, b) => (a.distanceMeters || Infinity) - (b.distanceMeters || Infinity));
+
+      setResults(filtered);
+
+      const alreadyExists = recentSearches.some(
+        (existing) => existing.toLowerCase() === lowerQuery
+      );
+      if (!alreadyExists) {
+        const newRecent = [normalizedQuery, ...recentSearches.slice(0, 4)];
+        setRecentSearches(newRecent);
+        localStorage.setItem("recentSearches", JSON.stringify(newRecent));
+      }
+    } catch (error) {
+      if (latestRequestIdRef.current !== requestId) {
+        return;
+      }
+      setResults([]);
+      setLocationError("Unable to fetch nearby places right now. Please try again.");
+    } finally {
+      if (latestRequestIdRef.current === requestId) {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -156,6 +347,29 @@ export default function SearchDiscoveryPage() {
                 }}
               />
             </div>
+
+            <p
+              style={{
+                margin: "12px 0 0 0",
+                fontSize: "0.85rem",
+                opacity: 0.85,
+              }}
+            >
+              {isLocating && "Detecting your current location..."}
+              {!isLocating && currentLocation && "Searching near your current location (4 km radius)."}
+              {!isLocating && !currentLocation && "Location not available."}
+            </p>
+            {locationError && (
+              <p
+                style={{
+                  margin: "6px 0 0 0",
+                  fontSize: "0.85rem",
+                  color: "#fecaca",
+                }}
+              >
+                {locationError}
+              </p>
+            )}
           </div>
 
           {/* Recent Searches */}
@@ -331,7 +545,11 @@ export default function SearchDiscoveryPage() {
                         <Link
                           href={`/route-options?destination=${encodeURIComponent(
                             result.name
-                          )}&destLat=${result.lat}&destLng=${result.lon}`}
+                          )}&destLat=${result.lat}&destLng=${result.lon}${
+                            currentLocation
+                              ? `&sourceLat=${currentLocation.lat}&sourceLng=${currentLocation.lon}`
+                              : ""
+                          }`}
                           style={{
                             background: "rgba(34, 197, 94, 0.2)",
                             border: "1px solid #22c55e",
