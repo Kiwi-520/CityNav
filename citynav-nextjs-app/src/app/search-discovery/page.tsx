@@ -4,6 +4,7 @@ import { useState, useEffect, useRef, useCallback } from "react";
 import { FiSearch, FiMapPin, FiClock, FiStar } from "react-icons/fi";
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
+import { useOfflineLocation } from "@/features/offline-onboarding/hooks/useOfflineLocation";
 
 interface SearchResult {
   id: string;
@@ -11,10 +12,93 @@ interface SearchResult {
   type: string;
   address: string;
   distance?: string;
+  distanceMeters?: number;
   rating?: number;
   lat: number;
   lon: number;
 }
+
+type CurrentLocation = {
+  lat: number;
+  lon: number;
+};
+
+const SEARCH_PLACE_TYPES = [
+  "restaurant",
+  "cafe",
+  "hospital",
+  "pharmacy",
+  "atm",
+  "bank",
+  "shopping_mall",
+  "supermarket",
+  "lodging",
+  "train_station",
+  "bus_station",
+  "tourist_attraction",
+  "museum",
+  "park",
+  "gas_station",
+] as const;
+
+const SEARCH_RADIUS_METERS = 4000;
+
+const toReadableType = (types?: string[]): string => {
+  if (!types || types.length === 0) return "Place";
+  return types[0]
+    .split("_")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
+};
+
+const toDistanceText = (distanceMeters: number): string => {
+  if (distanceMeters < 1000) return `${Math.round(distanceMeters)} m`;
+  return `${(distanceMeters / 1000).toFixed(1)} km`;
+};
+
+const haversineDistanceMeters = (
+  fromLat: number,
+  fromLon: number,
+  toLat: number,
+  toLon: number
+): number => {
+  const toRadians = (value: number) => (value * Math.PI) / 180;
+  const earthRadius = 6371000;
+  const latDelta = toRadians(toLat - fromLat);
+  const lonDelta = toRadians(toLon - fromLon);
+  const a =
+    Math.sin(latDelta / 2) * Math.sin(latDelta / 2) +
+    Math.cos(toRadians(fromLat)) *
+      Math.cos(toRadians(toLat)) *
+      Math.sin(lonDelta / 2) *
+      Math.sin(lonDelta / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return earthRadius * c;
+};
+
+const getLocationFromBrowser = (): Promise<CurrentLocation> => {
+  return new Promise((resolve, reject) => {
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      reject(new Error("Geolocation is not supported in this browser"));
+      return;
+    }
+
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        resolve({
+          lat: position.coords.latitude,
+          lon: position.coords.longitude,
+        });
+      },
+      (error) => reject(error),
+      {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 30000,
+      }
+    );
+  });
+};
 
 export default function SearchDiscoveryPage() {
   const [query, setQuery] = useState("");
@@ -53,9 +137,21 @@ export default function SearchDiscoveryPage() {
     const trimmed = searchQuery.trim();
     if (!trimmed) {
       setResults([]);
+      setIsLoading(false);
       return;
     }
 
+    if (!currentLocation) {
+      setIsLoading(false);
+      setResults([]);
+      setLocationError(
+        "Current location unavailable. Turn on location and try searching again."
+      );
+      return;
+    }
+
+    const requestId = latestRequestIdRef.current + 1;
+    latestRequestIdRef.current = requestId;
     setIsLoading(true);
     try {
       const params = new URLSearchParams({ query: trimmed });
@@ -170,6 +266,29 @@ export default function SearchDiscoveryPage() {
                 }}
               />
             </div>
+
+            <p
+              style={{
+                margin: "12px 0 0 0",
+                fontSize: "0.85rem",
+                opacity: 0.85,
+              }}
+            >
+              {isLocating && "Detecting your current location..."}
+              {!isLocating && currentLocation && "Searching near your current location (4 km radius)."}
+              {!isLocating && !currentLocation && "Location not available."}
+            </p>
+            {locationError && (
+              <p
+                style={{
+                  margin: "6px 0 0 0",
+                  fontSize: "0.85rem",
+                  color: "#fecaca",
+                }}
+              >
+                {locationError}
+              </p>
+            )}
           </div>
 
           {/* Recent Searches */}

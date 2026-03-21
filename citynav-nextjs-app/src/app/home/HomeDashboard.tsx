@@ -55,6 +55,25 @@ export default function HomeDashboard() {
   const { location, error, loading, requestLocation } = useLocation();
   const { user, isAuthenticated, clearStoredUser } = useAuth();
 
+  const sanitizeLocationText = (value?: string) => {
+    if (!value) return "";
+    const cleaned = value.trim();
+    if (!cleaned) return "";
+    if (/^[.,\-\s]+$/.test(cleaned)) return "";
+    return cleaned;
+  };
+
+  const displayCity =
+    sanitizeLocationText(location?.city) ||
+    sanitizeLocationText(location?.district) ||
+    "CityNav";
+
+  const displayCountry =
+    sanitizeLocationText(location?.country) ||
+    sanitizeLocationText(location?.state);
+
+  const locationLabel = [displayCity, displayCountry].filter(Boolean).join(", ");
+
   useEffect(() => {
     // Update clock
     const updateTime = () => {
@@ -285,9 +304,13 @@ export default function HomeDashboard() {
               {location && (
                 <div className="flex items-center gap-2 text-indigo-600 dark:text-indigo-400 text-sm mt-1">
                   <FiMapPin size={14} />
-                  <span>
-                    {location.city}, {location.country}
-                  </span>
+                  <span>{locationLabel || displayCity}</span>
+                </div>
+              )}
+
+              {error && (
+                <div className="text-red-600 dark:text-red-400 text-sm mt-2">
+                  {error.message}
                 </div>
               )}
 

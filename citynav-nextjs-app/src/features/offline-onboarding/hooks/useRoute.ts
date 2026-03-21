@@ -73,11 +73,15 @@ function openRouteDB(): Promise<IDBDatabase> {
   });
 }
 
-async function saveRouteOffline(key: string, route: RouteResult): Promise<void> {
+async function saveRouteOffline(
+  key: string,
+  route: RouteResult,
+  coords?: { fromLat: number; fromLon: number; toLat: number; toLon: number }
+): Promise<void> {
   try {
     const db = await openRouteDB();
     const tx = db.transaction(ROUTE_STORE, 'readwrite');
-    tx.objectStore(ROUTE_STORE).put({ key, route, savedAt: Date.now() });
+    tx.objectStore(ROUTE_STORE).put({ key, route, savedAt: Date.now(), ...coords });
     await new Promise<void>((res, rej) => { tx.oncomplete = () => res(); tx.onerror = () => rej(tx.error); });
   } catch { /* silent */ }
 }
@@ -196,6 +200,12 @@ export const useRoute = (from?: { lat: number; lon: number } | null, to?: { lat:
           setFromCache(true);
           return;
         }
+        const nearestOfflineCached = await loadNearestOfflineRoute(from, to);
+        if (nearestOfflineCached) {
+          cacheRef.current[key] = nearestOfflineCached;
+          setRoute(nearestOfflineCached);
+          return;
+        }
         throw new Error('No internet connection and no cached route available');
       }
 
@@ -248,7 +258,7 @@ export const useRoute = (from?: { lat: number; lon: number } | null, to?: { lat:
       setRoute(result);
 
       // Persist to IndexedDB for offline access
-      void saveRouteOffline(key, result);
+      void saveRouteOffline(key, result, { fromLat: from.lat, fromLon: from.lon, toLat: to.lat, toLon: to.lon });
     } catch (e) {
       console.error('Route fetch failed', e);
       // Last resort: try offline cache even for online failures
@@ -266,6 +276,12 @@ export const useRoute = (from?: { lat: number; lon: number } | null, to?: { lat:
           cacheRef.current[key] = nearbyFallback;
           setRoute(nearbyFallback);
           setFromCache(true);
+          return;
+        }
+        const nearestOfflineFallback = await loadNearestOfflineRoute(from, to);
+        if (nearestOfflineFallback) {
+          cacheRef.current[key] = nearestOfflineFallback;
+          setRoute(nearestOfflineFallback);
           return;
         }
       } catch { /* ignore */ }
