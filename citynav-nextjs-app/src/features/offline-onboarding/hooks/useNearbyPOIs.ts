@@ -4,7 +4,7 @@ export type POI = {
   lat: number;
   lon: number;
   name?: string;
-  category: 'hospital' | 'clinic' | 'pharmacy' | 'railway' | 'bus_stop' | 'bank' | 'atm' | 'hotel' | 'restaurant' | 'cafe' | 'park' | 'tourist_attraction' | 'museum' | 'monument' | 'viewpoint' | 'shopping' | 'fuel' | 'police' | string;
+  category: 'hospital' | 'clinic' | 'pharmacy' | 'railway' | 'bus_stop' | 'bank' | 'atm' | 'hotel' | 'restaurant' | 'cafe' | 'park' | 'tourist_attraction' | 'museum' | 'monument' | 'viewpoint' | 'shopping' | 'fuel' | 'police' | 'toilet' | string;
   tags: Record<string, string>;
 };
 
@@ -35,6 +35,7 @@ const GOOGLE_PLACE_TYPES = [
   { type: 'church', category: 'monument' },
   { type: 'hindu_temple', category: 'monument' },
   { type: 'mosque', category: 'monument' },
+  { type: 'restroom', category: 'toilet' },
 ];
 
 function detectCategoryFromGoogleTypes(types: string[]): string {
@@ -55,6 +56,7 @@ function detectCategoryFromGoogleTypes(types: string[]): string {
   if (types.includes('shopping_mall') || types.includes('supermarket') || types.includes('grocery_or_supermarket')) return 'shopping';
   if (types.includes('police')) return 'police';
   if (types.includes('school') || types.includes('university')) return 'education';
+  if (types.includes('restroom') || types.includes('public_bath')) return 'toilet';
   // Instead of returning unknown, try to map to a reasonable category
   if (types.includes('point_of_interest') || types.includes('establishment')) return 'tourist_attraction';
   return types[0] || 'tourist_attraction';
@@ -107,7 +109,8 @@ export function useNearbyPOIs(lat?: number | null, lon?: number | null, radius =
         'restaurant', 'cafe', 'lodging', 
         'train_station', 'bus_station', 'transit_station',
         'tourist_attraction', 'museum', 'park',
-        'gas_station', 'shopping_mall', 'supermarket', 'police'
+        'gas_station', 'shopping_mall', 'supermarket', 'police',
+        'restroom'
       ];
       
       console.log(`🔍 Fetching POIs within ${radius}m of [${lat}, ${lon}]...`);

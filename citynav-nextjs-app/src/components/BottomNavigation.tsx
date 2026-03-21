@@ -2,21 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useSession } from "next-auth/react";
 import {
   FiHome,
   FiSearch,
-  FiNavigation,
   FiMap,
+  FiUser,
 } from "react-icons/fi";
 
 export default function BottomNavigation() {
   const pathname = usePathname();
+  const { data: session } = useSession();
 
   const navItems = [
     { href: "/", icon: FiHome, label: "Home" },
     { href: "/search-discovery", icon: FiSearch, label: "Search" },
-    { href: "/route-options", icon: FiNavigation, label: "Routes" },
     { href: "/essential-maps", icon: FiMap, label: "Maps" },
+    { href: "/auth", icon: FiUser, label: session ? "Profile" : "Sign In" },
   ];
 
   return (

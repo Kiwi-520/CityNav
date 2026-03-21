@@ -50,7 +50,11 @@ export const useGeolocation = (): GeolocationResult => {
             setLoading(false);
         };
 
-        navigator.geolocation.getCurrentPosition(handleSuccess, handleError);
+        navigator.geolocation.getCurrentPosition(handleSuccess, handleError, {
+            enableHighAccuracy: true,
+            timeout: 15000,
+            maximumAge: 0,
+        });
     }, []);
 
     useEffect(() => {

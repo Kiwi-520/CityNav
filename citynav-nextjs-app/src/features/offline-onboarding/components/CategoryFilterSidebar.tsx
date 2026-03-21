@@ -8,6 +8,7 @@ type Props = {
   pois: POI[] | null;
   poisLoading: boolean;
   onNavigate: (poi: POI) => void;
+  onRoutePopup?: (poi: POI) => void;
   userPosition: [number, number] | null;
   activeSections: Record<string, boolean>;
   onSectionToggle: (sectionTitle: string, categories: string[]) => void;
@@ -55,7 +56,7 @@ const sections: Section[] = [
   {
     title: 'Services & More',
     icon: '🏪',
-    categories: ['park', 'fuel', 'shopping', 'police', 'education'],
+    categories: ['park', 'fuel', 'shopping', 'police', 'education', 'toilet'],
     color: 'teal',
   },
 ];
@@ -89,6 +90,7 @@ const categoryIcons: Record<string, string> = {
   shopping: '🛒',
   police: '🚔',
   education: '🎓',
+  toilet: '🚻',
 };
 
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
@@ -103,7 +105,7 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   return R * c;
 }
 
-export default function CategoryFilterSidebar({ pois, poisLoading, onNavigate, userPosition, activeSections, onSectionToggle, onClearAll }: Props) {
+export default function CategoryFilterSidebar({ pois, poisLoading, onNavigate, onRoutePopup, userPosition, activeSections, onSectionToggle, onClearAll }: Props) {
   const router = useRouter();
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
 
@@ -123,6 +125,10 @@ export default function CategoryFilterSidebar({ pois, poisLoading, onNavigate, u
   const hasAnyActive = Object.values(activeSections).some(Boolean);
 
   const handleNavigateToRoute = (poi: POI) => {
+    if (onRoutePopup) {
+      onRoutePopup(poi);
+      return;
+    }
     // Get source coordinates
     const sourceLat = userPosition ? userPosition[0] : 28.6139;
     const sourceLng = userPosition ? userPosition[1] : 77.2090;
@@ -209,13 +215,17 @@ export default function CategoryFilterSidebar({ pois, poisLoading, onNavigate, u
                       <span className={`text-sm font-semibold ${
                         isSectionActive ? colors.text : 'text-slate-600 dark:text-slate-400'
                       }`}>{section.title}</span>
-                      {poisInSection.length > 0 && (
+                      {poisInSection.length > 0 ? (
                         <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${
                           isSectionActive
                             ? `bg-white dark:bg-slate-800 ${colors.text}`
                             : 'bg-slate-200 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
                         }`}>
                           {poisInSection.length}
+                        </span>
+                      ) : (
+                        <span className="px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-600 dark:text-red-400">
+                          0
                         </span>
                       )}
                     </div>
@@ -252,12 +262,46 @@ export default function CategoryFilterSidebar({ pois, poisLoading, onNavigate, u
                   </button>
                 </div>
 
+                {/* Unavailable sub-categories shown below header (collapsed) */}
+                {!isExpanded && (() => {
+                  const unavailable = section.categories.filter(cat => !(groupedPois[cat]?.length));
+                  if (unavailable.length === 0) return null;
+                  if (unavailable.length === section.categories.length) {
+                    return (
+                      <div className="flex items-center gap-1.5 px-3 py-1.5 mb-1">
+                        <svg className="w-3.5 h-3.5 text-red-500 dark:text-red-400 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                        </svg>
+                        <span className="text-[11px] font-medium text-red-500 dark:text-red-400">Not available nearby</span>
+                      </div>
+                    );
+                  }
+                  return (
+                    <div className="flex flex-wrap gap-1 px-2 mb-1">
+                      {unavailable.map(cat => {
+                        const label = cat === 'bus_stop' ? 'Bus Stop' : cat === 'tourist_attraction' ? 'Attractions' : cat.charAt(0).toUpperCase() + cat.slice(1);
+                        return (
+                          <span key={cat} className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-medium bg-red-50 dark:bg-red-900/20 text-red-500 dark:text-red-400 border border-red-200 dark:border-red-800">
+                            {categoryIcons[cat] || '📍'} {label} — N/A
+                          </span>
+                        );
+                      })}
+                    </div>
+                  );
+                })()}
+
                 {/* Section Content - POI List */}
                 {isExpanded && (
                   <div className="space-y-1.5 pl-1">
                     {poisInSection.length === 0 ? (
-                      <div className="px-3 py-4 text-center text-xs text-slate-400">
-                        No {section.title.toLowerCase()} places nearby
+                      <div className="px-3 py-4 text-center">
+                        <div className="flex items-center justify-center gap-2 text-amber-600 dark:text-amber-400">
+                          <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 18.364A9 9 0 005.636 5.636m12.728 12.728A9 9 0 015.636 5.636m12.728 12.728L5.636 5.636" />
+                          </svg>
+                          <span className="text-xs font-semibold">Not available nearby</span>
+                        </div>
+                        <p className="text-[11px] text-slate-400 mt-1">No {section.title.toLowerCase()} found within range</p>
                       </div>
                     ) : (
                       poisInSection.map((poi) => {

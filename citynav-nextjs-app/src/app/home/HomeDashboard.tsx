@@ -18,7 +18,12 @@ import QuickActions from "../../components/QuickActions";
 import PageHeader from "../../components/PageHeader";
 import ThemeToggle from "@/components/ThemeToggle";
 import { useLocation } from "@/hooks/useLiveLocation";
+import { useAuth } from "@/hooks/useAuth";
+import { signOut } from "next-auth/react";
+import { FiUser, FiLogOut, FiLogIn } from "react-icons/fi";
 import cityAppsData from "@/data/city-apps.json";
+import AuthPopup from "@/components/AuthPopup";
+import DraggableRoutePopup from "@/features/offline-onboarding/components/DraggableRoutePopup";
 
 export type LanguageKey = 'en' | 'hi' | 'mr';
 export type ThemeKey = 'light' | 'dark' | 'system';
@@ -42,7 +47,13 @@ export default function HomeDashboard() {
   const [language, setLanguage] = useState<LanguageKey>('en');
   const [theme, setTheme] = useState<ThemeKey>('system');
   const [cityApps, setCityApps] = useState<any>(null);
+  const [showAuthPopup, setShowAuthPopup] = useState(false);
+  const [showRoutePopup, setShowRoutePopup] = useState(false);
+  const [routeDest, setRouteDest] = useState<{ lat: number; lng: number; name: string } | null>(null);
+  const [routeSearch, setRouteSearch] = useState("");
+  const [routeSearchLoading, setRouteSearchLoading] = useState(false);
   const { location, error, loading, requestLocation } = useLocation();
+  const { user, isAuthenticated, clearStoredUser } = useAuth();
 
   useEffect(() => {
     // Update clock
@@ -84,6 +95,11 @@ export default function HomeDashboard() {
     };
   }, []);
 
+  // Auto-request fresh location on mount
+  useEffect(() => {
+    requestLocation();
+  }, []);
+
   useEffect(() => {
     // Update city apps based on location
     if (location?.city) {
@@ -94,6 +110,26 @@ export default function HomeDashboard() {
       setCityApps((cityAppsData as any)["default"]);
     }
   }, [location]);
+
+  const handleRouteSearch = async () => {
+    if (!routeSearch.trim() || !location) return;
+    setRouteSearchLoading(true);
+    try {
+      const res = await fetch(
+        `/api/google-geocode?address=${encodeURIComponent(routeSearch.trim())}`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        if (data.results?.[0]?.geometry?.location) {
+          const { lat, lng } = data.results[0].geometry.location;
+          const name = data.results[0].formatted_address || routeSearch;
+          setRouteDest({ lat, lng, name });
+          setShowRoutePopup(true);
+        }
+      }
+    } catch { /* ignore */ }
+    setRouteSearchLoading(false);
+  };
 
   const handleLanguageChange = (newLang: LanguageKey) => {
     setLanguage(newLang);
@@ -183,8 +219,52 @@ export default function HomeDashboard() {
                 })}
               </div>
             </div>
+
+            {/* Account Section */}
+            <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+              {isAuthenticated && user ? (
+                <div>
+                  <div className="flex items-center gap-3 mb-3">
+                    {user.image ? (
+                      <img src={user.image} alt="" className="w-8 h-8 rounded-full" />
+                    ) : (
+                      <div className="w-8 h-8 rounded-full bg-indigo-100 dark:bg-indigo-900/30 flex items-center justify-center">
+                        <FiUser className="text-indigo-600 dark:text-indigo-400" size={16} />
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900 dark:text-slate-100 m-0">{user.name}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 m-0">{user.email}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => { clearStoredUser(); signOut({ callbackUrl: "/" }); }}
+                    className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-50 dark:bg-red-900/20 text-red-600 dark:text-red-400 rounded-lg text-sm font-medium border border-red-200 dark:border-red-800 hover:bg-red-100 dark:hover:bg-red-900/40 transition cursor-pointer"
+                  >
+                    <FiLogOut size={16} />
+                    Sign Out
+                  </button>
+                </div>
+              ) : (
+                <button
+                  onClick={() => { setShowSettings(false); setShowAuthPopup(true); }}
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 rounded-lg text-sm font-medium border border-emerald-200 dark:border-emerald-800 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition cursor-pointer"
+                >
+                  <FiLogIn size={16} />
+                  Sign In / Sign Up
+                </button>
+              )}
+            </div>
           </div>
         </div>
+      )}
+
+      {/* Auth Popup */}
+      {showAuthPopup && (
+        <AuthPopup
+          onClose={() => setShowAuthPopup(false)}
+          onSuccess={() => { setShowAuthPopup(false); window.location.reload(); }}
+        />
       )}
 
       <div className="p-5">
@@ -193,7 +273,9 @@ export default function HomeDashboard() {
           <div className="flex justify-between items-center mb-4">
             <div>
               <h2 className="m-0 mb-2 text-2xl font-bold text-slate-900 dark:text-slate-100">
-                Welcome to {location ? location.city : "CityNav"}
+                {isAuthenticated && user?.name
+                  ? `Hi ${user.name.split(" ")[0]}!`
+                  : `Welcome to ${location ? location.city : "CityNav"}`}
               </h2>
               <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400 text-sm">
                 <FiClock size={16} />
@@ -265,6 +347,39 @@ export default function HomeDashboard() {
           <QuickActions />
         </div>
 
+        {/* Plan Route Section */}
+        <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-lg rounded-3xl p-6 mb-6 shadow-2xl border border-slate-200/50 dark:border-slate-700/50">
+          <h3 className="m-0 mb-4 text-xl font-semibold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+            <FiNavigation size={20} className="text-indigo-600 dark:text-indigo-400" />
+            Plan Route
+          </h3>
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={routeSearch}
+              onChange={(e) => setRouteSearch(e.target.value)}
+              onKeyDown={(e) => e.key === "Enter" && handleRouteSearch()}
+              placeholder="Enter destination..."
+              className="flex-1 px-4 py-3 rounded-xl border border-slate-200 dark:border-slate-600 bg-slate-50 dark:bg-slate-700/50 text-slate-900 dark:text-slate-100 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 dark:focus:ring-indigo-400 placeholder-slate-400 dark:placeholder-slate-500"
+            />
+            <button
+              onClick={handleRouteSearch}
+              disabled={routeSearchLoading || !routeSearch.trim() || !location}
+              className="px-4 py-3 bg-indigo-600 dark:bg-indigo-500 text-white rounded-xl text-sm font-medium border-none cursor-pointer hover:bg-indigo-700 dark:hover:bg-indigo-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
+            >
+              {routeSearchLoading ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <FiNavigation size={16} />
+              )}
+              Go
+            </button>
+          </div>
+          {!location && (
+            <p className="m-0 mt-2 text-xs text-amber-600 dark:text-amber-400">Enable location to plan routes</p>
+          )}
+        </div>
+
         {/* Essential Apps */}
         {cityApps && (
           <div className="bg-white/95 dark:bg-slate-800/95 backdrop-blur-lg rounded-3xl p-6 mb-6 shadow-2xl border border-slate-200/50 dark:border-slate-700/50">
@@ -320,6 +435,20 @@ export default function HomeDashboard() {
           </div>
         </div>
       </div>
+
+      {/* Draggable Route Popup */}
+      {showRoutePopup && routeDest && location && (
+        <DraggableRoutePopup
+          sourceCoords={{ lat: location.lat, lng: location.lon }}
+          destCoords={{ lat: routeDest.lat, lng: routeDest.lng }}
+          destName={routeDest.name}
+          onClose={() => {
+            setShowRoutePopup(false);
+            setRouteDest(null);
+            setRouteSearch("");
+          }}
+        />
+      )}
     </div>
   );
 }

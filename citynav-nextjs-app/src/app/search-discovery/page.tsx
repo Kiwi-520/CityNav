@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { FiSearch, FiMapPin, FiClock, FiStar } from "react-icons/fi";
 import Link from "next/link";
 import PageHeader from "@/components/PageHeader";
@@ -21,76 +21,90 @@ export default function SearchDiscoveryPage() {
   const [results, setResults] = useState<SearchResult[]>([]);
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [userPos, setUserPos] = useState<{ lat: number; lon: number } | null>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     const saved = localStorage.getItem("recentSearches");
     if (saved) {
-      setRecentSearches(JSON.parse(saved));
+      try { setRecentSearches(JSON.parse(saved)); } catch { /* ignore */ }
+    }
+    // Get user's location for location-biased search
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (p) => setUserPos({ lat: p.coords.latitude, lon: p.coords.longitude }),
+        () => { /* use no bias */ },
+        { enableHighAccuracy: true, timeout: 10000 }
+      );
     }
   }, []);
 
-  const mockResults: SearchResult[] = [
-    {
-      id: "1",
-      name: "Phoenix MarketCity",
-      type: "Shopping Mall",
-      address: "Viman Nagar, Pune",
-      distance: "2.5 km",
-      rating: 4.5,
-      lat: 18.5679,
-      lon: 73.9143,
-    },
-    {
-      id: "2",
-      name: "Shaniwar Wada",
-      type: "Historical Site",
-      address: "Shaniwar Peth, Pune",
-      distance: "5.2 km",
-      rating: 4.3,
-      lat: 18.5196,
-      lon: 73.8553,
-    },
-    {
-      id: "3",
-      name: "Pune Railway Station",
-      type: "Transport Hub",
-      address: "Station Road, Pune",
-      distance: "4.8 km",
-      rating: 4.0,
-      lat: 18.529,
-      lon: 73.8746,
-    },
-  ];
+  /** Haversine distance in km between two coords */
+  const distanceBetween = useCallback((lat1: number, lon1: number, lat2: number, lon2: number) => {
+    const toRad = (d: number) => d * Math.PI / 180;
+    const R = 6371;
+    const dLat = toRad(lat2 - lat1);
+    const dLon = toRad(lon2 - lon1);
+    const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLon / 2) ** 2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  }, []);
 
-  const handleSearch = async (searchQuery: string) => {
-    if (!searchQuery.trim()) {
+  const handleSearch = useCallback(async (searchQuery: string) => {
+    const trimmed = searchQuery.trim();
+    if (!trimmed) {
       setResults([]);
       return;
     }
 
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      const params = new URLSearchParams({ query: trimmed });
+      if (userPos) {
+        params.set('lat', userPos.lat.toString());
+        params.set('lng', userPos.lon.toString());
+      }
+      const res = await fetch(`/api/google-places-search?${params.toString()}`);
+      if (!res.ok) throw new Error('Search failed');
+      const data = await res.json();
 
-    const filtered = mockResults.filter(
-      (result) =>
-        result.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        result.type.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        result.address.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+      const mapped: SearchResult[] = (data.results || []).map((r: any, i: number) => {
+        let dist: string | undefined;
+        if (userPos) {
+          const km = distanceBetween(userPos.lat, userPos.lon, r.lat, r.lng);
+          dist = km < 1 ? `${Math.round(km * 1000)} m` : `${km.toFixed(1)} km`;
+        }
+        return {
+          id: r.place_id || String(i),
+          name: r.name,
+          type: (r.types?.[0] || '').replace(/_/g, ' '),
+          address: r.address,
+          distance: dist,
+          rating: r.rating,
+          lat: r.lat,
+          lon: r.lng,
+        };
+      });
 
-    setResults(filtered);
-    setIsLoading(false);
+      setResults(mapped);
 
-    if (searchQuery.trim() && !recentSearches.includes(searchQuery)) {
-      const newRecent = [searchQuery, ...recentSearches.slice(0, 4)];
-      setRecentSearches(newRecent);
-      localStorage.setItem("recentSearches", JSON.stringify(newRecent));
+      if (trimmed && !recentSearches.includes(trimmed)) {
+        const newRecent = [trimmed, ...recentSearches.slice(0, 4)];
+        setRecentSearches(newRecent);
+        localStorage.setItem("recentSearches", JSON.stringify(newRecent));
+      }
+    } catch (err) {
+      console.error('Search error:', err);
+      setResults([]);
+    } finally {
+      setIsLoading(false);
     }
-  };
+  }, [userPos, recentSearches, distanceBetween]);
 
   const handleQueryChange = (value: string) => {
     setQuery(value);
-    handleSearch(value);
+    // Debounce 400ms to avoid spamming API
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+    debounceRef.current = setTimeout(() => handleSearch(value), 400);
   };
 
   return (
@@ -331,7 +345,7 @@ export default function SearchDiscoveryPage() {
                         <Link
                           href={`/route-options?destination=${encodeURIComponent(
                             result.name
-                          )}&destLat=${result.lat}&destLng=${result.lon}`}
+                          )}${userPos ? `&sourceLat=${userPos.lat}&sourceLng=${userPos.lon}` : ''}&destLat=${result.lat}&destLng=${result.lon}`}
                           style={{
                             background: "rgba(34, 197, 94, 0.2)",
                             border: "1px solid #22c55e",

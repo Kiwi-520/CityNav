@@ -57,7 +57,7 @@ export type RouteResult = {
 const ROUTE_DB_NAME = 'CityNavRouteCache';
 const ROUTE_DB_VERSION = 1;
 const ROUTE_STORE = 'routes';
-const ROUTE_CACHE_TTL = 7 * 24 * 60 * 60 * 1000; // 7 days for offline availability
+const ROUTE_CACHE_TTL = 3 * 24 * 60 * 60 * 1000; // 3 days for offline availability
 
 function openRouteDB(): Promise<IDBDatabase> {
   return new Promise((resolve, reject) => {
@@ -95,10 +95,41 @@ async function loadRouteOffline(key: string): Promise<RouteResult | null> {
   } catch { return null; }
 }
 
+/** Try to find the closest matching cached route when no exact key match exists */
+async function loadNearestCachedRoute(targetToLat: number, targetToLon: number): Promise<RouteResult | null> {
+  try {
+    const db = await openRouteDB();
+    const tx = db.transaction(ROUTE_STORE, 'readonly');
+    const store = tx.objectStore(ROUTE_STORE);
+    const allReq = store.getAll();
+    const records = await new Promise<any[]>((res, rej) => { allReq.onsuccess = () => res(allReq.result || []); allReq.onerror = () => rej(allReq.error); });
+
+    let bestRoute: RouteResult | null = null;
+    let bestDist = Infinity;
+
+    for (const record of records) {
+      if (!record.key || !record.route || (Date.now() - record.savedAt) > ROUTE_CACHE_TTL) continue;
+      // key format: "fromLat,fromLon:toLat,toLon"
+      const parts = record.key.split(':');
+      if (parts.length !== 2) continue;
+      const [toLat, toLon] = parts[1].split(',').map(Number);
+      if (isNaN(toLat) || isNaN(toLon)) continue;
+      const dist = Math.sqrt((toLat - targetToLat) ** 2 + (toLon - targetToLon) ** 2);
+      // Accept routes to destinations within ~500m (approx 0.005 degrees)
+      if (dist < 0.005 && dist < bestDist) {
+        bestDist = dist;
+        bestRoute = record.route;
+      }
+    }
+    return bestRoute;
+  } catch { return null; }
+}
+
 export const useRoute = (from?: { lat: number; lon: number } | null, to?: { lat: number; lon: number } | null) => {
   const [route, setRoute] = useState<RouteResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [fromCache, setFromCache] = useState(false);
 
   const lastKeyRef = useRef<string | null>(null);
   const timerRef = useRef<number | null>(null);
@@ -110,6 +141,7 @@ export const useRoute = (from?: { lat: number; lon: number } | null, to?: { lat:
       setRoute(null);
       setError(null);
       setLoading(false);
+      setFromCache(false);
       lastKeyRef.current = null;
       return;
     }
@@ -129,6 +161,7 @@ export const useRoute = (from?: { lat: number; lon: number } | null, to?: { lat:
 
   const fetchRoute = useCallback(async () => {
     setError(null);
+    setFromCache(false);
     if (!from || !to) return;
     const key = `${from.lat},${from.lon}:${to.lat},${to.lon}`;
 
@@ -152,6 +185,15 @@ export const useRoute = (from?: { lat: number; lon: number } | null, to?: { lat:
         if (offlineCached) {
           cacheRef.current[key] = offlineCached;
           setRoute(offlineCached);
+          setFromCache(true);
+          return;
+        }
+        // Try finding a nearby cached route as fallback
+        const nearbyRoute = await loadNearestCachedRoute(to.lat, to.lon);
+        if (nearbyRoute) {
+          cacheRef.current[key] = nearbyRoute;
+          setRoute(nearbyRoute);
+          setFromCache(true);
           return;
         }
         throw new Error('No internet connection and no cached route available');
@@ -215,6 +257,15 @@ export const useRoute = (from?: { lat: number; lon: number } | null, to?: { lat:
         if (offlineFallback) {
           cacheRef.current[key] = offlineFallback;
           setRoute(offlineFallback);
+          setFromCache(true);
+          return;
+        }
+        // Try nearest cached route
+        const nearbyFallback = await loadNearestCachedRoute(to.lat, to.lon);
+        if (nearbyFallback) {
+          cacheRef.current[key] = nearbyFallback;
+          setRoute(nearbyFallback);
+          setFromCache(true);
           return;
         }
       } catch { /* ignore */ }
@@ -242,5 +293,5 @@ export const useRoute = (from?: { lat: number; lon: number } | null, to?: { lat:
     };
   }, [from, to, fetchRoute]);
 
-  return { route, loading, error, refresh: fetchRoute };
+  return { route, loading, error, fromCache, refresh: fetchRoute };
 };

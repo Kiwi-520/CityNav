@@ -1,4 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import LocationDetailsHorizontal from '@/features/offline-onboarding/components/LocationDetailsHorizontal';
 import EssentialsNavSidebar from '@/features/offline-onboarding/components/EssentialsNavSidebar';
 import CategoryFilterSidebar from '@/features/offline-onboarding/components/CategoryFilterSidebar';
@@ -9,16 +10,25 @@ import logger from '@/features/offline-onboarding/lib/logger';
 import packManager from '@/features/offline-onboarding/lib/packManager';
 import GoogleMapView from '@/features/offline-onboarding/components/GoogleMapView';
 import NavigationPanel from '@/features/offline-onboarding/components/NavigationPanel';
+import DraggableRoutePopup from '@/features/offline-onboarding/components/DraggableRoutePopup';
+import { MultimodalRoute } from '@/types/multimodal';
+
+const RouteNavigationView = dynamic(
+  () => import('@/components/RouteNavigationView'),
+  { ssr: false }
+);
 
 export default function GoogleMapsExplorer() {
   const [pos, setPos] = useState<[number, number] | null>(null);
+  const [gpsAccuracy, setGpsAccuracy] = useState<number | null>(null);
   const [selectedDest, setSelectedDest] = useState<{ lat: number; lon: number } | null>(null);
   const [packPois, setPackPois] = useState<POI[] | null>(null);
   const [forcedCenter, setForcedCenter] = useState<[number, number] | null>(null);
+  const [activeNavRoute, setActiveNavRoute] = useState<MultimodalRoute | null>(null);
   const { isOnline, storedLocation } = useOfflineLocation();
   const displayLat = pos ? pos[0] : (!isOnline && storedLocation ? storedLocation.latitude : null);
   const displayLon = pos ? pos[1] : (!isOnline && storedLocation ? storedLocation.longitude : null);
-  const { route, loading: routeLoading, error: routeError } = useRoute(
+  const { route, loading: routeLoading, error: routeError, fromCache: routeFromCache } = useRoute(
     displayLat != null && displayLon != null ? { lat: displayLat, lon: displayLon } : null,
     selectedDest
   );
@@ -31,8 +41,18 @@ export default function GoogleMapsExplorer() {
       return;
     }
     
+    const bestAccuracyRef = { current: Infinity };
     const watchId = navigator.geolocation.watchPosition(
-      (p) => setPos([p.coords.latitude, p.coords.longitude]),
+      (p) => {
+        const accuracy = p.coords.accuracy;
+        // Always accept fixes that are reasonably accurate (<= 100m)
+        // For coarse fixes (> 100m), only accept if better than what we have
+        if (accuracy <= 100 || accuracy < bestAccuracyRef.current) {
+          bestAccuracyRef.current = accuracy;
+          setPos([p.coords.latitude, p.coords.longitude]);
+          setGpsAccuracy(accuracy);
+        }
+      },
       (error) => {
         logger.error('Geolocation error:', error);
         if (!isOnline && storedLocation) {
@@ -49,6 +69,45 @@ export default function GoogleMapsExplorer() {
       setPos([storedLocation.latitude, storedLocation.longitude]);
     }
   }, [isOnline, storedLocation, pos]);
+
+  // Clean up cached packs and routes older than 3 days
+  useEffect(() => {
+    const CACHE_MAX_AGE = 3 * 24 * 60 * 60 * 1000; // 3 days
+    (async () => {
+      try {
+        const manifests = await packManager.listPacks();
+        for (const m of manifests) {
+          if (m.createdAt && (Date.now() - new Date(m.createdAt).getTime()) > CACHE_MAX_AGE) {
+            await packManager.deletePack(m.id);
+            logger.info('Deleted expired pack:', m.id);
+          }
+        }
+      } catch (err) {
+        logger.warn('Pack cache cleanup failed', err);
+      }
+      // Also clean expired routes from IndexedDB
+      try {
+        const req = indexedDB.open('CityNavRouteCache', 1);
+        req.onsuccess = () => {
+          const db = req.result;
+          if (!db.objectStoreNames.contains('routes')) return;
+          const tx = db.transaction('routes', 'readwrite');
+          const store = tx.objectStore('routes');
+          const cursorReq = store.openCursor();
+          cursorReq.onsuccess = () => {
+            const cursor = cursorReq.result;
+            if (cursor) {
+              const record = cursor.value;
+              if (record.savedAt && (Date.now() - record.savedAt) > CACHE_MAX_AGE) {
+                cursor.delete();
+              }
+              cursor.continue();
+            }
+          };
+        };
+      } catch { /* silent */ }
+    })();
+  }, []);
 
   const center: [number, number] = useMemo(() => {
     return pos || (!isOnline && storedLocation ? [storedLocation.latitude, storedLocation.longitude] : [28.6139, 77.2090]);
@@ -81,6 +140,7 @@ export default function GoogleMapsExplorer() {
     museum: false,
     monument: false,
     viewpoint: false,
+    toilet: false,
   };
 
   const [activeCategories, setActiveCategories] = useState<Record<string, boolean>>(() => {
@@ -103,7 +163,7 @@ export default function GoogleMapsExplorer() {
     { title: 'Transportation', categories: ['railway', 'bus_stop'] },
     { title: 'Finance', categories: ['bank', 'atm'] },
     { title: 'Food & Stay', categories: ['hotel', 'restaurant', 'cafe'] },
-    { title: 'Services & More', categories: ['park', 'fuel', 'shopping', 'police', 'education'] },
+    { title: 'Services & More', categories: ['park', 'fuel', 'shopping', 'police', 'education', 'toilet'] },
   ];
 
   const handleSectionToggle = (sectionTitle: string, categories: string[]) => {
@@ -234,6 +294,7 @@ export default function GoogleMapsExplorer() {
   }, [isOnline, displayPosition]);
 
   const [selectedPackId, setSelectedPackId] = useState<string | null>(null);
+  const [routePopupPoi, setRoutePopupPoi] = useState<POI | null>(null);
   const displayPois: POI[] = selectedPackId ? (packPois || []) : (isOnline ? (pois || []) : (packPois || pois || []));
 
   useEffect(() => {
@@ -488,6 +549,24 @@ export default function GoogleMapsExplorer() {
     }
   };
 
+  const handleStartNavigation = (navRoute: MultimodalRoute) => {
+    setActiveNavRoute(navRoute);
+  };
+
+  // Full-screen navigation view when a route is selected for navigation
+  if (activeNavRoute && displayPosition) {
+    return (
+      <RouteNavigationView
+        route={activeNavRoute}
+        sourceCoords={{ lat: displayPosition[0], lng: displayPosition[1] }}
+        destCoords={selectedDest ? { lat: selectedDest.lat, lng: selectedDest.lon } : routePopupPoi ? { lat: routePopupPoi.lat, lng: routePopupPoi.lon } : { lat: displayPosition[0], lng: displayPosition[1] }}
+        sourceName="Your Location"
+        destName={routePopupPoi?.name || routePopupPoi?.category || 'Destination'}
+        onClose={() => setActiveNavRoute(null)}
+      />
+    );
+  }
+
   return (
     <>
       <style jsx global>{`
@@ -540,6 +619,23 @@ export default function GoogleMapsExplorer() {
                   {isOnline ? 'Live GPS Location' : 'Cached Location'}
                 </span>
               </div>
+              {gpsAccuracy != null && isOnline && (
+                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border ${
+                  gpsAccuracy <= 10
+                    ? 'bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800'
+                    : gpsAccuracy <= 50
+                    ? 'bg-emerald-100 dark:bg-emerald-950/50 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-800'
+                    : gpsAccuracy <= 100
+                    ? 'bg-yellow-100 dark:bg-yellow-950/50 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800'
+                    : 'bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
+                }`}>
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                  </svg>
+                  <span className="font-medium">±{Math.round(gpsAccuracy)}m</span>
+                </div>
+              )}
               {pois && pois.length > 0 && (
                 <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
                   <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -573,6 +669,10 @@ export default function GoogleMapsExplorer() {
           onNavigate={(poi) => {
             setSelectedDest({ lat: poi.lat, lon: poi.lon });
           }}
+          onRoutePopup={(poi) => {
+            setRoutePopupPoi(poi);
+            setSelectedDest({ lat: poi.lat, lon: poi.lon });
+          }}
         />
         <div className="flex-1 relative">
           <GoogleMapView 
@@ -584,7 +684,12 @@ export default function GoogleMapsExplorer() {
             displayPois={displayPois} 
             activeCategories={activeCategories} 
             setForcedCenter={setForcedCenter} 
-            setSelectedPackId={setSelectedPackId} 
+            setSelectedPackId={setSelectedPackId}
+            isOnline={isOnline}
+            onNavigateToPoi={(poi) => {
+              setRoutePopupPoi(poi);
+              setSelectedDest({ lat: poi.lat, lon: poi.lon });
+            }}
           />
           {selectedPackId && (
             <div className="absolute top-4 right-4 z-[1001]">
@@ -631,12 +736,28 @@ export default function GoogleMapsExplorer() {
                 setSelectedDest={setSelectedDest} 
                 route={route} 
                 routeLoading={routeLoading} 
-                routeError={routeError} 
+                routeError={routeError}
+                isOnline={isOnline}
+                fromCache={routeFromCache}
               />
             </div>
           )}
         </div>
       </div>
+
+      {/* Draggable Route Popup */}
+      {routePopupPoi && displayPosition && (
+        <DraggableRoutePopup
+          sourceCoords={{ lat: displayPosition[0], lng: displayPosition[1] }}
+          destCoords={{ lat: routePopupPoi.lat, lng: routePopupPoi.lon }}
+          destName={routePopupPoi.name || routePopupPoi.category}
+          onClose={() => {
+            setRoutePopupPoi(null);
+            setSelectedDest(null);
+          }}
+          onStartNavigation={handleStartNavigation}
+        />
+      )}
     </div>
     </>
   );

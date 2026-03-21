@@ -150,9 +150,8 @@ export async function estimateSize(): Promise<{ totalBytes: number; count: numbe
 }
 
 export async function readPackAsText(id: string): Promise<string | null> {
-  const blob = await getPackData(id);
-  if (!blob) return null;
-  return await blob.text();
+  // Use getPackText which handles gzip decompression
+  return getPackText(id);
 }
 
 export default {

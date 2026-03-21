@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import PwaRegister from "@/app/pwa-register";
 import BottomNavigation from "@/components/BottomNavigation";
+import AuthSessionProvider from "@/components/AuthSessionProvider";
+import WelcomeAuthPrompt from "@/components/WelcomeAuthPrompt";
 import "./globals.css";
 
 export default function RootLayout({ children }: { children: ReactNode }) {
@@ -12,9 +14,12 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </head>
       <body>
-        <PwaRegister />
-        <main style={{ paddingBottom: "80px" }}>{children}</main>
-        <BottomNavigation />
+        <AuthSessionProvider>
+          <PwaRegister />
+          <WelcomeAuthPrompt />
+          <main style={{ paddingBottom: "80px" }}>{children}</main>
+          <BottomNavigation />
+        </AuthSessionProvider>
       </body>
     </html>
   );
