@@ -1,0 +1,264 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum VisitSource {
+  navigation
+  gps_checkin
+  auto_detect
+}
+
+enum ReviewStatus {
+  active
+  expired
+  flagged
+  removed
+  pending
+}
+
+enum VoteType {
+  helpful
+  not_helpful
+}
+
+enum FlagReason {
+  spam
+  abusive
+  fake
+  irrelevant
+  offensive
+  other
+}
+
+enum ReviewTagType {
+  crowded
+  quiet
+  clean
+  dirty
+  safe
+  unsafe
+  well_lit
+  dark
+  good_food
+  bad_food
+  good_service
+  bad_service
+  parking_available
+  no_parking
+  wheelchair_accessible
+  not_accessible
+  family_friendly
+  pet_friendly
+  under_construction
+  temporarily_closed
+}
+
+enum MediaType {
+  image
+  video
+}
+
+model User {
+  id            String    @id @default(uuid()) @db.Uuid
+  name          String    @db.VarChar(100)
+  email         String    @unique @db.VarChar(255)
+  emailVerified DateTime? @map("email_verified")
+  image         String?   @map("avatar_url") @db.VarChar(500)
+  passwordHash  String?   @map("password_hash") @db.VarChar(255)
+  reputation    Int       @default(0)
+  isActive      Boolean   @default(true) @map("is_active")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  lastActiveAt  DateTime  @default(now()) @map("last_active_at")
+
+  accounts      Account[]
+  sessions      Session[]
+  visitHistory  VisitHistory[]
+  reviews       Review[]
+  reviewVotes   ReviewVote[]
+  reviewFlags   ReviewFlag[]
+
+  @@map("users")
+  @@index([email], map: "idx_users_email")
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String  @map("user_id") @db.Uuid
+  type              String
+  provider          String
+  providerAccountId String  @map("provider_account_id")
+  refresh_token     String? @db.Text
+  access_token      String? @db.Text
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.Text
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique @map("session_token")
+  userId       String   @map("user_id") @db.Uuid
+  expires      DateTime
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+model Place {
+  id                 String    @id @default(uuid()) @db.Uuid
+  placeName          String    @map("place_name") @db.VarChar(255)
+  externalPlaceId    String?   @map("external_place_id") @db.VarChar(255)
+  category           String    @db.VarChar(50)
+  address            String?
+  city               String?   @db.VarChar(100)
+  latitude           Decimal   @db.Decimal(10, 8)
+  longitude          Decimal   @db.Decimal(11, 8)
+  location           Unsupported("geography(Point, 4326)")
+  currentRating      Decimal   @default(0.0) @map("current_rating") @db.Decimal(2, 1)
+  lifetimeRating     Decimal   @default(0.0) @map("lifetime_rating") @db.Decimal(2, 1)
+  totalActiveReviews Int       @default(0) @map("total_active_reviews")
+  createdAt          DateTime  @default(now()) @map("created_at")
+  updatedAt          DateTime  @default(now()) @map("updated_at")
+
+  visitHistory VisitHistory[]
+  reviews      Review[]
+
+  @@map("places")
+  @@index([category], map: "idx_places_category")
+  @@index([city], map: "idx_places_city")
+  @@index([externalPlaceId], map: "idx_places_external_id")
+}
+
+model VisitHistory {
+  id                  String     @id @default(uuid()) @db.Uuid
+  userId              String     @map("user_id") @db.Uuid
+  placeId             String     @map("place_id") @db.Uuid
+  visitedAt           DateTime   @default(now()) @map("visited_at")
+  source              VisitSource
+  gpsLatitude         Decimal?   @map("gps_latitude") @db.Decimal(10, 8)
+  gpsLongitude        Decimal?   @map("gps_longitude") @db.Decimal(11, 8)
+  durationMinutes     Int?       @map("duration_minutes")
+  isVerified          Boolean    @default(false) @map("is_verified")
+  navigationCompleted Boolean    @default(false) @map("navigation_completed")
+  proximityConfirmed  Boolean    @default(false) @map("proximity_confirmed")
+  minTimeMet          Boolean    @default(false) @map("min_time_met")
+  createdAt           DateTime   @default(now()) @map("created_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  place  Place  @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  review Review?
+
+  @@map("visit_history")
+  @@index([userId], map: "idx_visit_user")
+  @@index([placeId], map: "idx_visit_place")
+  @@index([userId, placeId, isVerified], map: "idx_visit_verified")
+  @@index([visitedAt(sort: Desc)], map: "idx_visit_date")
+}
+
+model Review {
+  id               String       @id @default(uuid()) @db.Uuid
+  userId           String       @map("user_id") @db.Uuid
+  placeId          String       @map("place_id") @db.Uuid
+  visitId          String       @unique @map("visit_id") @db.Uuid
+  rating           Int
+  reviewText       String?      @map("review_text")
+  status           ReviewStatus @default(active)
+  createdAt        DateTime     @default(now()) @map("created_at")
+  expiresAt        DateTime     @map("expires_at")
+  helpfulCount     Int          @default(0) @map("helpful_count")
+  notHelpfulCount  Int          @default(0) @map("not_helpful_count")
+  flagCount        Int          @default(0) @map("flag_count")
+  relevanceScore   Decimal      @default(0.0) @map("relevance_score") @db.Decimal(5, 2)
+
+  user        User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  place       Place       @relation(fields: [placeId], references: [id], onDelete: Cascade)
+  visit       VisitHistory @relation(fields: [visitId], references: [id], onDelete: Cascade)
+  votes       ReviewVote[]
+  flags       ReviewFlag[]
+  tags        ReviewTag[]
+  media       ReviewMedia[]
+
+  @@map("reviews")
+  @@index([userId], map: "idx_reviews_user")
+  @@index([createdAt(sort: Desc)], map: "idx_reviews_created")
+}
+
+model ReviewVote {
+  id        String   @id @default(uuid()) @db.Uuid
+  userId    String   @map("user_id") @db.Uuid
+  reviewId  String   @map("review_id") @db.Uuid
+  voteType  VoteType @map("vote_type")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@map("review_votes")
+  @@unique([userId, reviewId])
+  @@index([reviewId], map: "idx_votes_review")
+}
+
+model ReviewFlag {
+  id          String     @id @default(uuid()) @db.Uuid
+  userId      String     @map("user_id") @db.Uuid
+  reviewId    String     @map("review_id") @db.Uuid
+  reason      FlagReason
+  description String?
+  resolved    Boolean    @default(false)
+  createdAt   DateTime   @default(now()) @map("created_at")
+
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@map("review_flags")
+  @@unique([userId, reviewId])
+  @@index([reviewId], map: "idx_flags_review")
+}
+
+model ReviewTag {
+  id       String        @id @default(uuid()) @db.Uuid
+  reviewId String        @map("review_id") @db.Uuid
+  tag      ReviewTagType
+
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@map("review_tags")
+  @@unique([reviewId, tag])
+  @@index([reviewId], map: "idx_tags_review")
+  @@index([tag], map: "idx_tags_tag")
+}
+
+model ReviewMedia {
+  id        String    @id @default(uuid()) @db.Uuid
+  reviewId  String    @map("review_id") @db.Uuid
+  mediaUrl  String    @map("media_url") @db.VarChar(500)
+  mediaType MediaType @map("media_type")
+  createdAt DateTime  @default(now()) @map("created_at")
+
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@map("review_media")
+  @@index([reviewId], map: "idx_media_review")
+}

@@ -2,6 +2,7 @@ export interface LocationData {
   lat: number;
   lon: number;
   city: string;
+  suburb?: string;
   country: string;
   state?: string;
   district?: string;
@@ -121,29 +122,72 @@ class LocationService {
         return;
       }
 
-      this.getCurrentPositionWithFallback().then(
-        async (position) => {
-          try {
-            const locationData = await this.reverseGeocode(
-              position.coords.latitude,
-              position.coords.longitude
-            );
-            this.currentLocation = locationData;
-            resolve(locationData);
-          } catch (_error) {
-            reject({
-              code: -2,
-              message: "Failed to get location details",
-            });
+      const options: PositionOptions = {
+        enableHighAccuracy: true,
+        timeout: 10000,
+        maximumAge: 0, // Always get fresh location
+      };
+
+      // Use watchPosition briefly to get the best accuracy fix
+      let bestPosition: GeolocationPosition | null = null;
+      let settled = false;
+
+      const settle = async () => {
+        if (settled) return;
+        settled = true;
+        navigator.geolocation.clearWatch(watchId);
+
+        if (!bestPosition) {
+          reject({ code: -2, message: "Failed to obtain a location fix" });
+          return;
+        }
+
+        try {
+          const locationData = await this.reverseGeocode(
+            bestPosition.coords.latitude,
+            bestPosition.coords.longitude
+          );
+          this.currentLocation = locationData;
+          resolve(locationData);
+        } catch (_error) {
+          reject({
+            code: -2,
+            message: "Failed to get location details",
+          });
+        }
+      };
+
+      const watchId = navigator.geolocation.watchPosition(
+        (position) => {
+          // Keep the most accurate fix
+          if (!bestPosition || position.coords.accuracy < bestPosition.coords.accuracy) {
+            bestPosition = position;
+          }
+          // If we have a good enough fix (< 100m), resolve immediately
+          if (position.coords.accuracy <= 100) {
+            settle();
           }
         },
         (error) => {
-          reject({
-            code: error.code,
-            message: this.getErrorMessage(error.code),
-          });
-        }
+          if (!settled) {
+            // If we already have any position, use it
+            if (bestPosition) {
+              settle();
+            } else {
+              settled = true;
+              navigator.geolocation.clearWatch(watchId);
+              reject({
+                code: error.code,
+                message: this.getErrorMessage(error.code),
+              });
+            }
+          }
+        },
+        options
       );
+
+      // After 5 seconds, settle with whatever best fix we have
+      setTimeout(() => settle(), 5000);
     });
   }
 
@@ -260,11 +304,20 @@ class LocationService {
       return {
         lat,
         lon,
-        city: fallbackCity || 'Current Location',
-        country: fallbackCountry || 'Unknown',
-        state: state || undefined,
-        district: district || undefined,
-        address: fallbackAddress || `${lat.toFixed(4)}, ${lon.toFixed(4)}`,
+        city:
+          getComponent('locality') ||
+          getComponent('administrative_area_level_2') ||
+          getComponent('sublocality') ||
+          "Unknown City",
+        suburb:
+          getComponent('sublocality_level_1') ||
+          getComponent('sublocality_level_2') ||
+          getComponent('neighborhood') ||
+          undefined,
+        country: getComponent('country') || "Unknown Country",
+        state: getComponent('administrative_area_level_1') || undefined,
+        district: getComponent('administrative_area_level_3') || getComponent('sublocality_level_1') || undefined,
+        address: result.formatted_address || `${lat.toFixed(4)}, ${lon.toFixed(4)}`,
       };
     } catch (_error) {
       return {

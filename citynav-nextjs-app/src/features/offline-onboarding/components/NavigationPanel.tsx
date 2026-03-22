@@ -8,6 +8,8 @@ type Props = {
   route?: { distance: number; duration: number; steps: Step[] } | null;
   routeLoading?: boolean;
   routeError?: string | null;
+  isOnline?: boolean;
+  fromCache?: boolean;
 };
 
 /** Format distance in a human-readable way */
@@ -69,30 +71,22 @@ function getStepInstruction(step: Step): string {
   return info.label;
 }
 
-export default function NavigationPanel({ selectedDest, setSelectedDest, route, routeLoading, routeError }: Props) {
-  if (!selectedDest) {
-    return (
-      <div className="relative z-[1001]">
-        <div className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl max-w-[400px] w-[92vw] p-4">
-          <div className="flex items-start gap-3">
-            <div className="w-10 h-10 rounded-xl bg-indigo-100 dark:bg-indigo-900/60 text-indigo-700 dark:text-indigo-300 flex items-center justify-center text-lg">
-              🧭
-            </div>
-            <div className="min-w-0">
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Pick a Destination on the Map</h3>
-              <p className="text-xs text-slate-600 dark:text-slate-300 mt-1 leading-relaxed">
-                Go to the map, tap a place you want to visit, then compare routes here.
-              </p>
-            </div>
-          </div>
-        </div>
-      </div>
-    );
-  }
+export default function NavigationPanel({ selectedDest, setSelectedDest, route, routeLoading, routeError, isOnline = true, fromCache = false }: Props) {
+  if (!selectedDest) return null;
+  const showingOffline = !isOnline || fromCache;
   
   return (
     <div className="relative z-[1001]">
       <div className="bg-white dark:bg-slate-900 border-2 border-slate-200 dark:border-slate-700 rounded-2xl shadow-xl max-w-[400px] w-[92vw] max-h-[80vh] overflow-hidden flex flex-col">
+        {/* Offline banner */}
+        {showingOffline && route && (
+          <div className="bg-amber-500 dark:bg-amber-600 px-4 py-2 flex items-center gap-2 text-white text-xs font-medium">
+            <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636a9 9 0 010 12.728M5.636 5.636a9 9 0 000 12.728M13 10V6m0 0L9.5 9.5M13 6l3.5 3.5" />
+            </svg>
+            <span>Offline Mode — Showing saved directions</span>
+          </div>
+        )}
         {/* Header */}
         <div className="bg-gradient-to-r from-indigo-600 to-blue-600 px-4 py-3 flex items-center justify-between gap-3">
           <div className="min-w-0">
@@ -218,11 +212,15 @@ export default function NavigationPanel({ selectedDest, setSelectedDest, route, 
               </div>
 
               {/* Offline availability notice */}
-              <div className="flex items-center gap-2 px-3 py-2 bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 rounded-lg text-xs text-emerald-700 dark:text-emerald-300">
+              <div className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs ${
+                showingOffline
+                  ? 'bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300'
+                  : 'bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-200 dark:border-emerald-800 text-emerald-700 dark:text-emerald-300'
+              }`}>
                 <svg className="w-4 h-4 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={showingOffline ? "M18.364 5.636a9 9 0 010 12.728M5.636 5.636a9 9 0 000 12.728M13 10V6m0 0L9.5 9.5M13 6l3.5 3.5" : "M5 13l4 4L19 7"} />
                 </svg>
-                <span>Directions saved for offline access</span>
+                <span>{showingOffline ? 'Viewing saved offline directions' : 'Directions saved for offline access'}</span>
               </div>
             </div>
           )}
