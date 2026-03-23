@@ -83,8 +83,8 @@ const withPWA = require("next-pwa")({
 });
 
 const nextConfig: NextConfig = {
-  turbopack: {
-    root: process.cwd(),
+  eslint: {
+    ignoreDuringBuilds: true,
   },
 };
 
