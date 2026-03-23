@@ -34,7 +34,7 @@ export async function GET(req: Request) {
     );
 
     const transitResults = settled
-      .filter((result): result is PromiseFulfilledResult<{ type: string; results: unknown[] }> => result.status === 'fulfilled')
+      .filter((result): result is PromiseFulfilledResult<{ type: typeof TRANSIT_TYPES[number]; results: unknown[] }> => result.status === 'fulfilled')
       .map((result) => result.value);
 
     return NextResponse.json({
