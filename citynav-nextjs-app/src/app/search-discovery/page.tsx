@@ -106,6 +106,8 @@ export default function SearchDiscoveryPage() {
   const [recentSearches, setRecentSearches] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [userPos, setUserPos] = useState<{ lat: number; lon: number } | null>(null);
+  const [locationError, setLocationError] = useState<string | null>(null);
+  const [isLocating, setIsLocating] = useState(true);
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
@@ -116,10 +118,17 @@ export default function SearchDiscoveryPage() {
     // Get user's location for location-biased search
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition(
-        (p) => setUserPos({ lat: p.coords.latitude, lon: p.coords.longitude }),
-        () => { /* use no bias */ },
-        { enableHighAccuracy: true, timeout: 10000 }
+        (p) => {
+          setUserPos({ lat: p.coords.latitude, lon: p.coords.longitude });
+          setIsLocating(false);
+        },
+        () => {
+          setIsLocating(false);
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
       );
+    } else {
+      setIsLocating(false);
     }
   }, []);
 
@@ -141,7 +150,7 @@ export default function SearchDiscoveryPage() {
       return;
     }
 
-    if (!currentLocation) {
+    if (!userPos) {
       setIsLoading(false);
       setResults([]);
       setLocationError(
@@ -150,8 +159,7 @@ export default function SearchDiscoveryPage() {
       return;
     }
 
-    const requestId = latestRequestIdRef.current + 1;
-    latestRequestIdRef.current = requestId;
+    setLocationError(null);
     setIsLoading(true);
     try {
       const params = new URLSearchParams({ query: trimmed });
@@ -275,8 +283,8 @@ export default function SearchDiscoveryPage() {
               }}
             >
               {isLocating && "Detecting your current location..."}
-              {!isLocating && currentLocation && "Searching near your current location (4 km radius)."}
-              {!isLocating && !currentLocation && "Location not available."}
+              {!isLocating && userPos && "Searching near your current location (4 km radius)."}
+              {!isLocating && !userPos && "Location not available."}
             </p>
             {locationError && (
               <p

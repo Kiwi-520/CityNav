@@ -200,12 +200,6 @@ export const useRoute = (from?: { lat: number; lon: number } | null, to?: { lat:
           setFromCache(true);
           return;
         }
-        const nearestOfflineCached = await loadNearestOfflineRoute(from, to);
-        if (nearestOfflineCached) {
-          cacheRef.current[key] = nearestOfflineCached;
-          setRoute(nearestOfflineCached);
-          return;
-        }
         throw new Error('No internet connection and no cached route available');
       }
 
@@ -276,12 +270,6 @@ export const useRoute = (from?: { lat: number; lon: number } | null, to?: { lat:
           cacheRef.current[key] = nearbyFallback;
           setRoute(nearbyFallback);
           setFromCache(true);
-          return;
-        }
-        const nearestOfflineFallback = await loadNearestOfflineRoute(from, to);
-        if (nearestOfflineFallback) {
-          cacheRef.current[key] = nearestOfflineFallback;
-          setRoute(nearestOfflineFallback);
           return;
         }
       } catch { /* ignore */ }
