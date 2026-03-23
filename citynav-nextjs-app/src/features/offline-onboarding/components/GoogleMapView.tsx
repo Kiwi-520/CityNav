@@ -87,6 +87,25 @@ function haversineDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
 }
 
 /** Calculate compass bearing from point A to point B */
+
+function clamp01(v: number): number {
+  return Math.max(0, Math.min(1, v));
+}
+
+function computeOfflineBounds(
+  center: [number, number],
+  points: Array<{ lat: number; lon: number }>
+): { minLat: number; maxLat: number; minLon: number; maxLon: number } {
+  const allLats = [center[0], ...points.map((p) => p.lat)];
+  const allLons = [center[1], ...points.map((p) => p.lon)];
+  const pad = 0.002; // small padding
+  return {
+    minLat: Math.min(...allLats) - pad,
+    maxLat: Math.max(...allLats) + pad,
+    minLon: Math.min(...allLons) - pad,
+    maxLon: Math.max(...allLons) + pad,
+  };
+}
 function bearing(lat1: number, lon1: number, lat2: number, lon2: number): string {
   const toRad = (d: number) => d * Math.PI / 180;
   const dLon = toRad(lon2 - lon1);
@@ -303,7 +322,7 @@ export default function GoogleMapView({ center, displayPosition, forcedCenter, s
   }
 
   if (!isLoaded) {
-    if (isOffline || !!loadError) {
+    if (!online || !!loadError) {
       const visiblePois = (displayPois || []).filter((p) => activeCategories[p.category]);
       const routePoints: Array<{ lat: number; lon: number }> =
         (route?.geometry || []).map(([lat, lng]: [number, number]) => ({ lat, lon: lng }));
