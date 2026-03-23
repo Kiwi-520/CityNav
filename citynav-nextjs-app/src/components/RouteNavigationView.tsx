@@ -11,10 +11,10 @@ import { MultimodalRoute } from "@/types/multimodal";
 
 interface NavigationStep {
   instruction: string;
-  distance: number; // meters
-  duration: number; // seconds
+  distance: number;
+  duration: number;
   maneuver: string;
-  mode: string; // DRIVING | WALKING | TRANSIT
+  mode: string;
   transitDetails?: {
     lineName: string;
     lineShortName: string;
@@ -145,7 +145,6 @@ function getManeuverIcon(maneuver?: string): string {
   return (maneuver && map[maneuver]) || "↑";
 }
 
-// Google Maps travel mode for API calls based on multimodal route modes
 function getGoogleMode(route: MultimodalRoute): string {
   if (route.modesUsed.includes("cab") || route.modesUsed.includes("auto"))
     return "driving";
@@ -156,6 +155,17 @@ function getGoogleMode(route: MultimodalRoute): string {
     return "transit";
   if (route.modesUsed.includes("walk")) return "walking";
   return "driving";
+}
+
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return isMobile;
 }
 
 const containerStyle = { width: "100%", height: "100%" };
@@ -174,11 +184,10 @@ export default function RouteNavigationView({
   });
 
   const mapRef = useRef<google.maps.Map | null>(null);
+  const isMobile = useIsMobile();
 
   // State
-  const [polylineSegments, setPolylineSegments] = useState<SegmentPolyline[]>(
-    []
-  );
+  const [polylineSegments, setPolylineSegments] = useState<SegmentPolyline[]>([]);
   const [steps, setSteps] = useState<NavigationStep[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -187,6 +196,13 @@ export default function RouteNavigationView({
   const [totalDistance, setTotalDistance] = useState(0);
   const [totalDuration, setTotalDuration] = useState(0);
   const [eta, setEta] = useState("");
+
+  // Bottom sheet drag state (mobile)
+  const [sheetHeight, setSheetHeight] = useState(200);
+  const dragRef = useRef<{ startY: number; startHeight: number } | null>(null);
+  const SHEET_PEEK = 140; // collapsed height showing summary
+  const SHEET_MID = 320;  // mid-height showing current step
+  const SHEET_MAX = typeof window !== 'undefined' ? window.innerHeight * 0.75 : 600;
 
   // All polyline points for bounds fitting
   const allPoints = useMemo(() => {
@@ -198,22 +214,26 @@ export default function RouteNavigationView({
     if (!mapRef.current || allPoints.length === 0) return;
     const bounds = new google.maps.LatLngBounds();
     allPoints.forEach((p) => bounds.extend(p));
-    // Also include source and dest
     bounds.extend(sourceCoords);
     bounds.extend(destCoords);
-    mapRef.current.fitBounds(bounds, { top: 80, bottom: 300, left: 40, right: 40 });
-  }, [allPoints, sourceCoords, destCoords]);
+    const padding = isMobile
+      ? { top: 60, bottom: sheetHeight + 20, left: 20, right: 20 }
+      : { top: 80, bottom: 300, left: 40, right: 40 };
+    mapRef.current.fitBounds(bounds, padding);
+  }, [allPoints, sourceCoords, destCoords, isMobile, sheetHeight]);
 
   const onMapLoad = useCallback(
     (map: google.maps.Map) => {
       mapRef.current = map;
-      // Initial bounds
       const bounds = new google.maps.LatLngBounds();
       bounds.extend(sourceCoords);
       bounds.extend(destCoords);
-      map.fitBounds(bounds, { top: 80, bottom: 300, left: 40, right: 40 });
+      const padding = isMobile
+        ? { top: 60, bottom: 220, left: 20, right: 20 }
+        : { top: 80, bottom: 300, left: 40, right: 40 };
+      map.fitBounds(bounds, padding);
     },
-    [sourceCoords, destCoords]
+    [sourceCoords, destCoords, isMobile]
   );
 
   // Fetch directions and build polyline
@@ -241,14 +261,12 @@ export default function RouteNavigationView({
         const googleRoute = data.routes[0];
         const leg = googleRoute.legs[0];
 
-        // Parse total metrics
         const dist = leg.distance?.value || 0;
         const dur = leg.duration?.value || 0;
         const durTraffic = leg.duration_in_traffic?.value || dur;
         setTotalDistance(dist);
         setTotalDuration(durTraffic);
 
-        // Calculate ETA
         const now = new Date();
         const etaDate = new Date(now.getTime() + durTraffic * 1000);
         setEta(
@@ -258,25 +276,21 @@ export default function RouteNavigationView({
           })
         );
 
-        // Parse steps for turn-by-turn directions
         const parsedSteps: NavigationStep[] = [];
         const segments: SegmentPolyline[] = [];
 
         if (googleMode === "transit" && leg.steps) {
-          // Transit mode: each step can be WALKING or TRANSIT with sub-steps
           for (const step of leg.steps) {
             const travelMode = step.travel_mode || "TRANSIT";
             const color = step.transit_details
               ? step.transit_details.line?.color || MODE_COLORS.TRANSIT
               : MODE_COLORS.WALKING;
 
-            // Decode polyline for this step
             if (step.polyline?.points) {
               const decoded = decodeGooglePolyline(step.polyline.points);
               segments.push({ path: decoded, color, mode: travelMode });
             }
 
-            // For transit steps with sub-steps (walking portions)
             if (step.steps && Array.isArray(step.steps)) {
               for (const subStep of step.steps) {
                 parsedSteps.push({
@@ -292,7 +306,6 @@ export default function RouteNavigationView({
                 });
               }
             } else {
-              // Single transit/walking step
               const navStep: NavigationStep = {
                 instruction:
                   step.html_instructions?.replace(/<[^>]*>/g, "") ||
@@ -324,7 +337,6 @@ export default function RouteNavigationView({
             }
           }
         } else {
-          // Driving/Walking mode: simpler step structure
           const overallColor =
             route.modesUsed.includes("cab")
               ? MODE_COLORS.cab
@@ -334,7 +346,6 @@ export default function RouteNavigationView({
               ? MODE_COLORS.walk
               : MODE_COLORS.DRIVING;
 
-          // Use overview polyline for the full route
           if (googleRoute.overview_polyline?.points) {
             const decoded = decodeGooglePolyline(
               googleRoute.overview_polyline.points
@@ -346,7 +357,6 @@ export default function RouteNavigationView({
             });
           }
 
-          // Parse individual steps
           if (leg.steps) {
             for (const step of leg.steps) {
               parsedSteps.push({
@@ -393,20 +403,53 @@ export default function RouteNavigationView({
     }
   };
 
+  // --- Bottom sheet drag handlers ---
+  const onDragStart = useCallback((clientY: number) => {
+    dragRef.current = { startY: clientY, startHeight: sheetHeight };
+  }, [sheetHeight]);
+
+  const onDragMove = useCallback((clientY: number) => {
+    if (!dragRef.current) return;
+    const diff = dragRef.current.startY - clientY;
+    setSheetHeight(Math.min(SHEET_MAX, Math.max(SHEET_PEEK, dragRef.current.startHeight + diff)));
+  }, [SHEET_MAX]);
+
+  const onDragEnd = useCallback(() => {
+    if (!dragRef.current) return;
+    // Snap to nearest position
+    const mid = (SHEET_PEEK + SHEET_MID) / 2;
+    const midHigh = (SHEET_MID + SHEET_MAX) / 2;
+    if (sheetHeight < mid) {
+      setSheetHeight(SHEET_PEEK);
+      setShowDirections(false);
+    } else if (sheetHeight < midHigh) {
+      setSheetHeight(SHEET_MID);
+      setShowDirections(false);
+    } else {
+      setSheetHeight(SHEET_MAX);
+      setShowDirections(true);
+    }
+    dragRef.current = null;
+  }, [sheetHeight, SHEET_MAX]);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => { onDragStart(e.touches[0].clientY); }, [onDragStart]);
+  const handleTouchMove = useCallback((e: React.TouchEvent) => { onDragMove(e.touches[0].clientY); }, [onDragMove]);
+  const handleTouchEnd = useCallback(() => { onDragEnd(); }, [onDragEnd]);
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    onDragStart(e.clientY);
+    const move = (ev: MouseEvent) => onDragMove(ev.clientY);
+    const up = () => { onDragEnd(); document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); };
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', up);
+  }, [onDragStart, onDragMove, onDragEnd]);
+
   if (!isLoaded) {
     return (
       <div style={overlayStyle}>
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            height: "100%",
-            color: "white",
-          }}
-        >
-          <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: "3rem", marginBottom: 16 }}>🗺️</div>
+        <div className="flex items-center justify-center h-full text-white">
+          <div className="text-center">
+            <div className="text-5xl mb-4">🗺️</div>
             <p>Loading Google Maps...</p>
           </div>
         </div>
@@ -416,102 +459,49 @@ export default function RouteNavigationView({
 
   return (
     <div style={overlayStyle}>
-      <div style={topBarStyle}>
-        <button onClick={onClose} style={closeButtonStyle}>
+      {/* Top bar - compact on mobile */}
+      <div className="flex items-center gap-2 md:gap-3 px-3 md:px-4 py-2.5 md:py-3 bg-[rgba(26,26,46,0.95)] border-b border-white/10 backdrop-blur-xl z-20">
+        <button onClick={onClose} className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-white/10 border border-white/20 text-white text-sm cursor-pointer flex items-center justify-center flex-shrink-0">
           ✕
         </button>
 
-        <div style={{ flex: 1, minWidth: 0 }}>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              marginBottom: 4,
-            }}
-          >
-            <div
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: "50%",
-                background: "#22c55e",
-                flexShrink: 0,
-              }}
-            />
-            <span
-              style={{
-                fontSize: "0.8rem",
-                color: "#ddd",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {sourceName}
-            </span>
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-1.5 md:gap-2 mb-0.5 md:mb-1">
+            <div className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-green-500 flex-shrink-0" />
+            <span className="text-[11px] md:text-xs text-gray-300 truncate">{sourceName}</span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-            <div
-              style={{
-                width: 10,
-                height: 10,
-                borderRadius: "50%",
-                background: "#ef4444",
-                flexShrink: 0,
-              }}
-            />
-            <span
-              style={{
-                fontSize: "0.8rem",
-                color: "#ddd",
-                overflow: "hidden",
-                textOverflow: "ellipsis",
-                whiteSpace: "nowrap",
-              }}
-            >
-              {destName}
-            </span>
+          <div className="flex items-center gap-1.5 md:gap-2">
+            <div className="w-2 h-2 md:w-2.5 md:h-2.5 rounded-full bg-red-500 flex-shrink-0" />
+            <span className="text-[11px] md:text-xs text-gray-300 truncate">{destName}</span>
           </div>
         </div>
 
-        {/* Route mode pills */}
-        <div
-          style={{
-            display: "flex",
-            gap: 6,
-            alignItems: "center",
-            flexShrink: 0,
-          }}
-        >
+        {/* Route mode pills - scrollable on mobile */}
+        <div className="flex gap-1 md:gap-1.5 items-center flex-shrink-0 overflow-x-auto no-scrollbar">
           {route.modesUsed.map((mode) => (
             <span
               key={mode}
+              className="px-1.5 md:px-2.5 py-0.5 md:py-1 rounded-md text-[10px] md:text-xs font-semibold text-white whitespace-nowrap"
               style={{
                 background: `${MODE_COLORS[mode] || "#666"}30`,
                 border: `1px solid ${MODE_COLORS[mode] || "#666"}`,
-                borderRadius: 8,
-                padding: "4px 10px",
-                fontSize: "0.75rem",
-                fontWeight: 600,
-                color: "white",
               }}
             >
-              {MODE_ICONS[mode] || "🚗"} {mode}
+              {MODE_ICONS[mode] || "🚗"} {isMobile ? '' : mode}
             </span>
           ))}
         </div>
       </div>
 
       {/* Map */}
-      <div style={{ flex: 1, position: "relative" }}>
+      <div className="flex-1 relative">
         <GoogleMap
           mapContainerStyle={containerStyle}
           center={sourceCoords}
           zoom={14}
           options={{
             disableDefaultUI: true,
-            zoomControl: true,
+            zoomControl: !isMobile,
             fullscreenControl: false,
             mapTypeControl: false,
             streetViewControl: false,
@@ -519,26 +509,24 @@ export default function RouteNavigationView({
           }}
           onLoad={onMapLoad}
         >
-          {/* Source marker */}
           <Marker
             position={sourceCoords}
             icon={{
               path: google.maps.SymbolPath.CIRCLE,
-              scale: 10,
+              scale: isMobile ? 8 : 10,
               fillColor: "#22c55e",
               fillOpacity: 1,
               strokeColor: "white",
-              strokeWeight: 3,
+              strokeWeight: isMobile ? 2 : 3,
             }}
             title={sourceName}
           />
 
-          {/* Destination marker */}
           <Marker
             position={destCoords}
             icon={{
               path: google.maps.SymbolPath.BACKWARD_CLOSED_ARROW,
-              scale: 7,
+              scale: isMobile ? 5 : 7,
               fillColor: "#ef4444",
               fillOpacity: 1,
               strokeColor: "white",
@@ -548,25 +536,22 @@ export default function RouteNavigationView({
             title={destName}
           />
 
-          {/* Route polyline segments */}
           {polylineSegments.map((seg, i) => (
             <React.Fragment key={`seg-${i}`}>
-              {/* Shadow line for depth */}
               <Polyline
                 path={seg.path}
                 options={{
                   strokeColor: "#000",
                   strokeOpacity: 0.15,
-                  strokeWeight: 8,
+                  strokeWeight: isMobile ? 6 : 8,
                 }}
               />
-              {/* Main line */}
               <Polyline
                 path={seg.path}
                 options={{
                   strokeColor: seg.color,
                   strokeOpacity: 0.85,
-                  strokeWeight: 6,
+                  strokeWeight: isMobile ? 4 : 6,
                   ...(seg.mode === "WALKING"
                     ? {
                         strokeOpacity: 0,
@@ -576,7 +561,7 @@ export default function RouteNavigationView({
                               path: "M 0,-1 0,1",
                               strokeOpacity: 0.8,
                               strokeColor: seg.color,
-                              scale: 3,
+                              scale: isMobile ? 2 : 3,
                             },
                             offset: "0",
                             repeat: "12px",
@@ -589,13 +574,12 @@ export default function RouteNavigationView({
             </React.Fragment>
           ))}
 
-          {/* Active step marker */}
           {steps[activeStepIndex]?.startLocation && (
             <Marker
               position={steps[activeStepIndex].startLocation!}
               icon={{
                 path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-                scale: 6,
+                scale: isMobile ? 4 : 6,
                 fillColor: "#4285F4",
                 fillOpacity: 1,
                 strokeColor: "white",
@@ -609,28 +593,9 @@ export default function RouteNavigationView({
         {/* Loading overlay */}
         {loading && (
           <div style={mapOverlayStyle}>
-            <div
-              style={{
-                background: "rgba(0,0,0,0.8)",
-                borderRadius: 16,
-                padding: "24px 32px",
-                textAlign: "center",
-              }}
-            >
-              <div
-                style={{
-                  width: 40,
-                  height: 40,
-                  border: "3px solid rgba(255,255,255,0.2)",
-                  borderTop: "3px solid #4285F4",
-                  borderRadius: "50%",
-                  animation: "spin 1s linear infinite",
-                  margin: "0 auto 12px",
-                }}
-              />
-              <p style={{ color: "white", margin: 0 }}>
-                Fetching route directions...
-              </p>
+            <div className="bg-black/80 rounded-2xl px-6 md:px-8 py-5 md:py-6 text-center">
+              <div className="w-8 h-8 md:w-10 md:h-10 border-3 border-white/20 border-t-blue-500 rounded-full animate-spin mx-auto mb-3" />
+              <p className="text-white text-sm md:text-base m-0">Fetching route directions...</p>
             </div>
           </div>
         )}
@@ -638,29 +603,11 @@ export default function RouteNavigationView({
         {/* Error overlay */}
         {error && (
           <div style={mapOverlayStyle}>
-            <div
-              style={{
-                background: "rgba(220,38,38,0.9)",
-                borderRadius: 16,
-                padding: "24px 32px",
-                maxWidth: 400,
-                textAlign: "center",
-              }}
-            >
-              <p style={{ color: "white", margin: "0 0 12px" }}>
-                ⚠️ {error}
-              </p>
+            <div className="bg-red-600/90 rounded-2xl px-6 py-5 max-w-[90vw] md:max-w-[400px] text-center">
+              <p className="text-white text-sm m-0 mb-3">⚠️ {error}</p>
               <button
                 onClick={onClose}
-                style={{
-                  background: "white",
-                  color: "#dc2626",
-                  border: "none",
-                  padding: "8px 20px",
-                  borderRadius: 8,
-                  fontWeight: 600,
-                  cursor: "pointer",
-                }}
+                className="bg-white text-red-600 border-none px-5 py-2 rounded-lg font-semibold cursor-pointer text-sm"
               >
                 Go Back
               </button>
@@ -671,208 +618,130 @@ export default function RouteNavigationView({
         {/* Re-center button */}
         <button
           onClick={fitBounds}
-          style={{
-            position: "absolute",
-            bottom: showDirections ? 340 : 160,
-            right: 16,
-            width: 44,
-            height: 44,
-            borderRadius: "50%",
-            background: "white",
-            border: "none",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.3)",
-            cursor: "pointer",
-            fontSize: "1.2rem",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            transition: "bottom 0.3s ease",
-            zIndex: 10,
-          }}
+          className="absolute right-3 md:right-4 z-10 w-10 h-10 md:w-11 md:h-11 rounded-full bg-white border-none shadow-lg cursor-pointer text-lg flex items-center justify-center active:scale-95 transition-transform"
+          style={{ bottom: isMobile ? sheetHeight + 12 : (showDirections ? 340 : 160) }}
           title="Re-center map"
         >
           ⊕
         </button>
       </div>
 
-      {/*  Bottom Navigation Panel */}
-      <div style={bottomPanelStyle}>
-        {/* Summary bar */}
-        <div style={summaryBarStyle}>
-          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div>
-              <div
-                style={{ fontSize: "1.5rem", fontWeight: 800, color: "#22c55e" }}
-              >
-                {formatDurMin(totalDuration / 60)}
-              </div>
-              <div style={{ fontSize: "0.75rem", color: "#999" }}>
-                {formatDist(totalDistance)}
-              </div>
-            </div>
-
-            <div
-              style={{
-                width: 1,
-                height: 36,
-                background: "rgba(255,255,255,0.15)",
-              }}
-            />
-
-            <div>
-              <div style={{ fontSize: "0.85rem", color: "#ddd" }}>
-                ETA {eta || "--:--"}
-              </div>
-              <div
-                style={{ fontSize: "0.75rem", color: "#fbbf24", fontWeight: 700 }}
-              >
-                ₹{route.totalCost}
-              </div>
-            </div>
-          </div>
-
-          {/* Segment overview strip */}
-          <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
-            {route.segments.map((seg, i) => {
-              const width = Math.max(
-                30,
-                (seg.duration / route.totalDuration) * 180
-              );
-              return (
-                <React.Fragment key={seg.id}>
-                  <div
-                    style={{
-                      height: 6,
-                      width,
-                      borderRadius: 3,
-                      background: MODE_COLORS[seg.mode] || "#666",
-                    }}
-                    title={`${MODE_ICONS[seg.mode] || ""} ${seg.mode} · ${formatDurMin(seg.duration)}`}
-                  />
-                  {i < route.segments.length - 1 && (
-                    <span
-                      style={{ color: "#666", fontSize: "0.6rem" }}
-                    >
-                      ▸
-                    </span>
-                  )}
-                </React.Fragment>
-              );
-            })}
-          </div>
-
-          {/* Toggle directions */}
-          <button
-            onClick={() => setShowDirections((v) => !v)}
-            style={{
-              background: "rgba(255,255,255,0.1)",
-              border: "1px solid rgba(255,255,255,0.2)",
-              borderRadius: 8,
-              padding: "6px 12px",
-              color: "white",
-              cursor: "pointer",
-              fontSize: "0.8rem",
-              fontWeight: 600,
-              flexShrink: 0,
-            }}
+      {/* --- MOBILE: Draggable bottom sheet --- */}
+      {isMobile ? (
+        <div
+          style={{
+            position: 'absolute',
+            bottom: 0,
+            left: 0,
+            right: 0,
+            height: sheetHeight,
+            zIndex: 20,
+            display: 'flex',
+            flexDirection: 'column',
+            background: 'rgba(26,26,46,0.98)',
+            borderTopLeftRadius: 20,
+            borderTopRightRadius: 20,
+            boxShadow: '0 -8px 30px rgba(0,0,0,0.3)',
+            transition: dragRef.current ? 'none' : 'height 0.25s cubic-bezier(0.4,0,0.2,1)',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Drag handle */}
+          <div
+            onMouseDown={handleMouseDown}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            className="flex flex-col items-center pt-2 pb-1 cursor-grab"
+            style={{ touchAction: 'none', userSelect: 'none' }}
           >
-            {showDirections ? "Hide Steps" : "Show Steps"}
-          </button>
-        </div>
+            <div className="w-10 h-1 rounded-full bg-white/30" />
+          </div>
 
-        {/* Current step highlight */}
-        {steps.length > 0 && (
-          <div style={currentStepStyle}>
-            <div
-              style={{
-                fontSize: "1.5rem",
-                flexShrink: 0,
-                width: 40,
-                textAlign: "center",
-              }}
-            >
-              {steps[activeStepIndex]?.transitDetails
-                ? MODE_ICONS[steps[activeStepIndex].mode] || "🚌"
-                : getManeuverIcon(steps[activeStepIndex]?.maneuver)}
-            </div>
-            <div style={{ flex: 1, minWidth: 0 }}>
-              <div
-                style={{
-                  fontSize: "1rem",
-                  fontWeight: 700,
-                  color: "white",
-                  lineHeight: 1.3,
-                }}
-              >
-                {steps[activeStepIndex]?.transitDetails ? (
-                  <>
-                    Board{" "}
-                    <span
-                      style={{
-                        color:
-                          steps[activeStepIndex].transitDetails!.color ||
-                          "#4285F4",
-                        fontWeight: 800,
-                      }}
-                    >
-                      {steps[activeStepIndex].transitDetails!.lineName ||
-                        steps[activeStepIndex].transitDetails!.lineShortName}
-                    </span>{" "}
-                    at{" "}
-                    {steps[activeStepIndex].transitDetails!.departureStop}
-                  </>
-                ) : (
-                  steps[activeStepIndex]?.instruction || "Continue"
-                )}
+          {/* Summary row */}
+          <div className="flex items-center justify-between gap-2 px-4 py-2 border-b border-white/8 flex-shrink-0">
+            <div className="flex items-center gap-3">
+              <div>
+                <div className="text-xl font-extrabold text-green-400 leading-tight">
+                  {formatDurMin(totalDuration / 60)}
+                </div>
+                <div className="text-[11px] text-gray-400">
+                  {formatDist(totalDistance)} · ETA {eta || "--:--"}
+                </div>
               </div>
-              <div
-                style={{
-                  fontSize: "0.8rem",
-                  color: "#aaa",
-                  marginTop: 2,
-                }}
-              >
-                {formatDist(steps[activeStepIndex]?.distance || 0)} ·{" "}
-                {formatDur(steps[activeStepIndex]?.duration || 0)}
-                {steps[activeStepIndex]?.transitDetails &&
-                  ` · ${steps[activeStepIndex].transitDetails!.numStops} stops`}
-              </div>
+              <div className="text-sm font-bold text-yellow-400">₹{route.totalCost}</div>
             </div>
 
-            {/* Step navigation */}
-            <div
-              style={{
-                display: "flex",
-                gap: 8,
-                flexShrink: 0,
-              }}
-            >
-              <button
-                onClick={() => goToStep(Math.max(0, activeStepIndex - 1))}
-                disabled={activeStepIndex === 0}
-                style={stepNavBtnStyle(activeStepIndex === 0)}
-              >
-                ‹
-              </button>
-              <span style={{ color: "#999", fontSize: "0.75rem", alignSelf: "center" }}>
-                {activeStepIndex + 1}/{steps.length}
-              </span>
-              <button
-                onClick={() =>
-                  goToStep(Math.min(steps.length - 1, activeStepIndex + 1))
-                }
-                disabled={activeStepIndex === steps.length - 1}
-                style={stepNavBtnStyle(activeStepIndex === steps.length - 1)}
-              >
-                ›
-              </button>
+            {/* Segment strip */}
+            <div className="flex items-center gap-1 flex-shrink-0">
+              {route.segments.map((seg, i) => {
+                const w = Math.max(20, (seg.duration / route.totalDuration) * 80);
+                return (
+                  <React.Fragment key={seg.id}>
+                    <div
+                      className="h-1.5 rounded-full"
+                      style={{ width: w, background: MODE_COLORS[seg.mode] || "#666" }}
+                      title={`${MODE_ICONS[seg.mode] || ""} ${seg.mode}`}
+                    />
+                    {i < route.segments.length - 1 && (
+                      <span className="text-gray-600 text-[8px]">▸</span>
+                    )}
+                  </React.Fragment>
+                );
+              })}
             </div>
           </div>
-        )}
 
-        {/* Directions list */}
-        {showDirections && steps.length > 0 && (
-          <div style={stepsListStyle}>
+          {/* Current step highlight */}
+          {steps.length > 0 && (
+            <div className="flex items-center gap-2.5 px-4 py-2.5 bg-blue-500/8 border-b border-white/6 flex-shrink-0">
+              <div className="text-xl flex-shrink-0 w-8 text-center">
+                {steps[activeStepIndex]?.transitDetails
+                  ? MODE_ICONS[steps[activeStepIndex].mode] || "🚌"
+                  : getManeuverIcon(steps[activeStepIndex]?.maneuver)}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-sm font-bold text-white leading-snug truncate">
+                  {steps[activeStepIndex]?.transitDetails ? (
+                    <>
+                      Board{" "}
+                      <span style={{ color: steps[activeStepIndex].transitDetails!.color || "#4285F4" }}>
+                        {steps[activeStepIndex].transitDetails!.lineName ||
+                          steps[activeStepIndex].transitDetails!.lineShortName}
+                      </span>
+                    </>
+                  ) : (
+                    steps[activeStepIndex]?.instruction || "Continue"
+                  )}
+                </div>
+                <div className="text-[11px] text-gray-400 mt-0.5">
+                  {formatDist(steps[activeStepIndex]?.distance || 0)} · {formatDur(steps[activeStepIndex]?.duration || 0)}
+                  {steps[activeStepIndex]?.transitDetails &&
+                    ` · ${steps[activeStepIndex].transitDetails!.numStops} stops`}
+                </div>
+              </div>
+              <div className="flex gap-1.5 flex-shrink-0">
+                <button
+                  onClick={() => goToStep(Math.max(0, activeStepIndex - 1))}
+                  disabled={activeStepIndex === 0}
+                  className="w-7 h-7 rounded-full bg-white/10 border-none text-white text-sm flex items-center justify-center disabled:opacity-30"
+                >
+                  ‹
+                </button>
+                <span className="text-gray-500 text-[10px] self-center">{activeStepIndex + 1}/{steps.length}</span>
+                <button
+                  onClick={() => goToStep(Math.min(steps.length - 1, activeStepIndex + 1))}
+                  disabled={activeStepIndex === steps.length - 1}
+                  className="w-7 h-7 rounded-full bg-white/10 border-none text-white text-sm flex items-center justify-center disabled:opacity-30"
+                >
+                  ›
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Scrollable directions list */}
+          <div className="flex-1 overflow-y-auto">
             {steps.map((step, i) => {
               const isActive = i === activeStepIndex;
               const isTransit = !!step.transitDetails;
@@ -880,122 +749,289 @@ export default function RouteNavigationView({
                 <div
                   key={i}
                   onClick={() => goToStep(i)}
-                  style={{
-                    display: "flex",
-                    gap: 12,
-                    padding: "12px 16px",
-                    cursor: "pointer",
-                    background: isActive ? "rgba(66,133,244,0.15)" : "transparent",
-                    borderLeft: isActive ? "3px solid #4285F4" : "3px solid transparent",
-                    transition: "all 0.15s ease",
-                  }}
+                  className={`flex gap-2.5 px-4 py-2.5 cursor-pointer transition-all ${
+                    isActive ? 'bg-blue-500/15 border-l-[3px] border-l-blue-500' : 'border-l-[3px] border-l-transparent'
+                  }`}
                 >
-                  {/* Step icon */}
                   <div
+                    className={`w-8 h-8 rounded-full flex items-center justify-center text-sm flex-shrink-0 ${
+                      isActive ? 'border-2 border-blue-500' : 'border-2 border-transparent'
+                    }`}
                     style={{
-                      width: 36,
-                      height: 36,
-                      borderRadius: "50%",
                       background: isTransit
                         ? `${step.transitDetails!.color || MODE_COLORS.TRANSIT}30`
-                        : i === 0
-                        ? "#22c55e20"
-                        : i === steps.length - 1
-                        ? "#ef444420"
-                        : "#ffffff10",
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      fontSize: "1rem",
-                      flexShrink: 0,
-                      border: isActive ? "2px solid #4285F4" : "2px solid transparent",
+                        : i === 0 ? "#22c55e20" : i === steps.length - 1 ? "#ef444420" : "#ffffff10",
                     }}
                   >
-                    {i === 0
-                      ? "🚀"
-                      : i === steps.length - 1
-                      ? "🏁"
-                      : isTransit
-                      ? MODE_ICONS[step.mode] || "🚌"
-                      : getManeuverIcon(step.maneuver)}
+                    {i === 0 ? "🚀" : i === steps.length - 1 ? "🏁" : isTransit ? MODE_ICONS[step.mode] || "🚌" : getManeuverIcon(step.maneuver)}
                   </div>
-
-                  {/* Step content */}
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div
-                      style={{
-                        fontSize: "0.85rem",
-                        fontWeight: isActive ? 700 : 500,
-                        color: isActive ? "white" : "#ddd",
-                        lineHeight: 1.4,
-                      }}
-                    >
+                  <div className="flex-1 min-w-0">
+                    <div className={`text-xs leading-snug ${isActive ? 'font-bold text-white' : 'font-medium text-gray-300'}`}>
                       {isTransit ? (
                         <>
                           <span
+                            className="inline-block px-1.5 py-0.5 rounded text-[10px] font-bold mr-1"
                             style={{
                               background: `${step.transitDetails!.color || "#f59e0b"}30`,
                               border: `1px solid ${step.transitDetails!.color || "#f59e0b"}`,
-                              borderRadius: 6,
-                              padding: "2px 8px",
-                              marginRight: 6,
-                              fontSize: "0.75rem",
-                              fontWeight: 700,
                             }}
                           >
-                            {step.transitDetails!.lineShortName ||
-                              step.transitDetails!.lineName}
+                            {step.transitDetails!.lineShortName || step.transitDetails!.lineName}
                           </span>
-                          {step.transitDetails!.departureStop} →{" "}
-                          {step.transitDetails!.arrivalStop}
+                          {step.transitDetails!.departureStop} → {step.transitDetails!.arrivalStop}
                         </>
                       ) : (
                         step.instruction
                       )}
                     </div>
-                    <div
-                      style={{
-                        fontSize: "0.75rem",
-                        color: "#888",
-                        marginTop: 2,
-                        display: "flex",
-                        gap: 8,
-                      }}
-                    >
+                    <div className="text-[10px] text-gray-500 mt-0.5 flex gap-2">
                       <span>{formatDist(step.distance)}</span>
                       <span>{formatDur(step.duration)}</span>
-                      {isTransit && (
-                        <span>{step.transitDetails!.numStops} stops</span>
-                      )}
+                      {isTransit && <span>{step.transitDetails!.numStops} stops</span>}
                     </div>
                   </div>
                 </div>
               );
             })}
           </div>
-        )}
 
-        {/* End Navigation button */}
-        <div style={{ padding: "12px 16px" }}>
-          <button onClick={onClose} style={endNavBtnStyle}>
-            End Navigation
-          </button>
+          {/* End Navigation */}
+          <div className="px-4 py-2.5 flex-shrink-0">
+            <button onClick={onClose} className="w-full py-2.5 rounded-xl border-none bg-red-500 text-white text-sm font-bold cursor-pointer active:scale-[0.98] transition-transform">
+              End Navigation
+            </button>
+          </div>
         </div>
-      </div>
+      ) : (
+        /* --- DESKTOP: Original bottom panel --- */
+        <div style={bottomPanelStyle}>
+          {/* Summary bar */}
+          <div style={summaryBarStyle}>
+            <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+              <div>
+                <div style={{ fontSize: "1.5rem", fontWeight: 800, color: "#22c55e" }}>
+                  {formatDurMin(totalDuration / 60)}
+                </div>
+                <div style={{ fontSize: "0.75rem", color: "#999" }}>
+                  {formatDist(totalDistance)}
+                </div>
+              </div>
+              <div style={{ width: 1, height: 36, background: "rgba(255,255,255,0.15)" }} />
+              <div>
+                <div style={{ fontSize: "0.85rem", color: "#ddd" }}>ETA {eta || "--:--"}</div>
+                <div style={{ fontSize: "0.75rem", color: "#fbbf24", fontWeight: 700 }}>₹{route.totalCost}</div>
+              </div>
+            </div>
 
-      {/* Spin animation */}
+            {/* Segment overview strip */}
+            <div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+              {route.segments.map((seg, i) => {
+                const width = Math.max(30, (seg.duration / route.totalDuration) * 180);
+                return (
+                  <React.Fragment key={seg.id}>
+                    <div
+                      style={{
+                        height: 6,
+                        width,
+                        borderRadius: 3,
+                        background: MODE_COLORS[seg.mode] || "#666",
+                      }}
+                      title={`${MODE_ICONS[seg.mode] || ""} ${seg.mode} · ${formatDurMin(seg.duration)}`}
+                    />
+                    {i < route.segments.length - 1 && (
+                      <span style={{ color: "#666", fontSize: "0.6rem" }}>▸</span>
+                    )}
+                  </React.Fragment>
+                );
+              })}
+            </div>
+
+            {/* Toggle directions */}
+            <button
+              onClick={() => setShowDirections((v) => !v)}
+              style={{
+                background: "rgba(255,255,255,0.1)",
+                border: "1px solid rgba(255,255,255,0.2)",
+                borderRadius: 8,
+                padding: "6px 12px",
+                color: "white",
+                cursor: "pointer",
+                fontSize: "0.8rem",
+                fontWeight: 600,
+                flexShrink: 0,
+              }}
+            >
+              {showDirections ? "Hide Steps" : "Show Steps"}
+            </button>
+          </div>
+
+          {/* Current step highlight */}
+          {steps.length > 0 && (
+            <div style={currentStepStyle}>
+              <div style={{ fontSize: "1.5rem", flexShrink: 0, width: 40, textAlign: "center" }}>
+                {steps[activeStepIndex]?.transitDetails
+                  ? MODE_ICONS[steps[activeStepIndex].mode] || "🚌"
+                  : getManeuverIcon(steps[activeStepIndex]?.maneuver)}
+              </div>
+              <div style={{ flex: 1, minWidth: 0 }}>
+                <div style={{ fontSize: "1rem", fontWeight: 700, color: "white", lineHeight: 1.3 }}>
+                  {steps[activeStepIndex]?.transitDetails ? (
+                    <>
+                      Board{" "}
+                      <span
+                        style={{
+                          color: steps[activeStepIndex].transitDetails!.color || "#4285F4",
+                          fontWeight: 800,
+                        }}
+                      >
+                        {steps[activeStepIndex].transitDetails!.lineName ||
+                          steps[activeStepIndex].transitDetails!.lineShortName}
+                      </span>{" "}
+                      at {steps[activeStepIndex].transitDetails!.departureStop}
+                    </>
+                  ) : (
+                    steps[activeStepIndex]?.instruction || "Continue"
+                  )}
+                </div>
+                <div style={{ fontSize: "0.8rem", color: "#aaa", marginTop: 2 }}>
+                  {formatDist(steps[activeStepIndex]?.distance || 0)} ·{" "}
+                  {formatDur(steps[activeStepIndex]?.duration || 0)}
+                  {steps[activeStepIndex]?.transitDetails &&
+                    ` · ${steps[activeStepIndex].transitDetails!.numStops} stops`}
+                </div>
+              </div>
+              <div style={{ display: "flex", gap: 8, flexShrink: 0 }}>
+                <button
+                  onClick={() => goToStep(Math.max(0, activeStepIndex - 1))}
+                  disabled={activeStepIndex === 0}
+                  style={stepNavBtnStyle(activeStepIndex === 0)}
+                >
+                  ‹
+                </button>
+                <span style={{ color: "#999", fontSize: "0.75rem", alignSelf: "center" }}>
+                  {activeStepIndex + 1}/{steps.length}
+                </span>
+                <button
+                  onClick={() => goToStep(Math.min(steps.length - 1, activeStepIndex + 1))}
+                  disabled={activeStepIndex === steps.length - 1}
+                  style={stepNavBtnStyle(activeStepIndex === steps.length - 1)}
+                >
+                  ›
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Directions list */}
+          {showDirections && steps.length > 0 && (
+            <div style={stepsListStyle}>
+              {steps.map((step, i) => {
+                const isActive = i === activeStepIndex;
+                const isTransit = !!step.transitDetails;
+                return (
+                  <div
+                    key={i}
+                    onClick={() => goToStep(i)}
+                    style={{
+                      display: "flex",
+                      gap: 12,
+                      padding: "12px 16px",
+                      cursor: "pointer",
+                      background: isActive ? "rgba(66,133,244,0.15)" : "transparent",
+                      borderLeft: isActive ? "3px solid #4285F4" : "3px solid transparent",
+                      transition: "all 0.15s ease",
+                    }}
+                  >
+                    <div
+                      style={{
+                        width: 36,
+                        height: 36,
+                        borderRadius: "50%",
+                        background: isTransit
+                          ? `${step.transitDetails!.color || MODE_COLORS.TRANSIT}30`
+                          : i === 0 ? "#22c55e20" : i === steps.length - 1 ? "#ef444420" : "#ffffff10",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        fontSize: "1rem",
+                        flexShrink: 0,
+                        border: isActive ? "2px solid #4285F4" : "2px solid transparent",
+                      }}
+                    >
+                      {i === 0 ? "🚀" : i === steps.length - 1 ? "🏁" : isTransit ? MODE_ICONS[step.mode] || "🚌" : getManeuverIcon(step.maneuver)}
+                    </div>
+                    <div style={{ flex: 1, minWidth: 0 }}>
+                      <div
+                        style={{
+                          fontSize: "0.85rem",
+                          fontWeight: isActive ? 700 : 500,
+                          color: isActive ? "white" : "#ddd",
+                          lineHeight: 1.4,
+                        }}
+                      >
+                        {isTransit ? (
+                          <>
+                            <span
+                              style={{
+                                background: `${step.transitDetails!.color || "#f59e0b"}30`,
+                                border: `1px solid ${step.transitDetails!.color || "#f59e0b"}`,
+                                borderRadius: 6,
+                                padding: "2px 8px",
+                                marginRight: 6,
+                                fontSize: "0.75rem",
+                                fontWeight: 700,
+                              }}
+                            >
+                              {step.transitDetails!.lineShortName || step.transitDetails!.lineName}
+                            </span>
+                            {step.transitDetails!.departureStop} → {step.transitDetails!.arrivalStop}
+                          </>
+                        ) : (
+                          step.instruction
+                        )}
+                      </div>
+                      <div
+                        style={{
+                          fontSize: "0.75rem",
+                          color: "#888",
+                          marginTop: 2,
+                          display: "flex",
+                          gap: 8,
+                        }}
+                      >
+                        <span>{formatDist(step.distance)}</span>
+                        <span>{formatDur(step.duration)}</span>
+                        {isTransit && <span>{step.transitDetails!.numStops} stops</span>}
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
+
+          {/* End Navigation button */}
+          <div style={{ padding: "12px 16px" }}>
+            <button onClick={onClose} style={endNavBtnStyle}>
+              End Navigation
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Animations */}
       <style jsx global>{`
         @keyframes spin {
-          to {
-            transform: rotate(360deg);
-          }
+          to { transform: rotate(360deg); }
         }
+        .no-scrollbar::-webkit-scrollbar { display: none; }
+        .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
       `}</style>
     </div>
   );
 }
 
-// Styles 
+// Styles
 
 const overlayStyle: React.CSSProperties = {
   position: "fixed",
@@ -1004,32 +1040,6 @@ const overlayStyle: React.CSSProperties = {
   display: "flex",
   flexDirection: "column",
   background: "#1a1a2e",
-};
-
-const topBarStyle: React.CSSProperties = {
-  display: "flex",
-  alignItems: "center",
-  gap: 12,
-  padding: "12px 16px",
-  background: "rgba(26,26,46,0.95)",
-  borderBottom: "1px solid rgba(255,255,255,0.1)",
-  backdropFilter: "blur(12px)",
-  zIndex: 20,
-};
-
-const closeButtonStyle: React.CSSProperties = {
-  width: 36,
-  height: 36,
-  borderRadius: "50%",
-  background: "rgba(255,255,255,0.1)",
-  border: "1px solid rgba(255,255,255,0.2)",
-  color: "white",
-  fontSize: "1rem",
-  cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  flexShrink: 0,
 };
 
 const bottomPanelStyle: React.CSSProperties = {

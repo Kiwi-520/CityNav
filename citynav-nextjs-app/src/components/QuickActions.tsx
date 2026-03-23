@@ -5,7 +5,7 @@ import { FiSearch, FiNavigation, FiMap, FiDownload } from "react-icons/fi";
 
 export default function QuickActions() {
   return (
-    <div className="grid grid-cols-4 gap-4">
+    <div className="grid grid-cols-4 gap-2 md:gap-4">
       <Link href="/search-discovery" className="flex flex-col items-center gap-2 no-underline">
         <button className="bg-indigo-500 dark:bg-indigo-600 text-white border-none w-14 h-14 rounded-2xl flex items-center justify-center cursor-pointer hover:bg-indigo-600 dark:hover:bg-indigo-700 transition-colors shadow-lg">
           <FiSearch size={24} />

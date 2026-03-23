@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { POI } from '@/features/offline-onboarding/hooks/useNearbyPOIs';
 
@@ -61,13 +61,13 @@ const sections: Section[] = [
   },
 ];
 
-const colorMap: Record<string, { bg: string; border: string; text: string; hover: string }> = {
-  purple: { bg: 'bg-purple-50 dark:bg-purple-950/30', border: 'border-purple-200 dark:border-purple-800', text: 'text-purple-700 dark:text-purple-300', hover: 'hover:bg-purple-100 dark:hover:bg-purple-900/40' },
-  red: { bg: 'bg-red-50 dark:bg-red-950/30', border: 'border-red-200 dark:border-red-800', text: 'text-red-700 dark:text-red-300', hover: 'hover:bg-red-100 dark:hover:bg-red-900/40' },
-  blue: { bg: 'bg-blue-50 dark:bg-blue-950/30', border: 'border-blue-200 dark:border-blue-800', text: 'text-blue-700 dark:text-blue-300', hover: 'hover:bg-blue-100 dark:hover:bg-blue-900/40' },
-  green: { bg: 'bg-green-50 dark:bg-green-950/30', border: 'border-green-200 dark:border-green-800', text: 'text-green-700 dark:text-green-300', hover: 'hover:bg-green-100 dark:hover:bg-green-900/40' },
-  amber: { bg: 'bg-amber-50 dark:bg-amber-950/30', border: 'border-amber-200 dark:border-amber-800', text: 'text-amber-700 dark:text-amber-300', hover: 'hover:bg-amber-100 dark:hover:bg-amber-900/40' },
-  teal: { bg: 'bg-teal-50 dark:bg-teal-950/30', border: 'border-teal-200 dark:border-teal-800', text: 'text-teal-700 dark:text-teal-300', hover: 'hover:bg-teal-100 dark:hover:bg-teal-900/40' },
+const colorMap: Record<string, { bg: string; border: string; text: string; hover: string; activeBg: string }> = {
+  purple: { bg: 'bg-purple-50 dark:bg-purple-950/30', border: 'border-purple-200 dark:border-purple-800', text: 'text-purple-700 dark:text-purple-300', hover: 'hover:bg-purple-100 dark:hover:bg-purple-900/40', activeBg: 'bg-purple-600' },
+  red: { bg: 'bg-red-50 dark:bg-red-950/30', border: 'border-red-200 dark:border-red-800', text: 'text-red-700 dark:text-red-300', hover: 'hover:bg-red-100 dark:hover:bg-red-900/40', activeBg: 'bg-red-600' },
+  blue: { bg: 'bg-blue-50 dark:bg-blue-950/30', border: 'border-blue-200 dark:border-blue-800', text: 'text-blue-700 dark:text-blue-300', hover: 'hover:bg-blue-100 dark:hover:bg-blue-900/40', activeBg: 'bg-blue-600' },
+  green: { bg: 'bg-green-50 dark:bg-green-950/30', border: 'border-green-200 dark:border-green-800', text: 'text-green-700 dark:text-green-300', hover: 'hover:bg-green-100 dark:hover:bg-green-900/40', activeBg: 'bg-green-600' },
+  amber: { bg: 'bg-amber-50 dark:bg-amber-950/30', border: 'border-amber-200 dark:border-amber-800', text: 'text-amber-700 dark:text-amber-300', hover: 'hover:bg-amber-100 dark:hover:bg-amber-900/40', activeBg: 'bg-amber-600' },
+  teal: { bg: 'bg-teal-50 dark:bg-teal-950/30', border: 'border-teal-200 dark:border-teal-800', text: 'text-teal-700 dark:text-teal-300', hover: 'hover:bg-teal-100 dark:hover:bg-teal-900/40', activeBg: 'bg-teal-600' },
 };
 
 const categoryIcons: Record<string, string> = {
@@ -94,7 +94,7 @@ const categoryIcons: Record<string, string> = {
 };
 
 function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: number): number {
-  const R = 6371000; // Earth radius in meters
+  const R = 6371000;
   const toRad = (deg: number) => deg * Math.PI / 180;
   const dLat = toRad(lat2 - lat1);
   const dLon = toRad(lon2 - lon1);
@@ -105,20 +105,39 @@ function calculateDistance(lat1: number, lon1: number, lat2: number, lon2: numbe
   return R * c;
 }
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return isMobile;
+}
+
 export default function CategoryFilterSidebar({ pois, poisLoading, onNavigate, onRoutePopup, userPosition, activeSections, onSectionToggle, onClearAll }: Props) {
   const router = useRouter();
+  const isMobile = useIsMobile();
   const [expandedSections, setExpandedSections] = useState<Record<string, boolean>>({});
+  const [mobileSheetOpen, setMobileSheetOpen] = useState(false);
+  const [mobileSheetHeight, setMobileSheetHeight] = useState(320);
+  const dragRef = useRef<{ startY: number; startHeight: number } | null>(null);
+  const SHEET_MIN = 80;
+  const SHEET_MAX = typeof window !== 'undefined' ? window.innerHeight - 120 : 600;
 
   const toggleSection = (sectionTitle: string) => {
     setExpandedSections((prev) => ({ ...prev, [sectionTitle]: !prev[sectionTitle] }));
   };
 
   const handleSectionSelect = (section: Section) => {
-    // Toggle this section for map display
     onSectionToggle(section.title, section.categories);
-    // Auto-expand when selecting, auto-collapse when deselecting
     if (!activeSections[section.title]) {
       setExpandedSections((prev) => ({ ...prev, [section.title]: true }));
+    }
+    if (isMobile) {
+      setMobileSheetOpen(true);
+      setMobileSheetHeight(380);
     }
   };
 
@@ -129,11 +148,8 @@ export default function CategoryFilterSidebar({ pois, poisLoading, onNavigate, o
       onRoutePopup(poi);
       return;
     }
-    // Get source coordinates
     const sourceLat = userPosition ? userPosition[0] : 28.6139;
     const sourceLng = userPosition ? userPosition[1] : 77.2090;
-    
-    // Navigate to route-options page
     const params = new URLSearchParams({
       destination: poi.name || poi.category,
       sourceLat: sourceLat.toString(),
@@ -141,21 +157,221 @@ export default function CategoryFilterSidebar({ pois, poisLoading, onNavigate, o
       destLat: poi.lat.toString(),
       destLng: poi.lon.toString(),
     });
-    
     router.push(`/route-options?${params.toString()}`);
   };
+
+  // Drag handlers for mobile bottom sheet
+  const onDragStart = useCallback((clientY: number) => {
+    dragRef.current = { startY: clientY, startHeight: mobileSheetHeight };
+  }, [mobileSheetHeight]);
+
+  const onDragMove = useCallback((clientY: number) => {
+    if (!dragRef.current) return;
+    const diff = dragRef.current.startY - clientY;
+    setMobileSheetHeight(Math.min(SHEET_MAX, Math.max(SHEET_MIN, dragRef.current.startHeight + diff)));
+  }, [SHEET_MAX]);
+
+  const onDragEnd = useCallback(() => {
+    if (!dragRef.current) return;
+    if (mobileSheetHeight < 120) setMobileSheetOpen(false);
+    dragRef.current = null;
+  }, [mobileSheetHeight]);
+
+  const handleTouchStart = useCallback((e: React.TouchEvent) => { onDragStart(e.touches[0].clientY); }, [onDragStart]);
+  const handleTouchMove = useCallback((e: React.TouchEvent) => { onDragMove(e.touches[0].clientY); }, [onDragMove]);
+  const handleTouchEnd = useCallback(() => { onDragEnd(); }, [onDragEnd]);
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    onDragStart(e.clientY);
+    const move = (ev: MouseEvent) => onDragMove(ev.clientY);
+    const up = () => { onDragEnd(); document.removeEventListener('mousemove', move); document.removeEventListener('mouseup', up); };
+    document.addEventListener('mousemove', move);
+    document.addEventListener('mouseup', up);
+  }, [onDragStart, onDragMove, onDragEnd]);
 
   // Group POIs by category
   const groupedPois: Record<string, POI[]> = {};
   if (pois) {
     pois.forEach((poi) => {
-      if (!groupedPois[poi.category]) {
-        groupedPois[poi.category] = [];
-      }
+      if (!groupedPois[poi.category]) groupedPois[poi.category] = [];
       groupedPois[poi.category].push(poi);
     });
   }
 
+  // Get POIs for currently active sections
+  const activePois = sections
+    .filter(s => activeSections[s.title])
+    .flatMap(s => s.categories.flatMap(cat => groupedPois[cat] || []));
+
+  // --- MOBILE LAYOUT ---
+  if (isMobile) {
+    return (
+      <>
+        {/* Horizontal scrollable filter chips - overlaid on map */}
+        <div className="absolute top-0 left-0 right-0 z-[500] bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-b border-slate-200 dark:border-slate-700 shadow-sm">
+          <div className="flex items-center gap-2 px-3 py-2.5 overflow-x-auto no-scrollbar">
+            {hasAnyActive && (
+              <button
+                onClick={onClearAll}
+                className="flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-semibold bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 border border-slate-300 dark:border-slate-600 active:scale-95 transition-transform"
+              >
+                ✕ Clear
+              </button>
+            )}
+            {sections.map((section) => {
+              const isSectionActive = !!activeSections[section.title];
+              const poisInSection = section.categories.flatMap(cat => groupedPois[cat] || []);
+              const colors = colorMap[section.color] || colorMap.blue;
+              return (
+                <button
+                  key={section.title}
+                  onClick={() => handleSectionSelect(section)}
+                  className={`flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold transition-all active:scale-95 border ${
+                    isSectionActive
+                      ? `${colors.activeBg} text-white border-transparent shadow-md`
+                      : `bg-white dark:bg-slate-800 ${colors.text} ${colors.border}`
+                  }`}
+                >
+                  <span className="text-sm">{section.icon}</span>
+                  <span className="whitespace-nowrap">{section.title}</span>
+                  {poisInSection.length > 0 && (
+                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${
+                      isSectionActive 
+                        ? 'bg-white/30 text-white' 
+                        : 'bg-slate-100 dark:bg-slate-700 text-slate-500 dark:text-slate-400'
+                    }`}>
+                      {poisInSection.length}
+                    </span>
+                  )}
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Mobile bottom sheet for POI list */}
+        {mobileSheetOpen && hasAnyActive && (
+          <div
+            style={{
+              position: 'fixed',
+              bottom: 64,
+              left: 0,
+              right: 0,
+              height: mobileSheetHeight,
+              zIndex: 1500,
+              display: 'flex',
+              flexDirection: 'column',
+              background: 'white',
+              borderTopLeftRadius: 20,
+              borderTopRightRadius: 20,
+              boxShadow: '0 -8px 30px rgba(0,0,0,0.15)',
+              transition: dragRef.current ? 'none' : 'height 0.2s ease',
+              overflow: 'hidden',
+            }}
+            className="dark:!bg-slate-900"
+          >
+            {/* Drag handle */}
+            <div
+              onMouseDown={handleMouseDown}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              className="flex flex-col items-center pt-2.5 pb-1.5 cursor-grab"
+              style={{ touchAction: 'none', userSelect: 'none' }}
+            >
+              <div className="w-10 h-1.5 rounded-full bg-slate-300 dark:bg-slate-600" />
+            </div>
+
+            {/* Sheet header */}
+            <div className="flex items-center justify-between px-4 pb-2 border-b border-slate-200 dark:border-slate-700 flex-shrink-0">
+              <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100 m-0">
+                {activePois.length} Places Found
+              </h4>
+              <button
+                onClick={() => setMobileSheetOpen(false)}
+                className="p-1.5 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-500 dark:text-slate-400"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+              </button>
+            </div>
+
+            {/* POI list */}
+            <div className="flex-1 overflow-y-auto px-3 py-2">
+              {poisLoading ? (
+                <div className="flex items-center justify-center gap-2 py-8">
+                  <div className="w-5 h-5 border-2 border-slate-300 border-t-indigo-600 rounded-full animate-spin" />
+                  <span className="text-sm text-slate-600 dark:text-slate-400">Loading...</span>
+                </div>
+              ) : activePois.length === 0 ? (
+                <div className="text-center py-6 text-slate-400 text-sm">No places found for selected categories</div>
+              ) : (
+                <div className="space-y-2">
+                  {activePois.map((poi) => {
+                    const distance = userPosition
+                      ? calculateDistance(userPosition[0], userPosition[1], poi.lat, poi.lon)
+                      : null;
+                    const sectionForPoi = sections.find(s => s.categories.includes(poi.category));
+                    const colors = colorMap[sectionForPoi?.color || 'blue'];
+                    return (
+                      <div
+                        key={poi.id}
+                        className={`${colors.bg} border ${colors.border} rounded-xl p-3 active:scale-[0.98] transition-transform`}
+                      >
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-xl flex-shrink-0">
+                            {categoryIcons[poi.category] || '📍'}
+                          </span>
+                          <div className="flex-1 min-w-0">
+                            <div className={`text-sm font-semibold ${colors.text} truncate`}>
+                              {poi.name || 'Unnamed location'}
+                            </div>
+                            {distance != null && (
+                              <div className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                                {distance < 1000 ? `${Math.round(distance)}m away` : `${(distance / 1000).toFixed(1)}km away`}
+                              </div>
+                            )}
+                          </div>
+                          <button
+                            onClick={() => handleNavigateToRoute(poi)}
+                            className="flex-shrink-0 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 active:bg-indigo-800 text-white text-xs font-semibold rounded-lg shadow-sm transition-colors"
+                          >
+                            Go
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Floating button to open sheet when hidden but filters active */}
+        {!mobileSheetOpen && hasAnyActive && activePois.length > 0 && (
+          <button
+            onClick={() => { setMobileSheetOpen(true); setMobileSheetHeight(380); }}
+            className="fixed bottom-20 left-1/2 -translate-x-1/2 z-[1500] flex items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-full shadow-lg active:scale-95 transition-transform text-sm font-semibold"
+          >
+            <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+            </svg>
+            {activePois.length} Places
+          </button>
+        )}
+
+        {/* CSS for hiding scrollbar */}
+        <style jsx global>{`
+          .no-scrollbar::-webkit-scrollbar { display: none; }
+          .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        `}</style>
+      </>
+    );
+  }
+
+  // --- DESKTOP LAYOUT (original sidebar) ---
   return (
     <div className="w-80 flex-shrink-0 bg-white dark:bg-slate-900 border-r border-slate-200 dark:border-slate-700 shadow-sm overflow-y-auto">
       <div className="sticky top-0 bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 px-4 py-4 border-b border-slate-200 dark:border-slate-700 z-10">
@@ -230,7 +446,6 @@ export default function CategoryFilterSidebar({ pois, poisLoading, onNavigate, o
                       )}
                     </div>
                     <div className="flex items-center gap-1.5">
-                      {/* Active indicator */}
                       {isSectionActive && (
                         <div className="flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-white/80 dark:bg-slate-800/80">
                           <div className="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse" />

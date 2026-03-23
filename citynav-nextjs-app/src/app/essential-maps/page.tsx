@@ -12,7 +12,7 @@ const GoogleMapsExplorer = dynamic(
 
 export default function EssentialMapsPage() {
   return (
-    <div className="flex flex-col h-screen overflow-hidden">
+    <div className="flex flex-col h-[calc(100vh-60px)] overflow-hidden bg-slate-100 dark:bg-slate-900">
       <PageHeader title="Essential Maps" showBack backHref="/" />
       <div className="flex-1 overflow-hidden">
         <GoogleMapsExplorer />

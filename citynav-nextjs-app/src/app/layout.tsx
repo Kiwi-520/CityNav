@@ -17,7 +17,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
         <AuthSessionProvider>
           <PwaRegister />
           <WelcomeAuthPrompt />
-          <main style={{ paddingBottom: "80px" }}>{children}</main>
+          <main style={{ paddingBottom: "60px" }}>{children}</main>
           <BottomNavigation />
         </AuthSessionProvider>
       </body>
