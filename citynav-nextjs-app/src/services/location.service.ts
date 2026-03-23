@@ -31,14 +31,14 @@ class LocationService {
   private async getCurrentPositionWithFallback(): Promise<GeolocationPosition> {
     const highAccuracyOptions: PositionOptions = {
       enableHighAccuracy: true,
-      timeout: 10000,
+      timeout: 15000,
       maximumAge: 0,
     };
 
     const lowAccuracyOptions: PositionOptions = {
       enableHighAccuracy: false,
       timeout: 15000,
-      maximumAge: 60000,
+      maximumAge: 30000,
     };
 
     const getPosition = (options: PositionOptions): Promise<GeolocationPosition> => {
@@ -49,18 +49,20 @@ class LocationService {
 
     try {
       const firstFix = await getPosition(highAccuracyOptions);
-      // If accuracy is coarse (cell-tower), try to improve before returning.
-      if (firstFix.coords.accuracy <= 800) {
+      // If accuracy is good enough, return immediately
+      if (firstFix.coords.accuracy <= 100) {
         return firstFix;
       }
 
-      return await this.waitForBetterAccuracyFix(firstFix, 8000, 300);
+      // Otherwise wait for a better GPS fix
+      return await this.waitForBetterAccuracyFix(firstFix, 10000, 100);
     } catch {
+      // High accuracy failed — fall back to network/cell positioning
       const fallbackFix = await getPosition(lowAccuracyOptions);
-      if (fallbackFix.coords.accuracy <= 1000) {
+      if (fallbackFix.coords.accuracy <= 200) {
         return fallbackFix;
       }
-      return await this.waitForBetterAccuracyFix(fallbackFix, 8000, 500);
+      return await this.waitForBetterAccuracyFix(fallbackFix, 8000, 200);
     }
   }
 
@@ -113,82 +115,30 @@ class LocationService {
   }
 
   async getCurrentLocation(): Promise<LocationData> {
-    return new Promise((resolve, reject) => {
-      if (!navigator.geolocation) {
-        reject({
-          code: -1,
-          message: "Geolocation is not supported by this browser",
-        });
-        return;
-      }
-
-      const options: PositionOptions = {
-        enableHighAccuracy: true,
-        timeout: 10000,
-        maximumAge: 0, // Always get fresh location
+    if (!navigator.geolocation) {
+      throw {
+        code: -1,
+        message: "Geolocation is not supported by this browser",
       };
+    }
 
-      // Use watchPosition briefly to get the best accuracy fix
-      let bestPosition: GeolocationPosition | null = null;
-      let settled = false;
-
-      const settle = async () => {
-        if (settled) return;
-        settled = true;
-        navigator.geolocation.clearWatch(watchId);
-
-        if (!bestPosition) {
-          reject({ code: -2, message: "Failed to obtain a location fix" });
-          return;
-        }
-
-        try {
-          const locationData = await this.reverseGeocode(
-            bestPosition.coords.latitude,
-            bestPosition.coords.longitude
-          );
-          this.currentLocation = locationData;
-          resolve(locationData);
-        } catch (_error) {
-          reject({
-            code: -2,
-            message: "Failed to get location details",
-          });
-        }
-      };
-
-      const watchId = navigator.geolocation.watchPosition(
-        (position) => {
-          // Keep the most accurate fix
-          if (!bestPosition || position.coords.accuracy < bestPosition.coords.accuracy) {
-            bestPosition = position;
-          }
-          // If we have a good enough fix (< 100m), resolve immediately
-          if (position.coords.accuracy <= 100) {
-            settle();
-          }
-        },
-        (error) => {
-          if (!settled) {
-            // If we already have any position, use it
-            if (bestPosition) {
-              settle();
-            } else {
-              settled = true;
-              navigator.geolocation.clearWatch(watchId);
-              reject({
-                code: error.code,
-                message: this.getErrorMessage(error.code),
-              });
-            }
-          }
-        },
-        options
+    try {
+      const position = await this.getCurrentPositionWithFallback();
+      const locationData = await this.reverseGeocode(
+        position.coords.latitude,
+        position.coords.longitude
       );
-
-      // After 5 seconds, settle with whatever best fix we have
-      setTimeout(() => settle(), 5000);
-    });
+      this.currentLocation = locationData;
+      return locationData;
+    } catch (error) {
+      if (error && typeof error === 'object' && 'code' in error) {
+        throw {
+          code: (error as GeolocationPositionError).code,
+          message: this.getErrorMessage((error as GeolocationPositionError).code),
+        };
+      }
+      throw { code: -2, message: "Failed to get location details" };
+    }
   }
 
   watchLocation(
