@@ -25,6 +25,7 @@ export default function GoogleMapsExplorer() {
   const [packPois, setPackPois] = useState<POI[] | null>(null);
   const [forcedCenter, setForcedCenter] = useState<[number, number] | null>(null);
   const [activeNavRoute, setActiveNavRoute] = useState<MultimodalRoute | null>(null);
+  const [showUnloadConfirm, setShowUnloadConfirm] = useState(false);
   const { isOnline, storedLocation } = useOfflineLocation();
   const displayLat = pos ? pos[0] : (!isOnline && storedLocation ? storedLocation.latitude : null);
   const displayLon = pos ? pos[1] : (!isOnline && storedLocation ? storedLocation.longitude : null);
@@ -603,24 +604,24 @@ export default function GoogleMapsExplorer() {
         }}
         isPackLoaded={!!selectedPackId}
       />
-      <div className="px-6 py-4">
+      <div className="px-3 md:px-6 py-2 md:py-4">
         {displayPosition ? (
-          <div className="space-y-2">
-            <div className="flex items-center gap-2 text-xs">
-              <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full ${
+          <div className="space-y-1.5 md:space-y-2">
+            <div className="flex items-center gap-1.5 md:gap-2 text-xs overflow-x-auto no-scrollbar">
+              <div className={`flex-shrink-0 flex items-center gap-1 md:gap-1.5 px-2 md:px-2.5 py-1 rounded-full ${
                 isOnline 
                   ? 'bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-300 border border-green-200 dark:border-green-800' 
                   : 'bg-amber-100 dark:bg-amber-950/50 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-800'
               }`}>
-                <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <svg className="w-3 h-3 md:w-3.5 md:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
                 </svg>
-                <span className="font-medium">
-                  {isOnline ? 'Live GPS Location' : 'Cached Location'}
+                <span className="font-medium whitespace-nowrap">
+                  {isOnline ? 'Live GPS' : 'Cached'}
                 </span>
               </div>
               {gpsAccuracy != null && isOnline && (
-                <div className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full border ${
+                <div className={`flex-shrink-0 flex items-center gap-1 md:gap-1.5 px-2 md:px-2.5 py-1 rounded-full border ${
                   gpsAccuracy <= 10
                     ? 'bg-green-100 dark:bg-green-950/50 text-green-700 dark:text-green-300 border-green-200 dark:border-green-800'
                     : gpsAccuracy <= 50
@@ -629,26 +630,28 @@ export default function GoogleMapsExplorer() {
                     ? 'bg-yellow-100 dark:bg-yellow-950/50 text-yellow-700 dark:text-yellow-300 border-yellow-200 dark:border-yellow-800'
                     : 'bg-red-100 dark:bg-red-950/50 text-red-700 dark:text-red-300 border-red-200 dark:border-red-800'
                 }`}>
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className="w-3 h-3 md:w-3.5 md:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                   </svg>
-                  <span className="font-medium">±{Math.round(gpsAccuracy)}m</span>
+                  <span className="font-medium whitespace-nowrap">±{Math.round(gpsAccuracy)}m</span>
                 </div>
               )}
               {pois && pois.length > 0 && (
-                <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
-                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <div className="flex-shrink-0 flex items-center gap-1 md:gap-1.5 px-2 md:px-2.5 py-1 rounded-full bg-indigo-100 dark:bg-indigo-950/50 text-indigo-700 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800">
+                  <svg className="w-3 h-3 md:w-3.5 md:h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
                   </svg>
-                  <span className="font-medium">{pois.length} places found</span>
+                  <span className="font-medium whitespace-nowrap">{pois.length} places</span>
                 </div>
               )}
             </div>
-            <LocationDetailsHorizontal lat={displayPosition[0]} lon={displayPosition[1]} />
+            <div className="hidden md:block">
+              <LocationDetailsHorizontal lat={displayPosition[0]} lon={displayPosition[1]} />
+            </div>
           </div>
         ) : (
-          <div className="bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-6 py-3 shadow-md">
+          <div className="bg-gradient-to-r from-slate-50 to-white dark:from-slate-800 dark:to-slate-900 border border-slate-200 dark:border-slate-700 rounded-xl px-4 md:px-6 py-2.5 md:py-3 shadow-md">
             <div className="flex items-center gap-3">
               <svg className="w-5 h-5 text-slate-400 dark:text-slate-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
@@ -658,7 +661,7 @@ export default function GoogleMapsExplorer() {
           </div>
         )}
       </div>
-      <div className="flex-1 flex overflow-hidden">
+      <div className="flex-1 flex flex-col md:flex-row overflow-hidden relative">
         <CategoryFilterSidebar 
           pois={displayPois}
           poisLoading={poisLoading}
@@ -674,7 +677,7 @@ export default function GoogleMapsExplorer() {
             setSelectedDest({ lat: poi.lat, lon: poi.lon });
           }}
         />
-        <div className="flex-1 relative">
+        <div className="flex-1 relative order-first md:order-last">
           <GoogleMapView 
             center={center} 
             displayPosition={displayPosition} 
@@ -687,50 +690,66 @@ export default function GoogleMapsExplorer() {
             setSelectedPackId={setSelectedPackId}
             isOnline={isOnline}
             onNavigateToPoi={(poi) => {
+              setSelectedDest({ lat: poi.lat, lon: poi.lon });
+            }}
+            onCompareRoutes={(poi) => {
               setRoutePopupPoi(poi);
               setSelectedDest({ lat: poi.lat, lon: poi.lon });
             }}
           />
           {selectedPackId && (
-            <div className="absolute top-4 right-4 z-[1001]">
-              <div className="relative group">
-                <button
-                  onClick={() => {
-                    if (confirm('Unload this pack and return to live mode?')) {
+            <div className="absolute top-12 md:top-4 right-3 md:right-4 z-[1001]">
+              <button
+                onClick={() => setShowUnloadConfirm(true)}
+                className="flex items-center gap-2 px-3.5 py-2 bg-gradient-to-br from-red-500 to-pink-600 text-white font-bold rounded-xl shadow-lg active:scale-95 transition-transform border border-white/20"
+                title="Unload pack and return to live mode"
+              >
+                <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+                <span className="text-xs font-semibold">Unload Pack</span>
+              </button>
+            </div>
+          )}
+
+          {/* Unload Pack Confirmation Modal */}
+          {showUnloadConfirm && (
+            <div className="fixed inset-0 z-[2000] flex items-end sm:items-center justify-center">
+              <div className="absolute inset-0 bg-black/50 backdrop-blur-sm" onClick={() => setShowUnloadConfirm(false)} />
+              <div className="relative w-full sm:max-w-sm mx-4 mb-20 sm:mb-0 bg-white dark:bg-slate-800 rounded-2xl shadow-2xl overflow-hidden animate-in slide-in-from-bottom duration-200">
+                <div className="px-5 pt-5 pb-3 text-center">
+                  <div className="mx-auto w-12 h-12 rounded-full bg-red-100 dark:bg-red-900/40 flex items-center justify-center mb-3">
+                    <svg className="w-6 h-6 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+                    </svg>
+                  </div>
+                  <h3 className="text-lg font-bold text-slate-800 dark:text-white mb-1">Unload Offline Pack?</h3>
+                  <p className="text-sm text-slate-500 dark:text-slate-400">This will switch you back to live mode with real-time GPS data.</p>
+                </div>
+                <div className="flex gap-3 px-5 pb-5 pt-2">
+                  <button
+                    onClick={() => setShowUnloadConfirm(false)}
+                    className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-slate-100 dark:bg-slate-700 text-slate-600 dark:text-slate-300 active:scale-95 transition-transform"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={() => {
                       setSelectedPackId(null);
                       setPackPois(null);
                       setForcedCenter(null);
-                    }
-                  }}
-                  className="relative flex items-center gap-3 px-6 py-3.5 bg-gradient-to-br from-red-500 via-red-600 to-pink-600 hover:from-red-600 hover:via-red-700 hover:to-pink-700 text-white font-bold rounded-2xl shadow-2xl transition-all duration-300 hover:scale-105 hover:shadow-red-500/60 active:scale-95 overflow-hidden border-2 border-white/20"
-                  title="Unload pack and return to live mode"
-                >
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/25 to-transparent opacity-0 group-hover:opacity-100 group-hover:animate-shimmer transition-opacity duration-500"></div>
-                  <div className="absolute inset-0 bg-white/10 opacity-0 group-hover:opacity-100 animate-pulse"></div>
-                  <div className="relative z-10 p-1.5 bg-white/20 rounded-lg backdrop-blur-sm transition-transform duration-300 group-hover:rotate-90 group-hover:scale-110">
-                    <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={3}>
-                      <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  </div>
-                  <div className="relative z-10 flex flex-col items-start">
-                    <span className="text-sm tracking-wide font-extrabold leading-tight">Unload Pack</span>
-                    <span className="text-[10px] font-normal opacity-90 tracking-wider">Return to Live</span>
-                  </div>
-                  <div className="relative z-10 flex items-center gap-1.5 ml-1 px-2.5 py-1 bg-green-500/30 border border-green-300/30 rounded-full backdrop-blur-sm">
-                    <div className="relative">
-                      <div className="w-2 h-2 bg-green-300 rounded-full"></div>
-                      <div className="absolute inset-0 w-2 h-2 bg-green-300 rounded-full animate-ping"></div>
-                    </div>
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-green-50">Live</span>
-                  </div>
-                </button>
-                <div className="absolute inset-0 bg-gradient-to-r from-red-500/40 via-pink-500/40 to-red-500/40 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 -z-10 animate-pulse"></div>
-                <div className="absolute inset-0 bg-red-600/20 rounded-2xl blur-2xl opacity-50 group-hover:opacity-80 transition-opacity duration-300 -z-20"></div>
+                      setShowUnloadConfirm(false);
+                    }}
+                    className="flex-1 py-2.5 rounded-xl text-sm font-semibold bg-gradient-to-r from-red-500 to-pink-600 text-white shadow-md shadow-red-500/30 active:scale-95 transition-transform"
+                  >
+                    Unload & Go Live
+                  </button>
+                </div>
               </div>
             </div>
           )}
           {selectedDest && (
-            <div className="absolute top-4 left-4 z-[1001]">
+            <div className="absolute top-12 md:top-4 left-3 md:left-4 z-[1001]">
               <NavigationPanel 
                 selectedDest={selectedDest} 
                 setSelectedDest={setSelectedDest} 

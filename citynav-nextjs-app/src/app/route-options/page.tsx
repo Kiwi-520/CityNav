@@ -324,32 +324,29 @@ function RouteOptionsContent() {
         minHeight: "100vh",
         background: "linear-gradient(135deg, #667eea 0%, #764ba2 100%)",
         color: "white",
-        padding: "20px",
         backgroundAttachment: "fixed",
       }}
+      className="px-3 py-4 md:px-5 md:py-5"
     >
       <div style={{ maxWidth: "800px", margin: "0 auto" }}>
         {/* Header */}
-        <div style={{ marginBottom: "30px" }}>
+        <div className="mb-5 md:mb-8">
           <Link
             href="/search-discovery"
             style={{ color: "white", textDecoration: "none", fontSize: "14px" }}
           >
             ← Back to Search
           </Link>
-          <h1 style={{ fontSize: "2rem", fontWeight: "700", margin: "10px 0" }}>
+          <h1 className="text-xl md:text-3xl font-bold mt-2 mb-0">
             Route Options
           </h1>
         </div>
 
         {/* Route Details */}
         <div
+          className="rounded-2xl mb-5 md:mb-8 backdrop-blur-[10px] p-4 md:p-6"
           style={{
             background: "rgba(255, 255, 255, 0.1)",
-            borderRadius: "16px",
-            padding: "24px",
-            marginBottom: "30px",
-            backdropFilter: "blur(10px)",
             border: "1px solid rgba(255, 255, 255, 0.2)",
           }}
         >
@@ -558,15 +555,13 @@ function RouteOptionsContent() {
             </div>
 
             {/* Comparison Table */}
-            <div style={{
-              background: "rgba(255, 255, 255, 0.08)",
-              borderRadius: "16px",
-              padding: "20px 24px",
-              marginBottom: "24px",
-              border: "1px solid rgba(255, 255, 255, 0.15)",
-              backdropFilter: "blur(10px)",
-              overflowX: "auto",
-            }}>
+            <div
+              className="rounded-2xl mb-5 md:mb-6 p-4 md:p-6 backdrop-blur-[10px] overflow-x-auto hidden md:block"
+              style={{
+                background: "rgba(255, 255, 255, 0.08)",
+                border: "1px solid rgba(255, 255, 255, 0.15)",
+              }}
+            >
               <h3 style={{ 
                 margin: "0 0 16px 0", 
                 fontSize: "1.1rem",
@@ -582,6 +577,7 @@ function RouteOptionsContent() {
                 width: "100%",
                 borderCollapse: "collapse",
                 fontSize: "0.9rem",
+                minWidth: "600px",
               }}>
                 <thead>
                   <tr style={{ borderBottom: "2px solid rgba(255, 255, 255, 0.2)" }}>
@@ -689,14 +685,10 @@ function RouteOptionsContent() {
               return (
                 <div
                   key={route.id}
+                  className="rounded-2xl p-4 md:p-6 backdrop-blur-[10px] cursor-pointer transition-all duration-300"
                   style={{
                     background: "rgba(255, 255, 255, 0.1)",
-                    borderRadius: "16px",
-                    padding: "24px",
                     border: "1px solid rgba(255, 255, 255, 0.2)",
-                    backdropFilter: "blur(10px)",
-                    cursor: "pointer",
-                    transition: "all 0.3s ease",
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.transform = "translateY(-2px)";
@@ -708,12 +700,7 @@ function RouteOptionsContent() {
                   }}
                 >
                   {/* Route Header */}
-                  <div style={{ 
-                    display: "flex", 
-                    justifyContent: "space-between", 
-                    alignItems: "flex-start",
-                    marginBottom: "16px" 
-                  }}>
+                  <div className="flex flex-col md:flex-row md:justify-between md:items-start gap-3 mb-4">
                     <div style={{ flex: 1 }}>
                       <div style={{ 
                         display: "flex", 
@@ -721,11 +708,7 @@ function RouteOptionsContent() {
                         gap: "12px",
                         marginBottom: "8px" 
                       }}>
-                        <h3 style={{
-                          margin: 0,
-                          fontSize: "1.4rem",
-                          fontWeight: "700",
-                        }}>
+                        <h3 className="text-lg md:text-xl font-bold m-0">
                           {route.name}
                         </h3>
                         {index === 0 && (
@@ -876,18 +859,13 @@ function RouteOptionsContent() {
                     {/* Start Button */}
                     <button
                       onClick={() => handleStartNavigation(route)}
+                      className="w-full md:w-auto py-3 md:py-3.5 px-6 md:px-7 rounded-xl text-sm md:text-base font-bold transition-all duration-300 flex-shrink-0"
                       style={{
                         background: routeColor,
                         color: "white",
                         border: "none",
-                        padding: "14px 28px",
-                        borderRadius: "12px",
                         cursor: "pointer",
-                        fontSize: "0.95rem",
-                        fontWeight: "700",
-                        transition: "all 0.3s ease",
                         whiteSpace: "nowrap",
-                        marginLeft: "16px",
                       }}
                       onMouseEnter={(e) => {
                         e.currentTarget.style.transform = "scale(1.05)";
@@ -980,11 +958,9 @@ function RouteOptionsContent() {
 
         {/* Additional Options */}
         <div
+          className="rounded-2xl p-4 md:p-6 mt-6 md:mt-8"
           style={{
             background: "rgba(255, 255, 255, 0.05)",
-            borderRadius: "16px",
-            padding: "24px",
-            marginTop: "30px",
             border: "1px solid rgba(255, 255, 255, 0.1)",
           }}
         >

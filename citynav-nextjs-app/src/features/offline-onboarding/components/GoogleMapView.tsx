@@ -1,10 +1,9 @@
 import React, { useEffect, useRef, useCallback, useState } from 'react';
 import { GoogleMap, useJsApiLoader, Marker, InfoWindow, Polyline } from '@react-google-maps/api';
-import { useRouter } from 'next/navigation';
 import { POI } from '@/features/offline-onboarding/hooks/useNearbyPOIs';
 import type { RouteResult } from '@/features/offline-onboarding/hooks/useRoute';
 
-const containerStyle = { height: '80vh', width: '100%' };
+const containerStyle = { height: '100%', width: '100%' };
 
 const mapOptions: google.maps.MapOptions = {
   disableDefaultUI: false,
@@ -26,6 +25,7 @@ type Props = {
   setSelectedPackId: (id: string | null) => void;
   isOnline?: boolean;
   onNavigateToPoi?: (poi: POI) => void;
+  onCompareRoutes?: (poi: POI) => void;
 };
 
 // POI color mapping
@@ -102,8 +102,7 @@ function formatOfflineDistance(meters: number): string {
   return `${(meters / 1000).toFixed(1)} km`;
 }
 
-export default function GoogleMapView({ center, displayPosition, forcedCenter, setSelectedDest, route, displayPois, activeCategories, isOnline, onNavigateToPoi }: Props) {
-  const router = useRouter();
+export default function GoogleMapView({ center, displayPosition, forcedCenter, setSelectedDest, route, displayPois, activeCategories, isOnline, onNavigateToPoi, onCompareRoutes }: Props) {
   const mapRef = useRef<google.maps.Map | null>(null);
   const [activeInfoWindow, setActiveInfoWindow] = useState<string | null>(null);
   const [offlineSelectedPoi, setOfflineSelectedPoi] = useState<POI | null>(null);
@@ -137,16 +136,13 @@ export default function GoogleMapView({ center, displayPosition, forcedCenter, s
     if (onNavigateToPoi) {
       onNavigateToPoi(poi);
     } else {
-      const sourceLat = displayPosition ? displayPosition[0] : center[0];
-      const sourceLng = displayPosition ? displayPosition[1] : center[1];
-      const params = new URLSearchParams({
-        destination: poi.name || poi.category,
-        sourceLat: sourceLat.toString(),
-        sourceLng: sourceLng.toString(),
-        destLat: poi.lat.toString(),
-        destLng: poi.lon.toString(),
-      });
-      router.push(`/route-options?${params.toString()}`);
+      handleCompareRoutes(poi);
+    }
+  };
+
+  const handleCompareRoutes = (poi: POI) => {
+    if (onCompareRoutes) {
+      onCompareRoutes(poi);
     }
   };
 
@@ -441,7 +437,7 @@ export default function GoogleMapView({ center, displayPosition, forcedCenter, s
     }
 
     return (
-      <div className="flex-[0_0_60%] min-w-0 flex items-center justify-center h-[80vh] bg-slate-100 dark:bg-slate-900">
+      <div className="flex-1 min-w-0 flex items-center justify-center h-full bg-slate-100 dark:bg-slate-900">
         <div className="text-center">
           <div className="text-3xl mb-3">🗺️</div>
           <p className="text-slate-500 dark:text-slate-400">Loading Google Maps...</p>
@@ -461,7 +457,7 @@ export default function GoogleMapView({ center, displayPosition, forcedCenter, s
   const routeKey = route ? `route-${route.distance}-${route.duration}-${route.geometry?.length || 0}` : 'no-route';
 
   return (
-    <div style={{ flex: '0 0 60%', minWidth: 0 }}>
+    <div style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}>
       <GoogleMap
         mapContainerStyle={containerStyle}
         center={googleCenter}
@@ -511,7 +507,6 @@ export default function GoogleMapView({ center, displayPosition, forcedCenter, s
                   anchor: new google.maps.Point(16, 16),
                 }}
                 onClick={() => {
-                  setSelectedDest({ lat: p.lat, lon: p.lon });
                   setActiveInfoWindow(p.id);
                 }}
               />
@@ -520,26 +515,45 @@ export default function GoogleMapView({ center, displayPosition, forcedCenter, s
                   position={{ lat: p.lat, lng: p.lon }}
                   onCloseClick={() => setActiveInfoWindow(null)}
                 >
-                  <div style={{ minWidth: 160, padding: '4px 0' }}>
+                  <div style={{ minWidth: 180, padding: '4px 0' }}>
                     <div style={{ fontWeight: 700, fontSize: 14 }}>{p.name || p.category}</div>
                     <div style={{ fontSize: 12, color: '#6b7280', marginBottom: 8 }}>{p.tags?.operator || p.tags?.brand || ''}</div>
-                    <button
-                      onClick={() => handleNavigateToLocation(p)}
-                      style={{
-                        background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
-                        color: 'white',
-                        border: 'none',
-                        padding: '8px 16px',
-                        borderRadius: 8,
-                        cursor: 'pointer',
-                        fontWeight: 600,
-                        fontSize: '13px',
-                        boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)',
-                        width: '100%',
-                      }}
-                    >
-                      🧭 Go & Compare Routes
-                    </button>
+                    <div style={{ display: 'flex', gap: 6 }}>
+                      <button
+                        onClick={() => handleNavigateToLocation(p)}
+                        style={{
+                          background: 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)',
+                          color: 'white',
+                          border: 'none',
+                          padding: '7px 10px',
+                          borderRadius: 8,
+                          cursor: 'pointer',
+                          fontWeight: 600,
+                          fontSize: '12px',
+                          boxShadow: '0 2px 8px rgba(37, 99, 235, 0.3)',
+                          flex: 1,
+                        }}
+                      >
+                        🧭 Routes
+                      </button>
+                      <button
+                        onClick={() => handleCompareRoutes(p)}
+                        style={{
+                          background: 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)',
+                          color: 'white',
+                          border: 'none',
+                          padding: '7px 10px',
+                          borderRadius: 8,
+                          cursor: 'pointer',
+                          fontWeight: 600,
+                          fontSize: '12px',
+                          boxShadow: '0 2px 8px rgba(124, 58, 237, 0.3)',
+                          flex: 1,
+                        }}
+                      >
+                        ⚖️ Compare
+                      </button>
+                    </div>
                   </div>
                 </InfoWindow>
               )}
