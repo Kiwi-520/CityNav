@@ -259,9 +259,15 @@ export default function GoogleMapsExplorer() {
     })();
   }, [pois, isOnline]);
 
+  const [selectedPackId, setSelectedPackId] = useState<string | null>(null);
+  const [routePopupPoi, setRoutePopupPoi] = useState<POI | null>(null);
+
   useEffect(() => {
+    // Don't clear manually-loaded packs when online
     if (isOnline) {
-      setPackPois(null);
+      if (!selectedPackId) {
+        setPackPois(null);
+      }
       return;
     }
     (async () => {
@@ -292,10 +298,7 @@ export default function GoogleMapsExplorer() {
         logger.warn('Loading pack failed', err);
       }
     })();
-  }, [isOnline, displayPosition]);
-
-  const [selectedPackId, setSelectedPackId] = useState<string | null>(null);
-  const [routePopupPoi, setRoutePopupPoi] = useState<POI | null>(null);
+  }, [isOnline, displayPosition, selectedPackId]);
   const displayPois: POI[] = selectedPackId ? (packPois || []) : (isOnline ? (pois || []) : (packPois || pois || []));
 
   useEffect(() => {

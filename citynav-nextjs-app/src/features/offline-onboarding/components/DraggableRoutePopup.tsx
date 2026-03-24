@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { multimodalEngine } from '@/services/multimodal.service';
 import { enhancedMultimodalEngine } from '@/services/enhanced-multimodal.service';
 import { MultimodalRoute, RouteRequest } from '@/types/multimodal';
+import { getAllCachedRoutes, type CachedRouteEntry } from '@/features/offline-onboarding/hooks/useRoute';
 
 type Props = {
   sourceCoords: { lat: number; lng: number };
@@ -97,8 +98,20 @@ export default function DraggableRoutePopup({ sourceCoords, destCoords, destName
     onDragEnd();
   }, [onDragEnd]);
 
-  // Fetch source name
+  const [isOffline, setIsOffline] = useState(false);
+
+  // Track online/offline status
   useEffect(() => {
+    const update = () => setIsOffline(!navigator.onLine);
+    update();
+    window.addEventListener('online', update);
+    window.addEventListener('offline', update);
+    return () => { window.removeEventListener('online', update); window.removeEventListener('offline', update); };
+  }, []);
+
+  // Fetch source name (only when online)
+  useEffect(() => {
+    if (isOffline) return;
     (async () => {
       try {
         const res = await fetch(`/api/google-geocode?lat=${sourceCoords.lat}&lng=${sourceCoords.lng}`);
@@ -113,13 +126,70 @@ export default function DraggableRoutePopup({ sourceCoords, destCoords, destName
         }
       } catch { /* use default */ }
     })();
-  }, [sourceCoords]);
+  }, [sourceCoords, isOffline]);
 
-  // Fetch routes
+  // Fetch routes (online) or load from cache (offline)
   useEffect(() => {
     let cancelled = false;
     (async () => {
       setLoading(true);
+
+      // When offline, try to load cached routes from IndexedDB
+      if (isOffline) {
+        try {
+          const cached = await getAllCachedRoutes();
+          if (cancelled) return;
+          // Find cached routes matching this destination (within ~500m)
+          const matching = cached.filter(entry => {
+            if (entry.toLat == null || entry.toLon == null) {
+              // Try to parse from key
+              const parts = entry.key.split(':');
+              if (parts.length !== 2) return false;
+              const [toLat, toLon] = parts[1].split(',').map(Number);
+              if (isNaN(toLat) || isNaN(toLon)) return false;
+              const dist = Math.sqrt((toLat - destCoords.lat) ** 2 + (toLon - destCoords.lng) ** 2);
+              return dist < 0.005; // ~500m
+            }
+            const dist = Math.sqrt((entry.toLat - destCoords.lat) ** 2 + (entry.toLon - destCoords.lng) ** 2);
+            return dist < 0.005;
+          });
+
+          if (matching.length > 0 && !cancelled) {
+            // Convert cached RouteResult entries to MultimodalRoute format
+            const offlineRoutes: MultimodalRoute[] = matching.map((entry, i) => ({
+              id: `offline-${i}`,
+              type: 'balanced' as const,
+              name: i === 0 ? 'Saved Route' : `Saved Route ${i + 1}`,
+              segments: entry.route.steps.map((step, si) => ({
+                id: `seg-${si}`,
+                mode: 'walk' as const,
+                from: { lat: 0, lng: 0 },
+                to: { lat: 0, lng: 0 },
+                distance: step.distance,
+                duration: step.duration / 60, // convert seconds to minutes
+                cost: 0,
+                instruction: step.name || step.maneuver || 'Continue',
+              })),
+              totalDistance: entry.route.distance,
+              totalDuration: entry.route.duration / 60, // convert seconds to minutes
+              totalCost: 0,
+              transferCount: 0,
+              modesUsed: ['walk'],
+              description: 'Saved offline route',
+              warnings: ['📶 Offline — showing saved directions'],
+            }));
+            setRoutes(offlineRoutes);
+            setLoading(false);
+            return;
+          }
+        } catch { /* fall through */ }
+        if (!cancelled) {
+          setRoutes([]);
+          setLoading(false);
+        }
+        return;
+      }
+
       const request: RouteRequest = {
         source: { lat: sourceCoords.lat, lng: sourceCoords.lng, name: sourceName },
         destination: { lat: destCoords.lat, lng: destCoords.lng, name: destName },
@@ -140,7 +210,7 @@ export default function DraggableRoutePopup({ sourceCoords, destCoords, destName
       }
     })();
     return () => { cancelled = true; };
-  }, [sourceCoords, destCoords, destName, sourceName]);
+  }, [sourceCoords, destCoords, destName, sourceName, isOffline]);
 
   return (
     <div
@@ -196,7 +266,7 @@ export default function DraggableRoutePopup({ sourceCoords, destCoords, destName
             🧭 Routes to {destName}
           </div>
           <div style={{ fontSize: 12, color: '#94a3b8', marginTop: 2 }}>
-            From {sourceName}
+            From {sourceName}{isOffline ? ' · 📶 Offline' : ''}
           </div>
         </div>
         <button
@@ -216,13 +286,18 @@ export default function DraggableRoutePopup({ sourceCoords, destCoords, destName
         {loading ? (
           <div style={{ textAlign: 'center', padding: '30px 0', color: '#64748b' }}>
             <div style={{ fontSize: '1.5rem', marginBottom: 10 }}>🔄</div>
-            <div style={{ fontWeight: 600, fontSize: 14 }}>Fetching routes...</div>
-            <div style={{ fontSize: 12, marginTop: 4, color: '#94a3b8' }}>Getting live traffic data</div>
+            <div style={{ fontWeight: 600, fontSize: 14 }}>{isOffline ? 'Checking saved routes...' : 'Fetching routes...'}</div>
+            <div style={{ fontSize: 12, marginTop: 4, color: '#94a3b8' }}>{isOffline ? 'Looking in offline cache' : 'Getting live traffic data'}</div>
           </div>
         ) : routes.length === 0 ? (
           <div style={{ textAlign: 'center', padding: '30px 0', color: '#94a3b8' }}>
-            <div style={{ fontSize: '1.5rem', marginBottom: 10 }}>😕</div>
-            <div style={{ fontWeight: 600, fontSize: 14 }}>No routes found</div>
+            <div style={{ fontSize: '1.5rem', marginBottom: 10 }}>{isOffline ? '📶' : '😕'}</div>
+            <div style={{ fontWeight: 600, fontSize: 14 }}>{isOffline ? 'You are offline' : 'No routes found'}</div>
+            {isOffline && (
+              <div style={{ fontSize: 12, marginTop: 6, color: '#94a3b8', lineHeight: 1.5 }}>
+                No saved directions for this destination.<br/>Routes are cached when you navigate online.
+              </div>
+            )}
           </div>
         ) : (
           <>
