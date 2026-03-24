@@ -950,9 +950,78 @@ function RouteOptionsContent() {
           }}>
             <div style={{ fontSize: "3rem", marginBottom: "16px" }}>🗺️</div>
             <h3 style={{ margin: "0 0 8px 0" }}>No Routes Found</h3>
-            <p style={{ opacity: 0.7, margin: 0 }}>
-              Unable to calculate routes for this journey. Please try different locations.
+            <p style={{ opacity: 0.7, margin: "0 0 16px 0" }}>
+              Unable to calculate routes for this journey. Please try again or choose different locations.
             </p>
+            <button
+              onClick={() => {
+                lastCompletedRequestKeyRef.current = null;
+                inFlightRequestKeyRef.current = null;
+                setLoading(true);
+                setRoutes([]);
+                // Re-trigger the effect by updating a dependency
+                const params = new URLSearchParams(searchParamsKey);
+                const destLatParam = params.get("destLat");
+                const destLngParam = params.get("destLng");
+                const destLat = destLatParam ? parseFloat(destLatParam) : NaN;
+                const destLng = destLngParam ? parseFloat(destLngParam) : NaN;
+                if (!Number.isFinite(destLat) || !Number.isFinite(destLng)) return;
+
+                let sourceLat = NaN;
+                let sourceLng = NaN;
+                const sourceLatParam = params.get("sourceLat");
+                const sourceLngParam = params.get("sourceLng");
+                if (sourceLatParam) sourceLat = parseFloat(sourceLatParam);
+                if (sourceLngParam) sourceLng = parseFloat(sourceLngParam);
+                if (!Number.isFinite(sourceLat) || !Number.isFinite(sourceLng)) {
+                  if (storedLocation) {
+                    sourceLat = storedLocation.latitude;
+                    sourceLng = storedLocation.longitude;
+                  } else {
+                    sourceLat = 28.5355;
+                    sourceLng = 77.3910;
+                  }
+                }
+
+                const request: RouteRequest = {
+                  source: { lat: sourceLat, lng: sourceLng, name: startLocationName },
+                  destination: { lat: destLat, lng: destLng, name: destinationName },
+                  preferences: { prioritize: 'time', maxWalkingDistance: 1000 },
+                };
+
+                (async () => {
+                  try {
+                    // Try fallback engine directly for faster response
+                    const fallbackResponse = await multimodalEngine.calculateRoutes(request);
+                    if (fallbackResponse.routes?.length > 0) {
+                      setRoutes(fallbackResponse.routes);
+                    } else {
+                      // Try enhanced engine
+                      const enhancedResponse = await enhancedMultimodalEngine.calculateRoutesWithStops(request);
+                      if (enhancedResponse.routes?.length > 0) {
+                        setRoutes(enhancedResponse.routes);
+                      }
+                    }
+                  } catch (err) {
+                    console.error("Retry failed:", err);
+                  } finally {
+                    setLoading(false);
+                  }
+                })();
+              }}
+              style={{
+                background: "rgba(34, 197, 94, 0.3)",
+                border: "1px solid #22c55e",
+                color: "#22c55e",
+                padding: "10px 24px",
+                borderRadius: "10px",
+                fontSize: "0.95rem",
+                fontWeight: "600",
+                cursor: "pointer",
+              }}
+            >
+              🔄 Retry
+            </button>
           </div>
         )}
 

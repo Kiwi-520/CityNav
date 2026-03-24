@@ -206,7 +206,7 @@ export default function GoogleMapsExplorer() {
     return R * c;
   }
   useEffect(() => {
-    const AUTO_CREATE_PACK = false; 
+    const AUTO_CREATE_PACK = true; 
     const RADIUS = 1000; // 1km radius for essentials
     if (!AUTO_CREATE_PACK) return;
     if (!isOnline) return;
