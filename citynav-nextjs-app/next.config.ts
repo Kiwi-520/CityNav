@@ -79,6 +79,50 @@ const withPWA = require("next-pwa")({
         },
       },
     },
+    {
+      urlPattern: /\/api\/google-directions\?.*/i,
+      handler: "NetworkFirst",
+      options: {
+        cacheName: "google-directions-cache",
+        networkTimeoutSeconds: 10,
+        expiration: {
+          maxEntries: 200,
+          maxAgeSeconds: 3 * 24 * 60 * 60, // 3 days
+        },
+        cacheableResponse: {
+          statuses: [0, 200],
+        },
+      },
+    },
+    {
+      urlPattern: /\/api\/google-places\?.*/i,
+      handler: "NetworkFirst",
+      options: {
+        cacheName: "google-places-cache",
+        networkTimeoutSeconds: 10,
+        expiration: {
+          maxEntries: 200,
+          maxAgeSeconds: 24 * 60 * 60, // 1 day
+        },
+        cacheableResponse: {
+          statuses: [0, 200],
+        },
+      },
+    },
+    {
+      urlPattern: /\/api\/google-geocode\?.*/i,
+      handler: "CacheFirst",
+      options: {
+        cacheName: "google-geocode-cache",
+        expiration: {
+          maxEntries: 200,
+          maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+        },
+        cacheableResponse: {
+          statuses: [0, 200],
+        },
+      },
+    },
   ],
 });
 
