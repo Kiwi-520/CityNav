@@ -4,7 +4,7 @@ import LocationDetailsHorizontal from '@/features/offline-onboarding/components/
 import EssentialsNavSidebar from '@/features/offline-onboarding/components/EssentialsNavSidebar';
 import CategoryFilterSidebar from '@/features/offline-onboarding/components/CategoryFilterSidebar';
 import { useOfflineLocation } from '@/features/offline-onboarding/hooks/useOfflineLocation';
-import { useRoute } from '@/features/offline-onboarding/hooks/useRoute';
+import { useRoute, preCacheRoutesToPOIs } from '@/features/offline-onboarding/hooks/useRoute';
 import useNearbyPOIs, { POI } from '@/features/offline-onboarding/hooks/useNearbyPOIs';
 import logger from '@/features/offline-onboarding/lib/logger';
 import packManager from '@/features/offline-onboarding/lib/packManager';
@@ -415,6 +415,24 @@ export default function GoogleMapsExplorer() {
 
     return () => clearInterval(intervalId);
   }, [isOnline, displayPosition, pois, activeCategories]);
+
+  // Proactively cache routes to essential POIs for offline access
+  useEffect(() => {
+    if (!isOnline || !displayPosition || !pois || pois.length === 0) return;
+    const essentialCategories = ['hospital', 'pharmacy', 'railway', 'bus_stop', 'police'];
+    const essentialPOIs = pois
+      .filter(p => essentialCategories.includes(p.category))
+      .slice(0, 15);
+    if (essentialPOIs.length === 0) return;
+    const destinations = essentialPOIs.map(p => ({ lat: p.lat, lon: p.lon }));
+    preCacheRoutesToPOIs(
+      { lat: displayPosition[0], lon: displayPosition[1] },
+      destinations,
+      15
+    ).then(count => {
+      if (count > 0) logger.info(`Pre-cached ${count} routes to essential POIs for offline use`);
+    }).catch(() => { /* silent */ });
+  }, [isOnline, displayPosition, pois]);
 
 
   const [compressedPreview, setCompressedPreview] = useState<{ bytes: number; gzipped: boolean } | null>(null);

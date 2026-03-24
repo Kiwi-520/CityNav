@@ -129,6 +129,35 @@ async function loadNearestCachedRoute(targetToLat: number, targetToLon: number):
   } catch { return null; }
 }
 
+export type CachedRouteEntry = {
+  key: string;
+  route: RouteResult;
+  savedAt: number;
+  fromLat?: number;
+  fromLon?: number;
+  toLat?: number;
+  toLon?: number;
+};
+
+/** Retrieve all valid (non-expired) cached routes from IndexedDB */
+export async function getAllCachedRoutes(): Promise<CachedRouteEntry[]> {
+  try {
+    const db = await openRouteDB();
+    const tx = db.transaction(ROUTE_STORE, 'readonly');
+    const store = tx.objectStore(ROUTE_STORE);
+    const allReq = store.getAll();
+    const records = await new Promise<any[]>((res, rej) => {
+      allReq.onsuccess = () => res(allReq.result || []);
+      allReq.onerror = () => rej(allReq.error);
+    });
+    return records.filter(
+      (r) => r.key && r.route && (Date.now() - r.savedAt) < ROUTE_CACHE_TTL
+    ) as CachedRouteEntry[];
+  } catch {
+    return [];
+  }
+}
+
 export const useRoute = (from?: { lat: number; lon: number } | null, to?: { lat: number; lon: number } | null) => {
   const [route, setRoute] = useState<RouteResult | null>(null);
   const [loading, setLoading] = useState(false);
@@ -200,7 +229,7 @@ export const useRoute = (from?: { lat: number; lon: number } | null, to?: { lat:
           setFromCache(true);
           return;
         }
-        throw new Error('No internet connection and no cached route available');
+        throw new Error('You are offline. No saved route found for this destination.');
       }
 
       const url = `/api/google-directions?fromLat=${from.lat}&fromLng=${from.lon}&toLat=${to.lat}&toLng=${to.lon}&mode=driving`;
@@ -299,3 +328,66 @@ export const useRoute = (from?: { lat: number; lon: number } | null, to?: { lat:
 
   return { route, loading, error, fromCache, refresh: fetchRoute };
 };
+
+/**
+ * Proactively cache routes from current position to a list of destination coords.
+ * Should be called when online to pre-warm the cache for offline use.
+ * Caches up to `limit` routes sequentially (small delay between each to avoid rate limits).
+ */
+export async function preCacheRoutesToPOIs(
+  from: { lat: number; lon: number },
+  destinations: { lat: number; lon: number }[],
+  limit = 10
+): Promise<number> {
+  if (typeof navigator !== 'undefined' && !navigator.onLine) return 0;
+  let cached = 0;
+  const toCache = destinations.slice(0, limit);
+  for (const dest of toCache) {
+    const key = `${from.lat},${from.lon}:${dest.lat},${dest.lon}`;
+    // Skip if already cached
+    const existing = await loadRouteOffline(key);
+    if (existing) { cached++; continue; }
+    try {
+      const url = `/api/google-directions?fromLat=${from.lat}&fromLng=${from.lon}&toLat=${dest.lat}&toLng=${dest.lon}&mode=driving`;
+      const resp = await fetch(url);
+      if (!resp.ok) continue;
+      const j = await resp.json();
+      if (!j.routes || j.routes.length === 0) continue;
+      const r = j.routes[0];
+      const steps: RouteStep[] = [];
+      let totalDistance = 0;
+      let totalDuration = 0;
+      const coords: [number, number][] = [];
+      if (r.legs && Array.isArray(r.legs)) {
+        for (const leg of r.legs) {
+          totalDistance += leg.distance?.value || 0;
+          totalDuration += leg.duration?.value || 0;
+          if (leg.steps && Array.isArray(leg.steps)) {
+            for (const s of leg.steps) {
+              steps.push({
+                distance: s.distance?.value || 0,
+                duration: s.duration?.value || 0,
+                name: s.html_instructions?.replace(/<[^>]*>/g, '') || '',
+                maneuver: s.maneuver || s.travel_mode || '',
+              });
+              if (s.polyline?.points) {
+                const decoded = decodeGooglePolyline(s.polyline.points);
+                coords.push(...decoded);
+              }
+            }
+          }
+        }
+      }
+      if (coords.length === 0 && r.overview_polyline?.points) {
+        const decoded = decodeGooglePolyline(r.overview_polyline.points);
+        coords.push(...decoded);
+      }
+      const result: RouteResult = { geometry: coords, distance: totalDistance, duration: totalDuration, steps };
+      await saveRouteOffline(key, result, { fromLat: from.lat, fromLon: from.lon, toLat: dest.lat, toLon: dest.lon });
+      cached++;
+      // Small delay to avoid rate limiting
+      await new Promise(res => setTimeout(res, 200));
+    } catch { /* skip failed routes */ }
+  }
+  return cached;
+}

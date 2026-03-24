@@ -118,12 +118,15 @@ export default function NavigationPanel({ selectedDest, setSelectedDest, route, 
           )}
           
           {routeError && (
-            <div className="bg-red-50 dark:bg-red-950/50 border border-red-200 dark:border-red-800 rounded-lg p-3 text-sm text-red-700 dark:text-red-300">
+            <div className={`${!isOnline ? 'bg-amber-50 dark:bg-amber-950/50 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300' : 'bg-red-50 dark:bg-red-950/50 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300'} border rounded-lg p-3 text-sm`}>
               <div className="flex items-start gap-2">
                 <svg className="w-5 h-5 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={!isOnline ? "M18.364 5.636a9 9 0 010 12.728M5.636 5.636a9 9 0 000 12.728M13 10V6m0 0L9.5 9.5M13 6l3.5 3.5" : "M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"} />
                 </svg>
-                <div>{routeError}</div>
+                <div>
+                  <div className="font-medium">{!isOnline ? 'You are offline' : 'Route Error'}</div>
+                  <div className="text-xs mt-1 opacity-80">{!isOnline ? 'No saved route available for this destination. Routes are saved automatically when you navigate while online.' : routeError}</div>
+                </div>
               </div>
             </div>
           )}

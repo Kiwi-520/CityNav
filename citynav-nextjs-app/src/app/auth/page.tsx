@@ -1,8 +1,8 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useMemo, useState, useEffect, Suspense } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { FiLogOut, FiUser, FiMail, FiStar } from "react-icons/fi";
 
@@ -14,7 +14,23 @@ type CheckUserResponse = {
 };
 
 export default function AuthPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900 flex items-center justify-center">
+        <div className="text-white text-center">
+          <div className="inline-block animate-spin rounded-full h-10 w-10 border-4 border-white border-t-transparent mb-3" />
+          <p className="text-sm">Loading...</p>
+        </div>
+      </div>
+    }>
+      <AuthPageContent />
+    </Suspense>
+  );
+}
+
+function AuthPageContent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { data: session, status } = useSession();
   const [mode, setMode] = useState<AuthMode>("login");
   const [name, setName] = useState("");
@@ -23,6 +39,23 @@ export default function AuthPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
+
+  // Handle NextAuth error redirects (e.g., Google login failures)
+  useEffect(() => {
+    const error = searchParams.get("error");
+    if (error) {
+      const errorMessages: Record<string, string> = {
+        OAuthSignin: "Could not start Google sign-in. Please try again.",
+        OAuthCallback: "Google sign-in failed. Please try again or use email/password.",
+        OAuthCreateAccount: "Could not create account with Google. Try signing up with email.",
+        OAuthAccountNotLinked: "This email is already registered with a different sign-in method.",
+        Callback: "Sign-in failed. Please try again.",
+        Default: "An authentication error occurred. Please try again.",
+        Configuration: "Server configuration error. Google sign-in may be temporarily unavailable. Please try email/password login.",
+      };
+      setMessage(errorMessages[error] || errorMessages.Default);
+    }
+  }, [searchParams]);
 
   const heading = useMemo(
     () => (mode === "login" ? "Login to CityNav" : "Create your CityNav account"),
@@ -125,36 +158,39 @@ export default function AuthPage() {
     setMessage("");
 
     try {
+      // redirect: true causes a full page redirect to Google OAuth
+      // Errors will be handled via the error search param on redirect back
       await signIn("google", { callbackUrl: "/" });
-    } finally {
+    } catch {
+      setMessage("Google sign-in is temporarily unavailable. Please try email/password login.");
       setLoading(false);
     }
   };
 
   if (session?.user) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900 px-4 py-12 text-white">
-        <div className="mx-auto max-w-md rounded-2xl border border-white/10 bg-black/30 p-6 shadow-xl backdrop-blur">
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900 px-3 sm:px-4 py-8 sm:py-12 text-white">
+        <div className="mx-auto max-w-md rounded-2xl border border-white/10 bg-black/30 p-4 sm:p-6 shadow-xl backdrop-blur overflow-hidden">
           <p className="mb-2 text-sm uppercase tracking-[0.2em] text-emerald-300">CityNav Account</p>
-          <h1 className="mb-6 text-3xl font-bold">Your Profile</h1>
+          <h1 className="mb-6 text-2xl sm:text-3xl font-bold">Your Profile</h1>
 
-          <div className="flex items-center gap-4 mb-6 p-4 bg-white/10 rounded-xl">
+          <div className="flex items-center gap-4 mb-6 p-4 bg-white/10 rounded-xl overflow-hidden">
             {session.user.image ? (
-              <img src={session.user.image} alt="" className="w-16 h-16 rounded-full border-2 border-emerald-400" />
+              <img src={session.user.image} alt="" className="w-14 h-14 sm:w-16 sm:h-16 rounded-full border-2 border-emerald-400 flex-shrink-0" />
             ) : (
-              <div className="w-16 h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center">
-                <FiUser size={28} className="text-emerald-300" />
+              <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-emerald-500/20 border-2 border-emerald-400 flex items-center justify-center flex-shrink-0">
+                <FiUser size={24} className="text-emerald-300" />
               </div>
             )}
-            <div>
-              <h2 className="text-xl font-bold m-0">{session.user.name}</h2>
-              <div className="flex items-center gap-1 text-white/70 text-sm mt-1">
-                <FiMail size={14} />
-                <span>{session.user.email}</span>
+            <div className="min-w-0 flex-1">
+              <h2 className="text-lg sm:text-xl font-bold m-0 truncate">{session.user.name}</h2>
+              <div className="flex items-center gap-1 text-white/70 text-sm mt-1 min-w-0">
+                <FiMail size={14} className="flex-shrink-0" />
+                <span className="truncate">{session.user.email}</span>
               </div>
               {session.user.reputation !== undefined && (
                 <div className="flex items-center gap-1 text-amber-300 text-sm mt-1">
-                  <FiStar size={14} />
+                  <FiStar size={14} className="flex-shrink-0" />
                   <span>Reputation: {session.user.reputation}</span>
                 </div>
               )}
@@ -185,10 +221,10 @@ export default function AuthPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900 px-4 py-12 text-white">
-      <div className="mx-auto max-w-md rounded-2xl border border-white/10 bg-black/30 p-6 shadow-xl backdrop-blur">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-emerald-900 px-3 sm:px-4 py-8 sm:py-12 text-white">
+      <div className="mx-auto max-w-md rounded-2xl border border-white/10 bg-black/30 p-4 sm:p-6 shadow-xl backdrop-blur overflow-hidden">
         <p className="mb-2 text-sm uppercase tracking-[0.2em] text-emerald-300">CityNav Account</p>
-        <h1 className="mb-6 text-3xl font-bold">{heading}</h1>
+        <h1 className="mb-6 text-2xl sm:text-3xl font-bold">{heading}</h1>
 
         <div className="mb-6 grid grid-cols-2 gap-2 rounded-xl bg-white/10 p-1">
           <button
