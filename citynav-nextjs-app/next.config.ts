@@ -101,8 +101,8 @@ const withPWA = require("next-pwa")({
         cacheName: "google-places-cache",
         networkTimeoutSeconds: 10,
         expiration: {
-          maxEntries: 200,
-          maxAgeSeconds: 24 * 60 * 60, // 1 day
+          maxEntries: 500, // 18 types × many locations
+          maxAgeSeconds: 3 * 24 * 60 * 60, // 3 days
         },
         cacheableResponse: {
           statuses: [0, 200],
@@ -115,8 +115,8 @@ const withPWA = require("next-pwa")({
       options: {
         cacheName: "google-geocode-cache",
         expiration: {
-          maxEntries: 200,
-          maxAgeSeconds: 7 * 24 * 60 * 60, // 7 days
+          maxEntries: 500,
+          maxAgeSeconds: 14 * 24 * 60 * 60, // 14 days
         },
         cacheableResponse: {
           statuses: [0, 200],

@@ -125,7 +125,6 @@ export default function GoogleMapView({ center, displayPosition, forcedCenter, s
   const mapRef = useRef<google.maps.Map | null>(null);
   const [activeInfoWindow, setActiveInfoWindow] = useState<string | null>(null);
   const [offlineSelectedPoi, setOfflineSelectedPoi] = useState<POI | null>(null);
-  const [showOfflineList, setShowOfflineList] = useState(false);
 
   const online = isOnline ?? (typeof navigator !== 'undefined' ? navigator.onLine : true);
 
@@ -167,7 +166,11 @@ export default function GoogleMapView({ center, displayPosition, forcedCenter, s
 
   // Offline fallback: show cached POIs as a list when offline (tiles can't load even if JS is cached)
   if (!online) {
-    const visiblePois = displayPois.filter(p => activeCategories[p.category]);
+    const hasActiveFilter = Object.values(activeCategories).some(Boolean);
+    // When no category is toggled on, show ALL cached POIs so users aren't greeted with an empty list
+    const visiblePois = hasActiveFilter
+      ? displayPois.filter(p => activeCategories[p.category])
+      : displayPois;
     const userLat = displayPosition ? displayPosition[0] : center[0];
     const userLon = displayPosition ? displayPosition[1] : center[1];
 
@@ -190,7 +193,7 @@ export default function GoogleMapView({ center, displayPosition, forcedCenter, s
             <div className="text-center py-10 px-5 text-slate-400 dark:text-slate-500">
               <div className="text-4xl mb-3">📦</div>
               <p className="font-semibold mb-1">No cached places available</p>
-              <p className="text-sm">Toggle categories in the sidebar or create an offline pack while online.</p>
+              <p className="text-sm">Browse the map while online to cache nearby places automatically.</p>
             </div>
           ) : (
             <div className="flex flex-col gap-2">
@@ -323,7 +326,10 @@ export default function GoogleMapView({ center, displayPosition, forcedCenter, s
 
   if (!isLoaded) {
     if (!online || !!loadError) {
-      const visiblePois = (displayPois || []).filter((p) => activeCategories[p.category]);
+      const hasActiveFilter = Object.values(activeCategories).some(Boolean);
+      const visiblePois = hasActiveFilter
+        ? (displayPois || []).filter((p) => activeCategories[p.category])
+        : (displayPois || []);
       const routePoints: Array<{ lat: number; lon: number }> =
         (route?.geometry || []).map(([lat, lng]: [number, number]) => ({ lat, lon: lng }));
       const bounds = computeOfflineBounds(center, [...visiblePois, ...routePoints]);

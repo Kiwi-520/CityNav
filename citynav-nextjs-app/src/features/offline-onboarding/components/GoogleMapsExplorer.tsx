@@ -26,7 +26,7 @@ export default function GoogleMapsExplorer() {
   const [forcedCenter, setForcedCenter] = useState<[number, number] | null>(null);
   const [activeNavRoute, setActiveNavRoute] = useState<MultimodalRoute | null>(null);
   const [showUnloadConfirm, setShowUnloadConfirm] = useState(false);
-  const { isOnline, storedLocation } = useOfflineLocation();
+  const { isOnline, storedLocation, storeLocation } = useOfflineLocation();
   const displayLat = pos ? pos[0] : (!isOnline && storedLocation ? storedLocation.latitude : null);
   const displayLon = pos ? pos[1] : (!isOnline && storedLocation ? storedLocation.longitude : null);
   const { route, loading: routeLoading, error: routeError, fromCache: routeFromCache } = useRoute(
@@ -43,6 +43,7 @@ export default function GoogleMapsExplorer() {
     }
     
     const bestAccuracyRef = { current: Infinity };
+    const locationStoredRef = { current: false };
     const watchId = navigator.geolocation.watchPosition(
       (p) => {
         const accuracy = p.coords.accuracy;
@@ -52,6 +53,12 @@ export default function GoogleMapsExplorer() {
           bestAccuracyRef.current = accuracy;
           setPos([p.coords.latitude, p.coords.longitude]);
           setGpsAccuracy(accuracy);
+          // Persist the GPS position for offline use. LocationDetailsHorizontal
+          // does this too but is hidden on mobile (md:block), so we must do it here.
+          if (!locationStoredRef.current || accuracy <= 50) {
+            locationStoredRef.current = true;
+            storeLocation({ latitude: p.coords.latitude, longitude: p.coords.longitude, timestamp: Date.now() });
+          }
         }
       },
       (error) => {
@@ -63,7 +70,7 @@ export default function GoogleMapsExplorer() {
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
     return () => navigator.geolocation.clearWatch(watchId);
-  }, [isOnline, storedLocation]);
+  }, [isOnline, storedLocation, storeLocation]);
 
   useEffect(() => {
     if (!isOnline && storedLocation && !pos) {

@@ -63,11 +63,13 @@ function detectCategoryFromGoogleTypes(types: string[]): string {
 }
 
 function cacheKey(lat: number, lon: number, radius: number) {
-  return `nearby_pois_google_${lat.toFixed(5)}_${lon.toFixed(5)}_${Math.round(radius)}`;
+  // 3 decimal places ≈ 100 m grid — tolerates natural GPS drift between sessions
+  return `nearby_pois_google_${lat.toFixed(3)}_${lon.toFixed(3)}_${Math.round(radius)}`;
 }
 
 export function useNearbyPOIs(lat?: number | null, lon?: number | null, radius = 1000, options?: UseNearbyOptions) {
-  const ttl = (options?.ttlMinutes ?? 15) * 60 * 1000;
+  // Default 4-hour TTL — long enough that going offline after a typical session still has fresh data
+  const ttl = (options?.ttlMinutes ?? 240) * 60 * 1000;
   const [data, setData] = useState<POI[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -76,23 +78,29 @@ export function useNearbyPOIs(lat?: number | null, lon?: number | null, radius =
   const fetchOnce = useCallback(async () => {
     if (lat == null || lon == null) return;
     const key = cacheKey(lat, lon, radius);
+    const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
     try {
       const raw = localStorage.getItem(key);
       if (raw) {
         const parsed = JSON.parse(raw) as { ts: number; data: POI[] };
-        // Only use cache if fresh AND has actual results
-        if (Date.now() - parsed.ts < ttl && parsed.data && parsed.data.length > 0) {
-          setData(parsed.data);
-          return; // Cache is still fresh with data
-        }
-        // Remove stale or empty cache
-        if (parsed.data && parsed.data.length === 0) {
+        if (parsed.data && parsed.data.length > 0) {
+          const isFresh = Date.now() - parsed.ts < ttl;
+          if (isFresh || isOffline) {
+            // Serve from cache when fresh, or always when offline (ignore TTL)
+            setData(parsed.data);
+            return;
+          }
+        } else if (parsed.data && parsed.data.length === 0) {
+          // Remove empty cache entries
           localStorage.removeItem(key);
         }
       }
     } catch (e) {
       // ignore cache parsing errors
     }
+
+    // Don't attempt network fetch when offline — nothing to gain and it'll just fail
+    if (isOffline) return;
 
     setLoading(true);
     setError(null);
